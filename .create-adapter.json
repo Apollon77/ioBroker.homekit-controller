@@ -1,0 +1,50 @@
+{
+    "expert": "yes",
+    "cli": false,
+    "adapterName": "homekit-controller",
+    "title": "HomeKit Controller",
+    "description": "Pair and control HomeKit devices directly",
+    "keywords": [
+        "homekit",
+        "hap"
+    ],
+    "authorName": "Ingo Fischer",
+    "authorGithub": "Apollon77",
+    "authorEmail": "github@fischer-ka.de",
+    "features": [
+        "adapter"
+    ],
+    "adminFeatures": [],
+    "type": "iot-systems",
+    "startMode": "daemon",
+    "connectionType": "local",
+    "dataSource": "poll",
+    "connectionIndicator": "yes",
+    "adapterSettings": [
+        {
+            "key": "discoverIp",
+            "label": "Discover IP Devices",
+            "inputType": "checkbox",
+            "defaultValue": true
+        },
+        {
+            "key": "discoverBle",
+            "label": "Discover Bluetooth Devices",
+            "inputType": "checkbox",
+            "defaultValue": false
+        }
+    ],
+    "language": "TypeScript",
+    "adminReact": "yes",
+    "indentation": "Space (4)",
+    "quotes": "single",
+    "es6class": "yes",
+    "tools": [
+        "ESLint"
+    ],
+    "gitRemoteProtocol": "HTTPS",
+    "license": "MIT License",
+    "ci": "gh-actions",
+    "dependabot": "yes",
+    "creatorVersion": "1.33.0"
+}

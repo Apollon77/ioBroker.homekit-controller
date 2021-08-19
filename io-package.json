@@ -1,0 +1,97 @@
+{
+    "common": {
+        "name": "homekit-controller",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "titleLang": {
+            "en": "HomeKit Controller",
+            "de": "HomeKit-Controller",
+            "ru": "Контроллер HomeKit",
+            "pt": "Controlador HomeKit",
+            "nl": "HomeKit-controller",
+            "fr": "Contrôleur HomeKit",
+            "it": "Controller HomeKit",
+            "es": "Controlador HomeKit",
+            "pl": "Kontroler HomeKit",
+            "zh-cn": "HomeKit 控制器"
+        },
+        "desc": {
+            "en": "Pair and control HomeKit devices directly",
+            "de": "HomeKit-Geräte direkt koppeln und steuern",
+            "ru": "Сопряжение и управление устройствами HomeKit напрямую",
+            "pt": "Emparelhe e controle dispositivos HomeKit diretamente",
+            "nl": "Koppel en bedien HomeKit-apparaten rechtstreeks",
+            "fr": "Associez et contrôlez directement les appareils HomeKit",
+            "it": "Associa e controlla direttamente i dispositivi HomeKit",
+            "es": "Empareje y controle los dispositivos HomeKit directamente",
+            "pl": "Paruj i steruj bezpośrednio urządzeniami HomeKit",
+            "zh-cn": "直接配对和控制 HomeKit 设备"
+        },
+        "authors": [
+            "Ingo Fischer <github@fischer-ka.de>"
+        ],
+        "keywords": [
+            "homekit",
+            "hap"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "icon": "homekit-controller.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/Apollon77/ioBroker.homekit-controller/master/admin/homekit-controller.png",
+        "readme": "https://github.com/Apollon77/ioBroker.homekit-controller/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "iot-systems",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "materialize": true,
+        "dependencies": [
+            {
+                "js-controller": ">=2.0.0"
+            }
+        ]
+    },
+    "native": {
+        "discoverIp": true,
+        "discoverBle": false
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}
