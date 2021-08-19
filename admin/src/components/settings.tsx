@@ -129,8 +129,8 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     render() {
         return (
             <form className={this.props.classes.tab}>
-                {this.renderCheckbox('Discover IP Devices', 'discoverIp')}<br />
-                {this.renderCheckbox('Discover Bluetooth Devices', 'discoverBle')}
+                {this.renderCheckbox('discoverIp', 'discoverIp')}<br />
+                {this.renderCheckbox('discoverBle', 'discoverBle')}
             </form>
         );
     }
