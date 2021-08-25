@@ -5,115 +5,169 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core';
+import {
+    BLEDiscovery,
+    IPDiscovery,
+    HapServiceBle,
+    HapServiceIp,
+    PairingData,
+    HttpClient,
+    GattClient
+} from 'hap-controller';
+import Debug from 'debug';
+import HttpConnection from 'hap-controller/lib/transport/ip/http-connection';
+import GattConnection from 'hap-controller/lib/transport/ble/gatt-connection';
 
-// Load your modules here, e.g.:
-// import * as fs from "fs";
+type HapDevice =
+    | {
+        serviceType: 'IP';
+        connected: boolean;
+        id: string;
+        service?: HapServiceIp;
+        formerService?: HapServiceIp;
+        pairingData?: PairingData;
+        client?: HttpClient;
+        subscriptionConnection?: HttpConnection;
+        subscribedEntities?: string[];
+    }
+    | {
+        serviceType: 'BLE';
+        connected: boolean;
+        id: string;
+        service?: HapServiceBle;
+        formerService?: HapServiceBle;
+        pairingData?: PairingData;
+        client?: GattClient;
+        subscriptionConnection?: GattConnection;
+        subscribedEntities?: { characteristicUuid: string; serviceUuid: string }[];
+    };
 
 class HomekitController extends utils.Adapter {
+
+    private devices = new Map<string, HapDevice>();
+
+    private discoveryIp: IPDiscovery | null = null;
+    private discoveryBle: BLEDiscovery | null = null;
+
+    private isConnected: boolean | null = null;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
             name: 'homekit-controller',
         });
+
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         // this.on('objectChange', this.onObjectChange.bind(this));
-        // this.on('message', this.onMessage.bind(this));
+        this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
+    }
+
+    setConnected(isConnected: boolean) {
+        if (this.isConnected !== isConnected) {
+            this.isConnected = isConnected;
+            this.setState('info.connection', this.isConnected, true);
+        }
     }
 
     /**
      * Is called when databases are connected and adapter received configuration.
      */
     private async onReady(): Promise<void> {
-        // Initialize your adapter here
+        Debug.enable('hap-controller:*');
+        Debug.log = this.log.debug.bind(this);
 
-        // Reset the connection indicator during startup
-        this.setState('info.connection', false, true);
+        this.setConnected(false);
 
-        // The adapters config (in the instance object everything under the attribute "native") is accessible via
-        // this.config:
-        this.log.info('config discoverIp: ' + this.config.discoverIp);
-        this.log.info('config discoverBle: ' + this.config.discoverBle);
+        try {
+            const devices = await this.getKnownDevices();
+            if (devices && devices.length) {
+                this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
+                for (const device of devices) {
+                    if (device && device._id && device.native) {
+                        const hapDevice: HapDevice = {
+                            serviceType: device.native.serviceType,
+                            id: device.native.id,
+                            connected: false,
+                            formerService: device.native.lastService || undefined,
+                            pairingData: device.native.pairingData,
+                        }
+                        await this.initDevice(hapDevice);
+                    }
+                }
+            }
+        } catch (err) {
+            this.log.error(`Could not initialize existing devices: ${err.message}`);
+        }
 
-        /*
-        For every state in the system there has to be also an object of type state
-        Here a simple template for a boolean variable named "testVariable"
-        Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-        */
-        await this.setObjectNotExistsAsync('testVariable', {
-            type: 'state',
-            common: {
-                name: 'testVariable',
-                type: 'boolean',
-                role: 'indicator',
-                read: true,
-                write: true,
-            },
-            native: {},
-        });
+        if (this.config.discoverIp) {
+            this.discoveryIp = new IPDiscovery();
 
-        // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-        this.subscribeStates('testVariable');
-        // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-        // this.subscribeStates('lights.*');
-        // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-        // this.subscribeStates('*');
+            this.discoveryIp.on('serviceUp', (service) => {
+                this.log.debug(`Discovered IP device up: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('IP', service);
+            });
+            this.discoveryIp.on('serviceDown', (service) => {
+                this.log.debug(`Discovered IP device down: ${service.id}/${service.name}`);
+            });
+            this.discoveryIp.on('serviceChanged', (service) => {
+                this.log.debug(`Discovered IP device changed: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('IP', service);
+            });
+            this.discoveryIp.start();
+        }
 
-        /*
-            setState examples
-            you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-        */
-        // the variable testVariable is set to true as command (ack=false)
-        await this.setStateAsync('testVariable', true);
+        if (this.config.discoverBle) {
+            this.discoveryBle = new BLEDiscovery();
 
-        // same thing, but the value is flagged "ack"
-        // ack should be always set to true if the value is received from or acknowledged from the target system
-        await this.setStateAsync('testVariable', { val: true, ack: true });
-
-        // same thing, but the state is deleted after 30s (getState will return null afterwards)
-        await this.setStateAsync('testVariable', { val: true, ack: true, expire: 30 });
-
-        // examples for the checkPassword/checkGroup functions
-        let result = await this.checkPasswordAsync('admin', 'iobroker');
-        this.log.info('check user admin pw iobroker: ' + result);
-
-        result = await this.checkGroupAsync('admin', 'admin');
-        this.log.info('check group user admin group admin: ' + result);
+            this.discoveryBle.on('serviceUp', (service) => {
+                this.log.debug(`Discovered BLE device up: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('BLE', service);
+            });
+            this.discoveryBle.on('serviceChanged', (service) => {
+                this.log.debug(`Discovered BLE device changed: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('BLE', service);
+            });
+            this.discoveryBle.start();
+        }
     }
 
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
-    private onUnload(callback: () => void): void {
+    private async onUnload(callback: () => void): Promise<void> {
         try {
-            // Here you must clear all timeouts or intervals that may still be active
-            // clearTimeout(timeout1);
-            // clearTimeout(timeout2);
-            // ...
-            // clearInterval(interval1);
 
+            if (this.discoveryBle) {
+                this.discoveryBle.stop();
+            }
+            if (this.discoveryIp) {
+                this.discoveryIp.stop();
+            }
+
+            for (const id in Array.from(this.devices.keys())) {
+                const hapDevice: HapDevice = this.devices.get(id)!;
+                if (!hapDevice || !hapDevice.connected) return;
+
+                if (hapDevice.subscriptionConnection) {
+                    if (hapDevice.serviceType === 'IP') {
+                        hapDevice.subscriptionConnection.close();
+                    } else {
+                        if (hapDevice.subscribedEntities) {
+                            await hapDevice.client?.unsubscribeCharacteristics(hapDevice.subscribedEntities);
+                        }
+                        await hapDevice.subscriptionConnection.disconnect().catch(() => {
+                            // ignore
+                        });
+                    }
+                }
+            }
             callback();
         } catch (e) {
             callback();
         }
     }
-
-    // If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-    // You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-    // /**
-    //  * Is called if a subscribed object changes
-    //  */
-    // private onObjectChange(id: string, obj: ioBroker.Object | null | undefined): void {
-    //     if (obj) {
-    //         // The object was changed
-    //         this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-    //     } else {
-    //         // The object was deleted
-    //         this.log.info(`object ${id} deleted`);
-    //     }
-    // }
 
     /**
      * Is called if a subscribed state changes
@@ -129,21 +183,66 @@ class HomekitController extends utils.Adapter {
     }
 
     // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-    // /**
-    //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-    //  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-    //  */
-    // private onMessage(obj: ioBroker.Message): void {
-    //     if (typeof obj === 'object' && obj.message) {
-    //         if (obj.command === 'send') {
-    //             // e.g. send email or pushover or whatever
-    //             this.log.info('send command');
+    /**
+     * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
+     * Using this method requires "common.messagebox" property to be set to true in io-package.json
+     */
+    private onMessage(obj: ioBroker.Message): void {
+        if (typeof obj === 'object' && obj.message) {
+            if (obj.command === 'send') {
+                // e.g. send email or pushover or whatever
+                this.log.info('send command');
 
-    //             // Send response in callback if required
-    //             if (obj.callback) this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
-    //         }
-    //     }
-    // }
+                // Send response in callback if required
+                if (obj.callback) this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
+            }
+        }
+    }
+
+    async getKnownDevices(): Promise<ioBroker.Object[]> {
+        const objs = await this.getObjectViewAsync('system', 'folder', {
+            startkey: this.namespace + '.',
+            endkey: this.namespace + '.\u9999'
+        });
+        const namespaceLength = this.namespace.length;
+        const res: ioBroker.Object[] = [];
+        objs.rows.forEach(entry => {
+            const obj = entry.value;
+            if (!obj || !obj._id) return;
+            const id = obj._id.substr(namespaceLength + 1);
+            if (id.includes('.')) return; // only folders on first tree position are considered
+            res.push(obj);
+        })
+        return res;
+    }
+
+    private async handleDeviceDiscovery(serviceType: 'IP' | 'BLE', service: HapServiceIp | HapServiceBle): Promise<void> {
+        this.log.debug(`Discovered ${serviceType} device: ${JSON.stringify(service)}`);
+        const id = `${serviceType}-${service.id}`;
+        const hapDevice: HapDevice = this.devices.get(id) || {
+            serviceType,
+            id,
+            connected: false,
+            service,
+        };
+        if (this.devices.has(id) && hapDevice.connected) { // if service was existing before already
+            if (hapDevice.service && hapDevice.service['c#'] === service['c#']) {
+                this.log.debug(`Discovery device update, unchanged config-number, ignore`);
+                return;
+            }
+        }
+        await this.initDevice(hapDevice);
+    }
+
+
+    async initDevice(device: HapDevice): Promise<void> {
+        if (device.connected) {
+            this.log.debug(`${device.id} Re-Init requested ...`);
+            //device.client.
+        }
+        this.log.debug(`Start PH803W Device initialization for ${device.id} on IP ${device.ip}`);
+
+    }
 
 }
 
