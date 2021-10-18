@@ -29,6 +29,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // you need to create an adapter
 const utils = __importStar(require("@iobroker/adapter-core"));
 const hap_controller_1 = require("hap-controller");
+let BLEDiscoveryConstructor;
+let GattClientConstructor;
 const debug_1 = __importDefault(require("debug"));
 const p_queue_1 = __importDefault(require("p-queue"));
 const ObjectDefaults = __importStar(require("./lib/objectDefaults"));
@@ -84,9 +86,21 @@ class HomekitController extends utils.Adapter {
     async onReady() {
         debug_1.default.enable('hap-controller:*');
         debug_1.default.log = this.log.debug.bind(this);
-        if (this.config.discoverBle && this.config.dataPollingIntervalBle < 60) {
-            this.log.info(`Data polling interval for BLE devices is less then 60s, set to 60s`);
-            this.config.dataPollingIntervalBle = 60;
+        if (this.config.discoverBle) {
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                GattClientConstructor = require('hap-controller').GattClient;
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                BLEDiscoveryConstructor = require('hap-controller').BLEDiscovery;
+            }
+            catch (err) {
+                this.config.discoverBle = false;
+                this.log.info(`Could not initialize Bluetooth LE, turn off. Error: ${err.message} `);
+            }
+            if (this.config.dataPollingIntervalBle < 60) {
+                this.log.info(`Data polling interval for BLE devices is less then 60s, set to 60s`);
+                this.config.dataPollingIntervalBle = 60;
+            }
         }
         this.setConnected(false);
         if (this.config.discoverIp) {
@@ -104,8 +118,8 @@ class HomekitController extends utils.Adapter {
             });
             this.discoveryIp.start();
         }
-        if (this.config.discoverBle) {
-            this.discoveryBle = new hap_controller_1.BLEDiscovery();
+        if (this.config.discoverBle && BLEDiscoveryConstructor) {
+            this.discoveryBle = new BLEDiscoveryConstructor();
             this.discoveryBle.on('serviceUp', (service) => {
                 this.log.debug(`Discovered BLE device up: ${service.id}/${service.name}`);
                 this.handleDeviceDiscovery('BLE', service);
@@ -410,7 +424,7 @@ class HomekitController extends utils.Adapter {
             device.client = device.client || new hap_controller_1.HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
             device.clientQueue = new p_queue_1.default({ concurrency: 10, timeout: 120000, throwOnTimeout: true });
         }
-        else {
+        else if (device.serviceType === 'BLE' && GattClientConstructor) {
             const service = device.service;
             if (!service.peripheral) {
                 if (!this.config.discoverBle) {
@@ -422,7 +436,7 @@ class HomekitController extends utils.Adapter {
                 return false;
             }
             this.log.debug(`${device.id} Start Homekit Device Client initialization`);
-            device.client = device.client || new hap_controller_1.GattClient(service.id, service.peripheral, device.pairingData);
+            device.client = device.client || new GattClientConstructor(service.id, service.peripheral, device.pairingData);
             device.clientQueue = new p_queue_1.default({ concurrency: 1, timeout: 120000, throwOnTimeout: true });
         }
         return true;
@@ -829,10 +843,10 @@ class HomekitController extends utils.Adapter {
             if (device.serviceType === 'IP') {
                 client = new hap_controller_1.HttpClient(device.service.id, device.service.address, device.service.port);
             }
-            else {
-                client = new hap_controller_1.GattClient(device.service.id, device.service.peripheral);
+            else if (GattClientConstructor) {
+                client = new GattClientConstructor(device.service.id, device.service.peripheral);
             }
-            await client.identify();
+            await (client === null || client === void 0 ? void 0 : client.identify());
         }
         catch (err) {
             throw new Error(`Cannot identify device ${device.id} because of error ${err.statusCode}: ${err.message}`);
