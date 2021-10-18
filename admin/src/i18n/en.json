@@ -4,5 +4,6 @@
     "discoverBle": "Discover Bluetooth Devices",
     "dataPollingIntervalIp": "Data polling interval for IP Devices",
     "dataPollingIntervalBle": "Data polling interval for Bluetooth devices",
-    "bleInterface": "Bluetooth Interface"
+    "bleInterface": "Bluetooth Interface",
+    "updateOnlyChangedValues": "Update states only when value changes"
 }

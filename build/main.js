@@ -59,6 +59,7 @@ class HomekitController extends utils.Adapter {
         });
         this.devices = new Map();
         this.stateFunctionsForId = new Map();
+        this.lastValues = {};
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         // this.on('objectChange', this.onObjectChange.bind(this));
@@ -558,7 +559,10 @@ class HomekitController extends utils.Adapter {
                 if ((_b = stateFunc === null || stateFunc === void 0 ? void 0 : stateFunc.converter) === null || _b === void 0 ? void 0 : _b.read) {
                     value = stateFunc.converter.read(value);
                 }
-                this.setState(stateId, value, true);
+                if (!this.config.updateOnlyChangedValues || (this.config.updateOnlyChangedValues && value !== this.lastValues[stateId])) {
+                    this.setState(stateId, value, true);
+                    this.lastValues[stateId] = value;
+                }
             }
             else {
                 this.log.debug(`${device.id} No stateId found in map for ${JSON.stringify(characteristic)}`);

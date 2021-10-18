@@ -129,11 +129,12 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     render() {
         return (
             <form className={this.props.classes.tab}>
-                {this.renderCheckbox('discoverIp', 'discoverIp')}<br />
+                {this.renderCheckbox('discoverIp', 'discoverIp')}
                 {this.renderCheckbox('discoverBle', 'discoverBle')}
+                {this.renderInput('bleInterface', 'bleInterface', 'string')}<br />
                 {this.renderInput('dataPollingIntervalIp', 'dataPollingIntervalIp', 'number')}
-                {this.renderInput('dataPollingIntervalBle', 'dataPollingIntervalBle', 'number')}
-                {this.renderInput('bleInterface', 'bleInterface', 'string')}
+                {this.renderInput('dataPollingIntervalBle', 'dataPollingIntervalBle', 'number')}<br />
+                {this.renderCheckbox('updateOnlyChangedValues', 'updateOnlyChangedValues')}
             </form>
         );
     }

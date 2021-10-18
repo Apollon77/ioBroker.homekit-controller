@@ -111,6 +111,8 @@ class HomekitController extends utils.Adapter {
 
     private stateFunctionsForId = new Map<string, StateFunctions>();
 
+    private lastValues: Record<string, ioBroker.StateValue> = {};
+
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
@@ -641,7 +643,10 @@ class HomekitController extends utils.Adapter {
                 if (stateFunc?.converter?.read) {
                     value = stateFunc.converter.read(value);
                 }
-                this.setState(stateId, value, true);
+                if (!this.config.updateOnlyChangedValues || (this.config.updateOnlyChangedValues && value !== this.lastValues[stateId])) {
+                    this.setState(stateId, value, true);
+                    this.lastValues[stateId] = value;
+                }
             } else {
                 this.log.debug(`${device.id} No stateId found in map for ${JSON.stringify(characteristic)}`);
             }

@@ -9,6 +9,7 @@ declare global {
             dataPollingIntervalIp: number;
             dataPollingIntervalBle: number;
             bleInterface: string;
+            updateOnlyChangedValues: boolean;
         }
     }
 }

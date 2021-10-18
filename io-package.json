@@ -84,7 +84,8 @@
         "discoverBle": false,
         "dataPollingIntervalIp": 30,
         "dataPollingIntervalBle": 60,
-        "bleInterface": ""
+        "bleInterface": "",
+        "updateOnlyChangedValues": true
     },
     "objects": [],
     "instanceObjects": [
