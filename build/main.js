@@ -251,7 +251,16 @@ class HomekitController extends utils.Adapter {
                         if (!unpairingDevice) {
                             throw new Error(`Unpair: Device with ID ${obj.message.deviceId} not existing.`);
                         }
-                        await this.pairDevice(unpairingDevice, obj.message.pin);
+                        await this.unpairDevice(unpairingDevice);
+                        break;
+                    case 'identify':
+                        if (typeof obj.message === 'string')
+                            return;
+                        const identifyingDevice = this.devices.get(obj.message.deviceId);
+                        if (!identifyingDevice) {
+                            throw new Error(`Identify: Device with ID ${obj.message.deviceId} not existing.`);
+                        }
+                        await this.identifyDevice(identifyingDevice);
                         break;
                 }
             }
@@ -602,23 +611,14 @@ class HomekitController extends utils.Adapter {
         objs.set(identifyId, ObjectDefaults.getStateObject('button', 'Trigger to Identify Device', undefined, { def: false }));
         this.stateFunctionsForId.set(`${this.namespace}.${identifyId}`, {
             stateChangeFunction: async (value) => {
-                if (value !== true)
+                if (value !== true) {
                     return;
-                if (!device.service)
-                    return;
-                this.log.debug(`Device ${device.id}: Identify triggered`);
+                }
                 try {
-                    let client;
-                    if (device.serviceType === 'IP') {
-                        client = new hap_controller_1.HttpClient(device.service.id, device.service.address, device.service.port);
-                    }
-                    else {
-                        client = new hap_controller_1.GattClient(device.service.id, device.service.peripheral);
-                    }
-                    await client.identify();
+                    await this.identifyDevice(device);
                 }
                 catch (err) {
-                    this.log.info(`Device ${device.id}: Identify failed ${err.statusCode} ${err.message}`);
+                    this.log.info(err.message);
                 }
             }
         });
@@ -818,6 +818,25 @@ class HomekitController extends utils.Adapter {
         delete device.client;
         await this.delObjectAsync(device.id, { recursive: true });
         await this.initDevice(device);
+    }
+    async identifyDevice(device) {
+        if (!device.service) {
+            throw new Error(`Cannot identify device ${device.id} because not yet discovered`);
+        }
+        this.log.debug(`Device ${device.id}: Identify triggered`);
+        try {
+            let client;
+            if (device.serviceType === 'IP') {
+                client = new hap_controller_1.HttpClient(device.service.id, device.service.address, device.service.port);
+            }
+            else {
+                client = new hap_controller_1.GattClient(device.service.id, device.service.peripheral);
+            }
+            await client.identify();
+        }
+        catch (err) {
+            throw new Error(`Cannot identify device ${device.id} because of error ${err.statusCode}: ${err.message}`);
+        }
     }
 }
 if (require.main !== module) {

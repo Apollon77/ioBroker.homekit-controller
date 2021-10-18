@@ -71,7 +71,7 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * look into support devices that offer images
 * check all cases where polling updates might overlap
 * add known Elgato UUIDs with proper names
-* 
+
 ## Changelog
 
 ### 0.0.x

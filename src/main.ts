@@ -122,14 +122,14 @@ class HomekitController extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
     }
 
-    setConnected(isConnected: boolean) {
+    setConnected(isConnected: boolean): void {
         if (this.isConnected !== isConnected) {
             this.isConnected = isConnected;
             this.setState('info.connection', this.isConnected, true);
         }
     }
 
-    setDeviceConnected(device: HapDevice, isConnected: boolean) {
+    setDeviceConnected(device: HapDevice, isConnected: boolean): void {
         if (device.connected !== isConnected) {
             device.connected = isConnected;
             this.setState(`${device.id}.info.connected`, isConnected, true);
@@ -320,7 +320,15 @@ class HomekitController extends utils.Adapter {
                         if (!unpairingDevice) {
                             throw new Error(`Unpair: Device with ID ${obj.message.deviceId} not existing.`);
                         }
-                        await this.pairDevice(unpairingDevice, obj.message.pin);
+                        await this.unpairDevice(unpairingDevice);
+                        break;
+                    case 'identify':
+                        if (typeof obj.message === 'string') return;
+                        const identifyingDevice = this.devices.get(obj.message.deviceId);
+                        if (!identifyingDevice) {
+                            throw new Error(`Identify: Device with ID ${obj.message.deviceId} not existing.`);
+                        }
+                        await this.identifyDevice(identifyingDevice);
                         break;
                 }
             } catch (err) {
@@ -505,7 +513,7 @@ class HomekitController extends utils.Adapter {
         return true;
     }
 
-    private initSupportingMaps(device: HapDevice, accessoryObjects: Map<string, ioBroker.Object>) {
+    private initSupportingMaps(device: HapDevice, accessoryObjects: Map<string, ioBroker.Object>): void {
         // Initialize internal data structures for later usage
         device.stateIdMap = new Map();
         device.dataPollingCharacteristics = [];
@@ -698,19 +706,13 @@ class HomekitController extends utils.Adapter {
         objs.set(identifyId, ObjectDefaults.getStateObject('button', 'Trigger to Identify Device', undefined, {def: false}));
         this.stateFunctionsForId.set(`${this.namespace}.${identifyId}`, {
             stateChangeFunction: async (value) => {
-                if (value !== true) return;
-                if (!device.service) return;
-                this.log.debug(`Device ${device.id}: Identify triggered`);
+                if (value !== true) {
+                    return;
+                }
                 try {
-                    let client;
-                    if (device.serviceType === 'IP') {
-                        client = new HttpClient(device.service.id, device.service.address, device.service.port);
-                    } else {
-                        client = new GattClient(device.service.id, device.service.peripheral);
-                    }
-                    await client.identify();
+                    await this.identifyDevice(device);
                 } catch (err) {
-                    this.log.info(`Device ${device.id}: Identify failed ${err.statusCode} ${err.message}`);
+                    this.log.info(err.message);
                 }
             }
         });
@@ -843,7 +845,7 @@ class HomekitController extends utils.Adapter {
         }
     }
 
-    private async pairDevice(device: HapDevice, pin: string) {
+    private async pairDevice(device: HapDevice, pin: string): Promise<void> {
         if (!device.service) {
             throw new Error(`Cannot pair with device ${device.id} because not yet discovered`);
         }
@@ -890,7 +892,7 @@ class HomekitController extends utils.Adapter {
         await this.initDevice(device);
     }
 
-    private async unpairDevice(device: HapDevice) {
+    private async unpairDevice(device: HapDevice): Promise<void> {
         if (!device.pairingData) {
             throw new Error(`Cannot unpair from device ${device.id} because no pairing data existing`);
         }
@@ -921,6 +923,25 @@ class HomekitController extends utils.Adapter {
         await this.delObjectAsync(device.id, {recursive: true});
 
         await this.initDevice(device);
+    }
+
+    private async identifyDevice(device: HapDevice): Promise<void> {
+        if (!device.service) {
+            throw new Error(`Cannot identify device ${device.id} because not yet discovered`);
+        }
+
+        this.log.debug(`Device ${device.id}: Identify triggered`);
+        try {
+            let client;
+            if (device.serviceType === 'IP') {
+                client = new HttpClient(device.service.id, device.service.address, device.service.port);
+            } else {
+                client = new GattClient(device.service.id, device.service.peripheral);
+            }
+            await client.identify();
+        } catch (err) {
+            throw new Error(`Cannot identify device ${device.id} because of error ${err.statusCode}: ${err.message}`);
+        }
     }
 
 }
