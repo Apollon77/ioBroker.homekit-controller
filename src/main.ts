@@ -392,7 +392,7 @@ class HomekitController extends utils.Adapter {
             initInProgress: false,
         } as HapDevice;
         if (this.devices.has(id) && hapDevice.connected) { // if service was existing before already
-            if (serviceType === 'IP') {
+            if (hapDevice.serviceType === 'IP') {
                 if (
                     hapDevice.service &&
                     hapDevice.service['c#'] === service['c#']
@@ -400,11 +400,11 @@ class HomekitController extends utils.Adapter {
                     this.log.debug(`${id} Discovery device update, unchanged config-number, ignore`);
                     return;
                 }
-            } else if (serviceType === 'BLE') {
+            } else if (hapDevice.serviceType === 'BLE') {
                 if (
                     hapDevice.service &&
                     hapDevice.service['c#'] === service['c#'] &&
-                    (hapDevice.service as HapServiceBle).GSN === (service as HapServiceBle).GSN
+                    hapDevice.service.GSN === (service as HapServiceBle).GSN
                 ) {
                     this.log.debug(`${id} Discovery device update, unchanged config-/GSN-number, ignore`);
                     return;
@@ -413,7 +413,7 @@ class HomekitController extends utils.Adapter {
                 if (
                     hapDevice.service &&
                     hapDevice.service['c#'] === service['c#'] &&
-                    (hapDevice.service as HapServiceBle).GSN !== (service as HapServiceBle).GSN
+                    hapDevice.service.GSN !== (service as HapServiceBle).GSN
                 ) {
                     this.log.debug(`${id} GSN updated for BLE device, update data in 500ms`);
                     this.scheduleCharacteristicsUpdate(hapDevice, 0.5);
@@ -506,10 +506,10 @@ class HomekitController extends utils.Adapter {
 
     private initDeviceClient(device: HapDevice): boolean {
         if (device.serviceType === 'IP') {
-            const service = device.service as HapServiceIp;
+            const service = device.service!;
             this.log.debug(`${device.id} Start Homekit Device Client initialization on ${service.address}:${service!.port}`);
 
-            device.client = device.client as HttpClient || new HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
+            device.client = device.client || new HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
             device.clientQueue = new PQueue({concurrency: 10, timeout: 120000, throwOnTimeout: true});
         } else if (device.serviceType === 'BLE') {
             if (!this.config.discoverBle || !GattClientConstructor) {
@@ -517,8 +517,11 @@ class HomekitController extends utils.Adapter {
                 return false;
             }
 
-            const service = device.service as HapServiceBle;
-            if (!service.peripheral) {
+            // Don't use `as` to remove undefined from the type. Append `!` to do that, e.g.
+            // const service = device.service!;
+            // Or just assign and check:
+            const service = device.service;
+            if (!service?.peripheral) {
                 if (!this.config.discoverBle) {
                     this.log.warn(`${device.id} Can not initialize BLE device because BLE discovery is turned off!`);
                 } else {
@@ -600,7 +603,7 @@ class HomekitController extends utils.Adapter {
         device.client.on('event-disconnect', async (formerSubscribes: string[]) => {
             this.log.debug(`${device.id} Subscription Event connection disconnected, try to resubscribe`);
             try {
-                await device.clientQueue?.add(async () => await (device.client as HttpClient).subscribeCharacteristics(formerSubscribes));
+                await device.clientQueue?.add(async () => await device.client?.subscribeCharacteristics(formerSubscribes));
             } catch (err) {
                 this.log.info(`${device.id} Resubscribe not successful, reinitialize device`);
                 await this.initDevice(device);
@@ -628,6 +631,7 @@ class HomekitController extends utils.Adapter {
                 this.log.debug(`Device ${device.id} Scheduled Characteristic update started ...`);
                 if (aid) {
                     if (device.serviceType === 'IP') {
+                        // This should become better in TS 4.5, for now you actually need the `as` here.
                         requestedCharacteristics = (requestedCharacteristics as string[]).filter(el => el.startsWith(`${aid}.`));
                     } else {
                         requestedCharacteristics = (requestedCharacteristics as PollingCharacteristic[]).filter(el => el.aid === aid);
@@ -654,7 +658,8 @@ class HomekitController extends utils.Adapter {
 
             const stateId = device.stateIdMap?.get(id);
             if (stateId) {
-                let value: ioBroker.StateValue = characteristic.value as ioBroker.StateValue;
+                // Either type annotation or type assertion (`as`), not both
+                let value = characteristic.value as ioBroker.StateValue;
                 const stateFunc = this.stateFunctionsForId.get(`${this.namespace}.${stateId}`);
                 if (stateFunc?.converter?.read) {
                     value = stateFunc.converter.read(value);
@@ -796,7 +801,8 @@ class HomekitController extends utils.Adapter {
                     continue;
                 }
                 if (obj.common.write) {
-                    const convertLogic = obj.native.convertLogic as keyof typeof Converters;
+                    // convertLogic is already `any`, just assign it to a const with the desired type
+                    const convertLogic: keyof typeof Converters = obj.native.convertLogic;
                     if (Converters[convertLogic]) {
                         stateFuncs.converter = Converters[convertLogic];
                     }
@@ -811,9 +817,7 @@ class HomekitController extends utils.Adapter {
                                     data[hapId] = value;
                                     const res = (await device.clientQueue?.add(
                                         async () =>
-                                            await (
-                                                device as HapDeviceIp
-                                            ).client?.setCharacteristics(data)
+                                            await device.client?.setCharacteristics(data)
                                     ));
                                     // Since you're checking, you seem not to know what res actually is. `as XYZ` is telling TypeScript that you do.
                                     // Also, type guard functions are more readable than a bunch of typeof === ... && ... && ...
@@ -847,7 +851,7 @@ class HomekitController extends utils.Adapter {
                                 };
                                 this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
                                 try {
-                                    await device.clientQueue?.add(async () => await (device as HapDeviceBle).client?.setCharacteristics([hapData]));
+                                    await device.clientQueue?.add(async () => await device.client?.setCharacteristics([hapData]));
                                 } catch (err) {
                                     this.log.info(`State update for ${objId} (${JSON.stringify(hapData)}) failed with error ${err.statusCode} ${err.message}`);
                                 }
