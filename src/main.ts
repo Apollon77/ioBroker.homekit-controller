@@ -507,7 +507,12 @@ class HomekitController extends utils.Adapter {
 
             device.client = device.client as HttpClient || new HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
             device.clientQueue = new PQueue({concurrency: 10, timeout: 120000, throwOnTimeout: true});
-        } else if (device.serviceType === 'BLE' && GattClientConstructor) {
+        } else if (device.serviceType === 'BLE') {
+            if (!this.config.discoverBle || !GattClientConstructor) {
+                this.log.info(`Could not initialize device ${device.id} because BLE discovery is not activated. Skipping device`);
+                return false;
+            }
+
             const service = device.service as HapServiceBle;
             if (!service.peripheral) {
                 if (!this.config.discoverBle) {
@@ -522,6 +527,8 @@ class HomekitController extends utils.Adapter {
 
             device.client = device.client || new GattClientConstructor(service.id, service.peripheral, device.pairingData)
             device.clientQueue = new PQueue({concurrency: 1, timeout: 120000, throwOnTimeout: true});
+        } else {
+            return false;
         }
         return true;
     }

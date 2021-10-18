@@ -28,7 +28,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = __importStar(require("@iobroker/adapter-core"));
-const hap_controller_1 = require("hap-controller");
+const ip_discovery_1 = __importDefault(require("hap-controller/lib/transport/ip/ip-discovery"));
+const pairing_protocol_1 = require("hap-controller/lib/protocol/pairing-protocol");
+const http_client_1 = __importDefault(require("hap-controller/lib/transport/ip/http-client"));
+const gatt_utils_1 = __importDefault(require("hap-controller/lib/transport/ble/gatt-utils"));
 let BLEDiscoveryConstructor;
 let GattClientConstructor;
 const debug_1 = __importDefault(require("debug"));
@@ -104,7 +107,7 @@ class HomekitController extends utils.Adapter {
         }
         this.setConnected(false);
         if (this.config.discoverIp) {
-            this.discoveryIp = new hap_controller_1.IPDiscovery();
+            this.discoveryIp = new ip_discovery_1.default();
             this.discoveryIp.on('serviceUp', (service) => {
                 this.log.debug(`Discovered IP device up: ${service.id}/${service.name}`);
                 this.handleDeviceDiscovery('IP', service);
@@ -421,10 +424,14 @@ class HomekitController extends utils.Adapter {
         if (device.serviceType === 'IP') {
             const service = device.service;
             this.log.debug(`${device.id} Start Homekit Device Client initialization on ${service.address}:${service.port}`);
-            device.client = device.client || new hap_controller_1.HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
+            device.client = device.client || new http_client_1.default(service.id, service.address, service.port, device.pairingData || undefined);
             device.clientQueue = new p_queue_1.default({ concurrency: 10, timeout: 120000, throwOnTimeout: true });
         }
-        else if (device.serviceType === 'BLE' && GattClientConstructor) {
+        else if (device.serviceType === 'BLE') {
+            if (!this.config.discoverBle || !GattClientConstructor) {
+                this.log.info(`Could not initialize device ${device.id} because BLE discovery is not activated. Skipping device`);
+                return false;
+            }
             const service = device.service;
             if (!service.peripheral) {
                 if (!this.config.discoverBle) {
@@ -438,6 +445,9 @@ class HomekitController extends utils.Adapter {
             this.log.debug(`${device.id} Start Homekit Device Client initialization`);
             device.client = device.client || new GattClientConstructor(service.id, service.peripheral, device.pairingData);
             device.clientQueue = new p_queue_1.default({ concurrency: 1, timeout: 120000, throwOnTimeout: true });
+        }
+        else {
+            return false;
         }
         return true;
     }
@@ -723,7 +733,7 @@ class HomekitController extends utils.Adapter {
                                     characteristicUuid: obj.native.type,
                                     serviceUuid: obj.native.serviceUuid,
                                     iid: obj.native.iid,
-                                    value: hap_controller_1.GattUtils.valueToBuffer(value, obj.native.format)
+                                    value: gatt_utils_1.default.valueToBuffer(value, obj.native.format)
                                 };
                                 this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
                                 try {
@@ -786,7 +796,7 @@ class HomekitController extends utils.Adapter {
         }
         if (pairMethod === undefined) {
             this.log.info(`Could not retrieve PairMethod for device ${device.id}, try default`);
-            pairMethod = hap_controller_1.PairMethods.PairSetup;
+            pairMethod = pairing_protocol_1.PairMethods.PairSetup;
         }
         if (!this.initDeviceClient(device) || !device.client) {
             throw new Error(`Cannot pair with device ${device.id} because Client initialization not successful`);
@@ -841,7 +851,7 @@ class HomekitController extends utils.Adapter {
         try {
             let client;
             if (device.serviceType === 'IP') {
-                client = new hap_controller_1.HttpClient(device.service.id, device.service.address, device.service.port);
+                client = new http_client_1.default(device.service.id, device.service.address, device.service.port);
             }
             else if (GattClientConstructor) {
                 client = new GattClientConstructor(device.service.id, device.service.peripheral);
