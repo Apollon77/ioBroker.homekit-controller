@@ -5,18 +5,18 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core';
-import {
-    IPDiscovery,
-    HapServiceBle,
-    HapServiceIp,
-    PairingData,
-    HttpClient,
-    PairMethods,
-    GattUtils
-} from 'hap-controller';
-import type { BLEDiscovery, GattClient } from 'hap-controller'
+import IPDiscovery from 'hap-controller/lib/transport/ip/ip-discovery';
+import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
+import PairingData, { PairMethods } from 'hap-controller/lib/protocol/pairing-protocol';
+import HttpClient from 'hap-controller/lib/transport/ip/http-client';
+
+import GattUtils from 'hap-controller/lib/transport/ble/gatt-utils';
+import type { HapServiceBle } from 'hap-controller/lib/transport/ble/ble-discovery'
+import type BLEDiscovery from 'hap-controller/lib/transport/ble/ble-discovery'
+import type GattClient from 'hap-controller/lib/transport/ble/gatt-client'
 let BLEDiscoveryConstructor: typeof BLEDiscovery | undefined;
 let GattClientConstructor: typeof GattClient | undefined;
+
 import Debug from 'debug';
 import { Accessories } from 'hap-controller/lib/model/accessory';
 import * as Characteristic from 'hap-controller/lib/model/characteristic';
