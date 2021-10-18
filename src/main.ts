@@ -90,9 +90,19 @@ interface SetCharacteristicResponse {
             aid: number;
             iid: number;
             value?: unknown;
-            status?: number;
+            // HapStatusCodes should be an enum and this should be of type HapStatusCodes
+            status: number;
         }
     ]
+}
+
+function isSetCharacteristicResponse(value: any): value is SetCharacteristicResponse {
+    return value &&
+    value.characteristics &&
+    Array.isArray(value.characteristics) &&
+    value.characteristics[0] &&
+    value.characteristics[0].status
+
 }
 
 class HomekitController extends utils.Adapter {
@@ -205,20 +215,21 @@ class HomekitController extends utils.Adapter {
 
         try {
             const devices = await this.getKnownDevices();
-            if (devices && devices.length) {
+            // getKnownDevices returns an array with objects. Unless there is a huge bug in js-controller,
+            // `devices` won' tbe undefined
+            if (devices.length) {
                 this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
                 for (const device of devices) {
-                    if (device && device._id && device.native) {
-                        const hapDevice: HapDevice = {
-                            serviceType: device.native.serviceType,
-                            id: device.native.id,
-                            connected: false,
-                            service: device.native.lastService || undefined,
-                            pairingData: device.native.pairingData,
-                            initInProgress: false,
-                        }
-                        await this.initDevice(hapDevice);
+                    // Dito, each object MUST have an ID and a native part
+                    const hapDevice: HapDevice = {
+                        serviceType: device.native.serviceType,
+                        id: device.native.id,
+                        connected: false,
+                        service: device.native.lastService || undefined,
+                        pairingData: device.native.pairingData,
+                        initInProgress: false,
                     }
+                    await this.initDevice(hapDevice);
                 }
             }
         } catch (err) {
@@ -798,16 +809,25 @@ class HomekitController extends utils.Adapter {
                                 try {
                                     const data: Record<string, any> = {};
                                     data[hapId] = value;
-                                    const res = (await device.clientQueue?.add(async () => await (device as HapDeviceIp).client?.setCharacteristics(data))) as SetCharacteristicResponse
-                                    if (
-                                        res.characteristics &&
-                                        Array.isArray(res.characteristics) &&
-                                        res.characteristics[0] &&
-                                        res.characteristics[0].status
-                                    ) {
-                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                        // @ts-ignore
-                                        this.log.info(`State update for ${objId} (${hapId}) failed with status ${res.characteristics[0].status}: ${IPConstants.HapStatusCodes[res.characteristics[0].status]}`);
+                                    const res = (await device.clientQueue?.add(
+                                        async () =>
+                                            await (
+                                                device as HapDeviceIp
+                                            ).client?.setCharacteristics(data)
+                                    ));
+                                    // Since you're checking, you seem not to know what res actually is. `as XYZ` is telling TypeScript that you do.
+                                    // Also, type guard functions are more readable than a bunch of typeof === ... && ... && ...
+                                    if (isSetCharacteristicResponse(res)) {
+                                        this.log.info(
+                                            `State update for ${objId} (${hapId}) failed with status ${
+                                                res.characteristics[0].status
+                                            }: ${
+                                                // Converting the thing you're indexing into any allows you to access what you want without TypeScript screaming
+                                                (IPConstants.HapStatusCodes as any)[
+                                                    res.characteristics[0].status
+                                                ]
+                                            }`
+                                        );
                                         this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
                                     } else {
                                         if (!device.subscriptionCharacteristics?.includes(hapId)) {
