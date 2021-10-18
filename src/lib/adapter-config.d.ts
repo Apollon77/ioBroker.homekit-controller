@@ -6,6 +6,9 @@ declare global {
         interface AdapterConfig {
             discoverIp: boolean;
             discoverBle: boolean;
+            dataPollingIntervalIp: number;
+            dataPollingIntervalBle: number;
+            bleInterface: string;
         }
     }
 }

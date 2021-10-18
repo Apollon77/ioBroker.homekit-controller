@@ -35,7 +35,8 @@
 
         "sourceMap": true,
         "inlineSourceMap": false,
-        "watch": false
+        "watch": false,
+        "useUnknownInCatchVariables": false,
     },
     "include": [
         "src/**/*.ts",

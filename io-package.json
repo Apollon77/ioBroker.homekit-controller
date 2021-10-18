@@ -58,17 +58,33 @@
         "type": "iot-systems",
         "compact": true,
         "connectionType": "local",
-        "dataSource": "poll",
+        "dataSource": "push",
         "materialize": true,
         "dependencies": [
             {
-                "js-controller": ">=2.0.0"
+                "js-controller": ">=3.3.15"
             }
-        ]
+        ],
+        "messagebox": true,
+        "plugins": {
+            "sentry": {
+                "dsn": "https://7d63ca90c6ac4233b96e8be000b1f3d0@sentry.iobroker.net/161",
+                "pathWhitelist": [
+                    "@apollon",
+                    "hap-controller"
+                ],
+                "errorBlacklist": [
+                    "SyntaxError"
+                ]
+            }
+        }
     },
     "native": {
         "discoverIp": true,
-        "discoverBle": false
+        "discoverBle": false,
+        "dataPollingIntervalIp": 30,
+        "dataPollingIntervalBle": 60,
+        "bleInterface": ""
     },
     "objects": [],
     "instanceObjects": [

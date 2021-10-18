@@ -11,98 +11,71 @@
 
 **Tests:** ![Test and Release](https://github.com/Apollon77/ioBroker.homekit-controller/workflows/Test%20and%20Release/badge.svg)
 
+**This adapter uses Sentry libraries to automatically report exceptions and code errors to the developers.** For more details and for information how to disable the error reporting see [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry)! Sentry reporting is used starting with js-controller 3.0.
+
 ## homekit-controller adapter for ioBroker
 
-Pair and control HomeKit devices directly
+This adapter allows you to pair and directly control devices with the "works with HomeKit" Logo that cna be used with Apple Home. The adapter supports IP/WLAN devices and also BLE (Bluetooth LE) devices. The adapter works completely local in your network.
 
-## Developer manual
-This section is intended for the developer. It can be deleted later
+### The adapter is not ...
+... offering ioBroker devices or states to be controlled by an Apple Home app/system. If you want this direction please use the [yahka](https://github.com/jensweigele/ioBroker.yahka) adapter.
 
-### Getting started
+### How to use the adapter
 
-You are almost done, only a few steps left:
-1. Create a new repository on GitHub with the name `ioBroker.homekit-controller`
-1. Initialize the current folder as a new git repository:  
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    ```
-1. Link your local repository with the one on GitHub:  
-    ```bash
-    git remote add origin https://github.com/Apollon77/ioBroker.homekit-controller
-    ```
+The adapter listens for available devices in your network.
 
-1. Push all files to the GitHub repo:  
-    ```bash
-    git push origin master
-    ```
-1. Add a new secret under https://github.com/Apollon77/ioBroker.homekit-controller/settings/secrets. It must be named `AUTO_MERGE_TOKEN` and contain a personal access token with push access to the repository, e.g. yours. You can create a new token under https://github.com/settings/tokens.
+There are three "types" of detected devices:
+* **Unpaired devices** are devices that are discovered and available to pair. Some basic states are generated for these devices in ioBroker which contains some informational and administrative states. By providing the PIN you can pair these devices to this adapter instance (see "pairing" section below)
+* **Paired with this instance** devices can be fully controlled, will update state values in "real time" using subscriptions (IP devices only) and data polling interval. The device can also be "unpaired" from this instance (see section below).
+* **Paired with someone else** devices are devices that are discovered but already paired with some other controller. These are logged in debug mode but no states are created for them. If you want to use them with ioBroker you first need to unpair them from their current controller (sometimes only possible with a hard reset or such - refer to manual) and after this they should be shown as "unpaired device".
 
-1. Head over to [src/main.ts](src/main.ts) and start programming!
+After pairing the supported states are read out from the device and objects and states are created. All known datapoints defined in the HomeKit standard should be named in a human-readable way. If you see UUIDs as names then the device manufacturer added self-defined data. If it is known what they provide this could be added to the adapter (e.g. as the ones added for Elgato devices) to show up as named in next version.
 
-### Best Practices
-We've collected some [best practices](https://github.com/ioBroker/ioBroker.repositories#development-and-coding-best-practices) regarding ioBroker development and coding in general. If you're new to ioBroker or Node.js, you should
-check them out. If you're already experienced, you should also take a look at them - you might learn something new :)
+The datapoints are created with proper states and, if available, also correct roles. Else generic roles are used.
 
-### Scripts in `package.json`
-Several npm scripts are predefined for your convenience. You can run them using `npm run <scriptname>`
-| Script name | Description |
-|-------------|-------------|
-| `build:parcel` | Compile the React sources. |
-| `watch:parcel` | Compile the React sources and watch for changes. |
-| `build:ts` | Compile the TypeScript sources. |
-| `watch:ts` | Compile the TypeScript sources and watch for changes. |
-| `watch` | Shortcut for `npm run watch:ts` |
-| `build` | Compile the TypeScript and the React sources. |
-| `test:ts` | Executes the tests you defined in `*.test.ts` files. |
-| `test:package` | Ensures your `package.json` and `io-package.json` are valid. |
-| `test:unit` | Tests the adapter startup with unit tests (fast, but might require module mocks to work). |
-| `test:integration` | Tests the adapter startup with an actual instance of ioBroker. |
-| `test` | Performs a minimal test run on package files and your tests. |
-| `check` | Performs a type-check on your code (without compiling anything). |
-| `lint` | Runs `ESLint` to check your code for formatting errors and potential bugs. |
+### Identify information
+Devices that are not paired with any controller have an admin.identify state that can be triggered with "true". In this case the relevant device should identify itself (e.g. a lamp should blink or such, so that it can be identified). This function is only available as long as the device is not paired with an controller.
 
-### Writing tests
-When done right, testing code is invaluable, because it gives you the 
-confidence to change your code while knowing exactly if and when 
-something breaks. A good read on the topic of test-driven development 
-is https://hackernoon.com/introduction-to-test-driven-development-tdd-61a13bc92d92. 
-Although writing tests before the code might seem strange at first, but it has very 
-clear upsides.
+#### Pairing information
+To pair the device with this adapter instance you need to provide the pin which is shown on the device, or a lable or such. The PIN is 8 numbers beside a QR-Code. The numbers need to be entered in the format 123-45-678 (also when the dashes are not printed on the label or shown on screen!)
 
-The template provides you with basic tests for the adapter startup and package files.
-It is recommended that you add your own tests into the mix.
+Right now the PIN needs to be entered into the admin.pairWithPin state - an Admin UI will follow soon.
 
-### Publishing the adapter
-Since you have chosen GitHub Actions as your CI service, you can 
-enable automatic releases on npm whenever you push a new git tag that matches the form 
-`v<major>.<minor>.<patch>`. The necessary steps are described in `.github/workflows/test-and-release.yml`.
+After pairing the device to this instance it is NOT possible to also add the device to Apple Home app or such in parallel.
 
-To get your adapter released in ioBroker, please refer to the documentation 
-of [ioBroker.repositories](https://github.com/ioBroker/ioBroker.repositories#requirements-for-adapter-to-get-added-to-the-latest-repository).
+There might be cases that are still problematic for pairing because I was only able to test with a very few devices, so please report issues, and I will support with instructions to get the needed debugging data.
 
-### Test the adapter manually on a local ioBroker installation
-In order to install the adapter locally without publishing, the following steps are recommended:
-1. Create a tarball from your dev directory:  
-    ```bash
-    npm pack
-    ```
-1. Upload the resulting file to your ioBroker host
-1. Install it locally (The paths are different on Windows):
-    ```bash
-    cd /opt/iobroker
-    npm i /path/to/tarball.tgz
-    ```
+#### Unpairing information
+To unpair just trigger the "admin.unpair" state with "true" and the unpair process will be executed - an Admin UI will follow soon.
 
-For later updates, the above procedure is not necessary. Just do the following:
-1. Overwrite the changed files in the adapter directory (`/opt/iobroker/node_modules/iobroker.homekit-controller`)
-1. Execute `iobroker upload homekit-controller` on the ioBroker host
+#### Special notes for use of IP devices
+IP devices are discovered using UDP packages, so your host need to be in the same network as the devices. There is currently no real way around it because the MDNS record used contains important information for the pairing process.
+Especially when using Docker you need to find ways (host mode, macvlan, ...) to see the UDP packages.
 
+The main challenge for WLAN based IP devices without controls or a screen is to get them into your WLAN network. Most likely there is a manufacturer specific Mobile app to add the devices initially to your network. If this initial process also pairs the device with Apple Home you might need to unpair it afterwards (e.g. https://www.macrumors.com/how-to/delete-homekit-device/). After this it should be in your WLAN and available to pair with this adapter.
+
+Once an IP device is paired and the IP stays the same the adapter directly connects to the device on start. SO best pin the IP in your router. If the IP has changed then the connection should be established on next discovery and the IP should be updated.
+
+#### Special notes for use of BLE devices
+By default, BLE is disabled in the adapter settings. After enabling the devices that are reachable can be discovered.
+
+Because of the limitations of Bluetooth devices no "real-time updates" of state changes are available. The devices will report "important state changes" (e.g. the "On" state changes) by special packages that will trigger an immediate data refresh. Additionally, data are refreshed in the defined data polling intervals. Do not set them too short!
+
+After a restart of the adapter bluetooth devices can not be connected directly - the system needs to receive at least one discovery package from the device to get the needed connection details. This mean BLE devices might be available a bit delayed.
+
+### TODO
+* Add a proper Config UI with options to pair/unpair/identify
+* check how the adapter works with buttons (they do not have a state, and I do not own such a device. need support for this)
+* check all "connected" cases to make sure "device "connected" states are updated correctly
+* look into supporting video devices
+* look into support devices that offer images
+* check all cases where polling updates might overlap
+* add known Elgato UUIDs with proper names
+* 
 ## Changelog
 
-### 0.0.1
-* (Ingo Fischer) initial release
+### 0.0.x
+* (Apollon77) Initial commit and Alpha GitHub testing
 
 ## License
 MIT License

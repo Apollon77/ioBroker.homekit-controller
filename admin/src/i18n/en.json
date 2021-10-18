@@ -1,5 +1,8 @@
 {
     "homekit-controller adapter settings": "Adapter settings for homekit-controller",
     "discoverIp": "Discover IP Devices",
-    "discoverBle": "Discover Bluetooth Devices"
+    "discoverBle": "Discover Bluetooth Devices",
+    "dataPollingIntervalIp": "Data polling interval for IP Devices",
+    "dataPollingIntervalBle": "Data polling interval for Bluetooth devices",
+    "bleInterface": "Bluetooth Interface"
 }

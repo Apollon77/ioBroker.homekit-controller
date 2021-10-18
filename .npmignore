@@ -27,3 +27,5 @@ package-lock.json
 
 # maintenance scripts
 maintenance/**
+
+.dev-server
