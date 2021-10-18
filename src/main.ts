@@ -109,10 +109,10 @@ class HomekitController extends utils.Adapter {
 
     private devices = new Map<string, HapDevice>();
 
-    private discoveryIp: IPDiscovery | null = null;
-    private discoveryBle: BLEDiscovery | null = null;
+    private discoveryIp?: IPDiscovery;
+    private discoveryBle?: BLEDiscovery;
 
-    private isConnected: boolean | null = null;
+    private isConnected?: boolean;
 
     private stateFunctionsForId = new Map<string, StateFunctions>();
 
