@@ -2,8 +2,6 @@
  * Created with @iobroker/create-adapter v1.33.0
  */
 
-// The adapter-core module gives you access to the core ioBroker functions
-// you need to create an adapter
 import * as utils from '@iobroker/adapter-core';
 import IPDiscovery from 'hap-controller/lib/transport/ip/ip-discovery';
 import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
@@ -32,19 +30,10 @@ interface HapDeviceBase {
     connected: boolean;
     initInProgress: boolean;
     id: string;
+    pairingData?: PairingData;
     clientQueue?: PQueue;
     dataPollingInterval?: NodeJS.Timeout;
     stateIdMap?: Map<string, string>;
-}
-
-interface HapDeviceIp extends HapDeviceBase {
-    serviceType: 'IP';
-    service?: HapServiceIp;
-    // Is there a difference between null and undefined for the pairing data? If not, I'd remove the |null and move `pairingData` to HapDeviceBase
-    pairingData?: PairingData | null;
-    client?: HttpClient;
-    dataPollingCharacteristics?: string[];
-    subscriptionCharacteristics?: string[];
 }
 
 interface SubscriptionCharacteristic {
@@ -58,10 +47,17 @@ interface PollingCharacteristic extends SubscriptionCharacteristic {
     aid: number;
 }
 
+interface HapDeviceIp extends HapDeviceBase {
+    serviceType: 'IP';
+    service?: HapServiceIp;
+    client?: HttpClient;
+    dataPollingCharacteristics?: string[];
+    subscriptionCharacteristics?: string[];
+}
+
 interface HapDeviceBle extends HapDeviceBase {
     serviceType: 'BLE';
     service?: HapServiceBle;
-    pairingData?: PairingData;
     client?: GattClient;
     dataPollingCharacteristics?: PollingCharacteristic[];
     subscriptionCharacteristics?: SubscriptionCharacteristic[];
@@ -73,7 +69,7 @@ export type HapDevice =
 
 const ignoredHapServices = [
     'public.hap.service.pairing',
-    'public.hap.service.protocol.information.service'
+    'public.hap.service.protocol.information.service',
 ];
 
 interface StateFunctions {
@@ -96,13 +92,12 @@ interface SetCharacteristicResponse {
     ]
 }
 
-function isSetCharacteristicResponse(value: any): value is SetCharacteristicResponse {
+function isSetCharacteristicErrorResponse(value: any): value is SetCharacteristicResponse {
     return value &&
     value.characteristics &&
     Array.isArray(value.characteristics) &&
     value.characteristics[0] &&
     value.characteristics[0].status
-
 }
 
 class HomekitController extends utils.Adapter {
@@ -146,10 +141,6 @@ class HomekitController extends utils.Adapter {
                 if (!hapDevice.pairingData) continue;
                 globalConnected = globalConnected && hapDevice.connected;
             }
-            // Alternatively:
-            // const globalConnected = [...this.devices.values()]
-            //     .filter(d => !!d.pairingData)
-            //     .every(d => d.connected);
             this.setConnected(globalConnected);
         }
     }
@@ -215,12 +206,9 @@ class HomekitController extends utils.Adapter {
 
         try {
             const devices = await this.getKnownDevices();
-            // getKnownDevices returns an array with objects. Unless there is a huge bug in js-controller,
-            // `devices` won' tbe undefined
             if (devices.length) {
                 this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
                 for (const device of devices) {
-                    // Dito, each object MUST have an ID and a native part
                     const hapDevice: HapDevice = {
                         serviceType: device.native.serviceType,
                         id: device.native.id,
@@ -242,7 +230,6 @@ class HomekitController extends utils.Adapter {
      */
     private async onUnload(callback: () => void): Promise<void> {
         try {
-
             if (this.discoveryBle) {
                 this.discoveryBle.stop();
             }
@@ -272,7 +259,6 @@ class HomekitController extends utils.Adapter {
      */
     private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
         if (state) {
-            // The state was changed
             this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
             if (!state.ack) {
                 let value = state.val;
@@ -289,16 +275,10 @@ class HomekitController extends utils.Adapter {
                 }
             }
         } else {
-            // The state was deleted
             this.log.debug(`state ${id} deleted`);
         }
     }
 
-    // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-    /**
-     * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-     * Using this method requires "common.messagebox" property to be set to true in io-package.json
-     */
     private async onMessage(obj: ioBroker.Message): Promise<void> {
         if (typeof obj === 'object' && obj.command) {
             this.log.debug(`Message ${obj.command} received: ${JSON.stringify(obj)})`);
@@ -355,7 +335,7 @@ class HomekitController extends utils.Adapter {
                 }
             }
             this.log.debug(`Response to Command ${obj.command}: ${JSON.stringify(response)}`);
-            // Send response in callback if required
+
             if (obj.callback) {
                 this.sendTo(obj.from, obj.command, response, obj.callback);
             }
@@ -482,7 +462,6 @@ class HomekitController extends utils.Adapter {
             if (!deviceData) {
                 this.log.info(`${device.id} Could not load device accessories ... TODO`);
                 device.initInProgress = false;
-                // TODO ERROR HANDLING
                 return;
             }
 
@@ -541,7 +520,6 @@ class HomekitController extends utils.Adapter {
     }
 
     private initSupportingMaps(device: HapDevice, accessoryObjects: Map<string, ioBroker.Object>): void {
-        // Initialize internal data structures for later usage
         device.stateIdMap = new Map();
         device.dataPollingCharacteristics = [];
         device.subscriptionCharacteristics = [];
@@ -658,7 +636,6 @@ class HomekitController extends utils.Adapter {
 
             const stateId = device.stateIdMap?.get(id);
             if (stateId) {
-                // Either type annotation or type assertion (`as`), not both
                 let value = characteristic.value as ioBroker.StateValue;
                 const stateFunc = this.stateFunctionsForId.get(`${this.namespace}.${stateId}`);
                 if (stateFunc?.converter?.read) {
@@ -801,7 +778,6 @@ class HomekitController extends utils.Adapter {
                     continue;
                 }
                 if (obj.common.write) {
-                    // convertLogic is already `any`, just assign it to a const with the desired type
                     const convertLogic: keyof typeof Converters = obj.native.convertLogic;
                     if (Converters[convertLogic]) {
                         stateFuncs.converter = Converters[convertLogic];
@@ -819,9 +795,7 @@ class HomekitController extends utils.Adapter {
                                         async () =>
                                             await device.client?.setCharacteristics(data)
                                     ));
-                                    // Since you're checking, you seem not to know what res actually is. `as XYZ` is telling TypeScript that you do.
-                                    // Also, type guard functions are more readable than a bunch of typeof === ... && ... && ...
-                                    if (isSetCharacteristicResponse(res)) {
+                                    if (isSetCharacteristicErrorResponse(res)) {
                                         this.log.info(
                                             `State update for ${objId} (${hapId}) failed with status ${
                                                 res.characteristics[0].status
@@ -952,7 +926,7 @@ class HomekitController extends utils.Adapter {
             throw new Error(`Cannot unpair from device ${device.id} because of error ${err.statusCode}: ${err.message}`);
         }
 
-        device.pairingData = null;
+        delete device.pairingData;
         device.client.removeAllListeners('event');
         device.client.removeAllListeners('event-disconnect');
         delete device.client;
