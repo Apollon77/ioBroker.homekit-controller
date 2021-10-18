@@ -25,8 +25,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// The adapter-core module gives you access to the core ioBroker functions
-// you need to create an adapter
 const utils = __importStar(require("@iobroker/adapter-core"));
 const ip_discovery_1 = __importDefault(require("hap-controller/lib/transport/ip/ip-discovery"));
 const pairing_protocol_1 = require("hap-controller/lib/protocol/pairing-protocol");
@@ -44,8 +42,15 @@ const IPConstants = __importStar(require("hap-controller/lib/transport/ip/http-c
 const converter_1 = __importDefault(require("./lib/converter"));
 const ignoredHapServices = [
     'public.hap.service.pairing',
-    'public.hap.service.protocol.information.service'
+    'public.hap.service.protocol.information.service',
 ];
+function isSetCharacteristicErrorResponse(value) {
+    return value &&
+        value.characteristics &&
+        Array.isArray(value.characteristics) &&
+        value.characteristics[0] &&
+        value.characteristics[0].status;
+}
 class HomekitController extends utils.Adapter {
     constructor(options = {}) {
         super({
@@ -53,9 +58,6 @@ class HomekitController extends utils.Adapter {
             name: 'homekit-controller',
         });
         this.devices = new Map();
-        this.discoveryIp = null;
-        this.discoveryBle = null;
-        this.isConnected = null;
         this.stateFunctionsForId = new Map();
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
@@ -74,9 +76,8 @@ class HomekitController extends utils.Adapter {
             device.connected = isConnected;
             this.setState(`${device.id}.info.connected`, isConnected, true);
             let globalConnected = true;
-            for (const id in Array.from(this.devices.keys())) {
-                const hapDevice = this.devices.get(id);
-                if (!hapDevice || !hapDevice.pairingData)
+            for (const hapDevice of this.devices.values()) {
+                if (!hapDevice.pairingData)
                     continue;
                 globalConnected = globalConnected && hapDevice.connected;
             }
@@ -136,20 +137,18 @@ class HomekitController extends utils.Adapter {
         this.subscribeStates('*');
         try {
             const devices = await this.getKnownDevices();
-            if (devices && devices.length) {
+            if (devices.length) {
                 this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
                 for (const device of devices) {
-                    if (device && device._id && device.native) {
-                        const hapDevice = {
-                            serviceType: device.native.serviceType,
-                            id: device.native.id,
-                            connected: false,
-                            service: device.native.lastService || undefined,
-                            pairingData: device.native.pairingData,
-                            initInProgress: false,
-                        };
-                        await this.initDevice(hapDevice);
-                    }
+                    const hapDevice = {
+                        serviceType: device.native.serviceType,
+                        id: device.native.id,
+                        connected: false,
+                        service: device.native.lastService || undefined,
+                        pairingData: device.native.pairingData,
+                        initInProgress: false,
+                    };
+                    await this.initDevice(hapDevice);
                 }
             }
         }
@@ -169,9 +168,8 @@ class HomekitController extends utils.Adapter {
             if (this.discoveryIp) {
                 this.discoveryIp.stop();
             }
-            for (const id in Array.from(this.devices.keys())) {
-                const hapDevice = this.devices.get(id);
-                if (!hapDevice || !hapDevice.connected)
+            for (const hapDevice of this.devices.values()) {
+                if (!hapDevice.connected)
                     continue;
                 if (hapDevice.serviceType === 'IP') {
                     try {
@@ -194,7 +192,6 @@ class HomekitController extends utils.Adapter {
     onStateChange(id, state) {
         var _a;
         if (state) {
-            // The state was changed
             this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
             if (!state.ack) {
                 let value = state.val;
@@ -212,15 +209,9 @@ class HomekitController extends utils.Adapter {
             }
         }
         else {
-            // The state was deleted
             this.log.debug(`state ${id} deleted`);
         }
     }
-    // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-    /**
-     * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-     * Using this method requires "common.messagebox" property to be set to true in io-package.json
-     */
     async onMessage(obj) {
         var _a, _b, _c, _d;
         if (typeof obj === 'object' && obj.command) {
@@ -233,23 +224,17 @@ class HomekitController extends utils.Adapter {
                 switch (obj.command) {
                     case 'getDiscoveredDevices':
                         response.devices = [];
-                        for (const id of Array.from(this.devices.keys())) {
-                            const hapDevice = this.devices.get(id);
-                            if (hapDevice) {
-                                response.devices.push({
-                                    id: hapDevice.id,
-                                    serviceType: hapDevice.serviceType,
-                                    connected: hapDevice.connected,
-                                    discovered: !!hapDevice.service,
-                                    availableToPair: (_a = hapDevice.service) === null || _a === void 0 ? void 0 : _a.availableToPair,
-                                    discoveredName: (_b = hapDevice.service) === null || _b === void 0 ? void 0 : _b.name,
-                                    discoveredCategory: ((_c = hapDevice.service) === null || _c === void 0 ? void 0 : _c.ci) ? (0, category_1.categoryFromId)((_d = hapDevice.service) === null || _d === void 0 ? void 0 : _d.ci) : 'Unknown',
-                                    pairedWithThisInstance: !!hapDevice.pairingData,
-                                });
-                            }
-                            else {
-                                this.log.debug(`getDiscoveredDevices: ${id} not found`);
-                            }
+                        for (const hapDevice of this.devices.values()) {
+                            response.devices.push({
+                                id: hapDevice.id,
+                                serviceType: hapDevice.serviceType,
+                                connected: hapDevice.connected,
+                                discovered: !!hapDevice.service,
+                                availableToPair: (_a = hapDevice.service) === null || _a === void 0 ? void 0 : _a.availableToPair,
+                                discoveredName: (_b = hapDevice.service) === null || _b === void 0 ? void 0 : _b.name,
+                                discoveredCategory: ((_c = hapDevice.service) === null || _c === void 0 ? void 0 : _c.ci) ? (0, category_1.categoryFromId)((_d = hapDevice.service) === null || _d === void 0 ? void 0 : _d.ci) : 'Unknown',
+                                pairedWithThisInstance: !!hapDevice.pairingData,
+                            });
                         }
                         break;
                     case 'pairDevice':
@@ -288,7 +273,6 @@ class HomekitController extends utils.Adapter {
                 };
             }
             this.log.debug(`Response to Command ${obj.command}: ${JSON.stringify(response)}`);
-            // Send response in callback if required
             if (obj.callback) {
                 this.sendTo(obj.from, obj.command, response, obj.callback);
             }
@@ -322,14 +306,14 @@ class HomekitController extends utils.Adapter {
             initInProgress: false,
         };
         if (this.devices.has(id) && hapDevice.connected) { // if service was existing before already
-            if (serviceType === 'IP') {
+            if (hapDevice.serviceType === 'IP') {
                 if (hapDevice.service &&
                     hapDevice.service['c#'] === service['c#']) {
                     this.log.debug(`${id} Discovery device update, unchanged config-number, ignore`);
                     return;
                 }
             }
-            else if (serviceType === 'BLE') {
+            else if (hapDevice.serviceType === 'BLE') {
                 if (hapDevice.service &&
                     hapDevice.service['c#'] === service['c#'] &&
                     hapDevice.service.GSN === service.GSN) {
@@ -404,7 +388,6 @@ class HomekitController extends utils.Adapter {
             if (!deviceData) {
                 this.log.info(`${device.id} Could not load device accessories ... TODO`);
                 device.initInProgress = false;
-                // TODO ERROR HANDLING
                 return;
             }
             this.log.debug(`Accessory Structure: ${JSON.stringify(deviceData)}`);
@@ -432,8 +415,11 @@ class HomekitController extends utils.Adapter {
                 this.log.info(`Could not initialize device ${device.id} because BLE discovery is not activated. Skipping device`);
                 return false;
             }
+            // Don't use `as` to remove undefined from the type. Append `!` to do that, e.g.
+            // const service = device.service!;
+            // Or just assign and check:
             const service = device.service;
-            if (!service.peripheral) {
+            if (!(service === null || service === void 0 ? void 0 : service.peripheral)) {
                 if (!this.config.discoverBle) {
                     this.log.warn(`${device.id} Can not initialize BLE device because BLE discovery is turned off!`);
                 }
@@ -452,7 +438,6 @@ class HomekitController extends utils.Adapter {
         return true;
     }
     initSupportingMaps(device, accessoryObjects) {
-        // Initialize internal data structures for later usage
         device.stateIdMap = new Map();
         device.dataPollingCharacteristics = [];
         device.subscriptionCharacteristics = [];
@@ -512,7 +497,7 @@ class HomekitController extends utils.Adapter {
             var _a;
             this.log.debug(`${device.id} Subscription Event connection disconnected, try to resubscribe`);
             try {
-                await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => await device.client.subscribeCharacteristics(formerSubscribes)));
+                await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.subscribeCharacteristics(formerSubscribes)); }));
             }
             catch (err) {
                 this.log.info(`${device.id} Resubscribe not successful, reinitialize device`);
@@ -540,6 +525,7 @@ class HomekitController extends utils.Adapter {
                 this.log.debug(`Device ${device.id} Scheduled Characteristic update started ...`);
                 if (aid) {
                     if (device.serviceType === 'IP') {
+                        // This should become better in TS 4.5, for now you actually need the `as` here.
                         requestedCharacteristics = requestedCharacteristics.filter(el => el.startsWith(`${aid}.`));
                     }
                     else {
@@ -708,13 +694,10 @@ class HomekitController extends utils.Adapter {
                                     const data = {};
                                     data[hapId] = value;
                                     const res = (await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.setCharacteristics(data)); })));
-                                    if (res.characteristics &&
-                                        Array.isArray(res.characteristics) &&
-                                        res.characteristics[0] &&
-                                        res.characteristics[0].status) {
-                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                        // @ts-ignore
-                                        this.log.info(`State update for ${objId} (${hapId}) failed with status ${res.characteristics[0].status}: ${IPConstants.HapStatusCodes[res.characteristics[0].status]}`);
+                                    if (isSetCharacteristicErrorResponse(res)) {
+                                        this.log.info(`State update for ${objId} (${hapId}) failed with status ${res.characteristics[0].status}: ${
+                                        // Converting the thing you're indexing into any allows you to access what you want without TypeScript screaming
+                                        IPConstants.HapStatusCodes[res.characteristics[0].status]}`);
                                         this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
                                     }
                                     else {
@@ -836,7 +819,7 @@ class HomekitController extends utils.Adapter {
         catch (err) {
             throw new Error(`Cannot unpair from device ${device.id} because of error ${err.statusCode}: ${err.message}`);
         }
-        device.pairingData = null;
+        delete device.pairingData;
         device.client.removeAllListeners('event');
         device.client.removeAllListeners('event-disconnect');
         delete device.client;

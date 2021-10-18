@@ -218,6 +218,20 @@ const CharacteristicToIoBrokerMap: Record<string, Record<string, unknown>> = {
     //[`00000702${UuidSuffix}`]: 'public.hap.characteristic.thread.node-capabilities', // TODO UNKNOWN
     //[`00000703${UuidSuffix}`]: 'public.hap.characteristic.thread.status', // TODO UNKNOWN
     'public.hap.characteristic.thread.control-point': {type: 'object'}, // 704
+
+    // Elgato devices, from https://gist.github.com/simont77/3f4d4330fa55b83f8ca96388d9004e7d
+    'E863F10A-079E-48FF-8F27-9C2605A29F52': {name: 'volt', unit: 'V', role: 'value.voltage'},
+    'E863F126-079E-48FF-8F27-9C2605A29F52': {name: 'ampere', unit: 'A', role: 'value.current'},
+    'E863F10D-079E-48FF-8F27-9C2605A29F52': {name: 'power', unit: 'W', role: 'value.power'},
+    'E863F10C-079E-48FF-8F27-9C2605A29F52': {name: 'total-consumption', unit: 'kWh', role: 'value.power.consumption'},
+    'E863F110-079E-48FF-8F27-9C2605A29F52': {name: 'volt-ampere', unit: 'VA', role: 'value.power'},
+    'E863F127-079E-48FF-8F27-9C2605A29F52': {name: 'kVAh', unit: 'kVAh'},
+    'E863F10B-079E-48FF-8F27-9C2605A29F52': {name: 'air-quality', unit: 'ppm'},
+    'E863F129-079E-48FF-8F27-9C2605A29F52': {name: 'actions'}, // # opened is value/2 ... so actions open/close?
+    'E863F11B-079E-48FF-8F27-9C2605A29F52': {name: 'battery', unit: '%', role: 'value.battery'},
+    'E863F120-079E-48FF-8F27-9C2605A29F52': {name: 'sensitivity', desc: '0 = high, 4 = medium, 7 = low'},
+    'E863F12D-079E-48FF-8F27-9C2605A29F52': {name: 'motion-indication-duration', unit: 'sec'},
+    'E863F12E-079E-48FF-8F27-9C2605A29F52': {name: 'valve-position', unit: '%', role: 'value.valve'},
 };
 
 export function addAccessoryObjects(device: HapDevice, objs: Map<string, ioBroker.Object>, accessory: AccessoryObject): void {
@@ -265,6 +279,10 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
 
     let characteristicName = characteristicFromUuid(characteristic.type);
     const iobrokerCommon = CharacteristicToIoBrokerMap[characteristicName] || {};
+    if (typeof iobrokerCommon.name === 'string') {
+        characteristicName = iobrokerCommon.name;
+        delete iobrokerCommon.name;
+    }
     if (characteristicName.startsWith('public.hap.characteristic.')) {
         characteristicName = characteristicName.substr(26).replace(/\./g, '-'); // remove public.hap.characteristic.
     }
