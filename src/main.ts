@@ -14,8 +14,9 @@ import {
     PairMethods,
     GattUtils
 } from 'hap-controller';
-let BLEDiscovery: typeof import('hap-controller').BLEDiscovery | undefined;
-let GattClient: typeof import('hap-controller').GattClient | undefined;
+import type { BLEDiscovery, GattClient } from 'hap-controller'
+let BLEDiscoveryConstructor: typeof BLEDiscovery | undefined;
+let GattClientConstructor: typeof GattClient | undefined;
 import Debug from 'debug';
 import { Accessories } from 'hap-controller/lib/model/accessory';
 import * as Characteristic from 'hap-controller/lib/model/characteristic';
@@ -57,7 +58,7 @@ type HapDeviceBle = {
     id: string;
     service?: HapServiceBle;
     pairingData?: PairingData;
-    client?: typeof GattClient;
+    client?: GattClient;
     clientQueue?: PQueue;
     dataPollingInterval?: NodeJS.Timeout;
     dataPollingCharacteristics?: PollingCharacteristicObject[];
@@ -103,7 +104,7 @@ class HomekitController extends utils.Adapter {
     private devices = new Map<string, HapDevice>();
 
     private discoveryIp: IPDiscovery | null = null;
-    private discoveryBle: typeof BLEDiscovery | null = null;
+    private discoveryBle: BLEDiscovery | null = null;
 
     private isConnected: boolean | null = null;
 
@@ -151,15 +152,21 @@ class HomekitController extends utils.Adapter {
         Debug.enable('hap-controller:*');
         Debug.log = this.log.debug.bind(this);
 
-        if (this.config.discoverBle && this.config.dataPollingIntervalBle < 60) {
-            this.log.info(`Data polling interval for BLE devices is less then 60s, set to 60s`);
-            this.config.dataPollingIntervalBle = 60;
-        }
         if (this.config.discoverBle) {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            GattClient = require('hap-controller').GattClient;
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            BLEDiscovery = require('hap-controller').BLEDiscovery;
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                GattClientConstructor = require('hap-controller').GattClient;
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                BLEDiscoveryConstructor = require('hap-controller').BLEDiscovery;
+            } catch (err) {
+                this.config.discoverBle = false;
+                this.log.info(`Could not initialize Bluetooth LE, turn off. Error: ${err.message} `);
+            }
+
+            if (this.config.dataPollingIntervalBle < 60) {
+                this.log.info(`Data polling interval for BLE devices is less then 60s, set to 60s`);
+                this.config.dataPollingIntervalBle = 60;
+            }
         }
 
         this.setConnected(false);
@@ -181,8 +188,8 @@ class HomekitController extends utils.Adapter {
             this.discoveryIp.start();
         }
 
-        if (this.config.discoverBle && BLEDiscovery) {
-            this.discoveryBle = new BLEDiscovery();
+        if (this.config.discoverBle && BLEDiscoveryConstructor) {
+            this.discoveryBle = new BLEDiscoveryConstructor();
 
             this.discoveryBle.on('serviceUp', (service: HapServiceBle) => {
                 this.log.debug(`Discovered BLE device up: ${service.id}/${service.name}`);
@@ -500,7 +507,7 @@ class HomekitController extends utils.Adapter {
 
             device.client = device.client as HttpClient || new HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
             device.clientQueue = new PQueue({concurrency: 10, timeout: 120000, throwOnTimeout: true});
-        } else {
+        } else if (device.serviceType === 'BLE' && GattClientConstructor) {
             const service = device.service as HapServiceBle;
             if (!service.peripheral) {
                 if (!this.config.discoverBle) {
@@ -513,7 +520,7 @@ class HomekitController extends utils.Adapter {
 
             this.log.debug(`${device.id} Start Homekit Device Client initialization`);
 
-            device.client = device.client || new GattClient(service.id, service.peripheral, device.pairingData)
+            device.client = device.client || new GattClientConstructor(service.id, service.peripheral, device.pairingData)
             device.clientQueue = new PQueue({concurrency: 1, timeout: 120000, throwOnTimeout: true});
         }
         return true;
@@ -941,10 +948,10 @@ class HomekitController extends utils.Adapter {
             let client;
             if (device.serviceType === 'IP') {
                 client = new HttpClient(device.service.id, device.service.address, device.service.port);
-            } else {
-                client = new GattClient(device.service.id, device.service.peripheral);
+            } else if (GattClientConstructor) {
+                client = new GattClientConstructor(device.service.id, device.service.peripheral);
             }
-            await client.identify();
+            await client?.identify();
         } catch (err) {
             throw new Error(`Cannot identify device ${device.id} because of error ${err.statusCode}: ${err.message}`);
         }
