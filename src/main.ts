@@ -28,47 +28,43 @@ import { categoryFromId } from 'hap-controller/lib/model/category';
 import * as IPConstants from 'hap-controller/lib/transport/ip/http-constants';
 import Converters from './lib/converter';
 
-interface HapDeviceIp {
-    serviceType: 'IP';
+interface HapDeviceBase {
     connected: boolean;
     initInProgress: boolean;
     id: string;
-    service?: HapServiceIp;
-    pairingData?: PairingData | null;
-    client?: HttpClient;
     clientQueue?: PQueue;
     dataPollingInterval?: NodeJS.Timeout;
-    dataPollingCharacteristics?: string[];
-    subscriptionCharacteristics?: string[];
     stateIdMap?: Map<string, string>;
 }
 
-interface PollingCharacteristicObject {
+interface HapDeviceIp extends HapDeviceBase {
+    serviceType: 'IP';
+    service?: HapServiceIp;
+    // Is there a difference between null and undefined for the pairing data? If not, I'd remove the |null and move `pairingData` to HapDeviceBase
+    pairingData?: PairingData | null;
+    client?: HttpClient;
+    dataPollingCharacteristics?: string[];
+    subscriptionCharacteristics?: string[];
+}
+
+interface SubscriptionCharacteristic {
     characteristicUuid: string;
     serviceUuid: string;
     iid: number;
-    aid: number;
     format?: string;
 }
 
-interface HapDeviceBle {
+interface PollingCharacteristic extends SubscriptionCharacteristic {
+    aid: number;
+}
+
+interface HapDeviceBle extends HapDeviceBase {
     serviceType: 'BLE';
-    connected: boolean;
-    initInProgress: boolean;
-    id: string;
     service?: HapServiceBle;
     pairingData?: PairingData;
     client?: GattClient;
-    clientQueue?: PQueue;
-    dataPollingInterval?: NodeJS.Timeout;
-    dataPollingCharacteristics?: PollingCharacteristicObject[];
-    subscriptionCharacteristics?: {
-        characteristicUuid: string;
-        serviceUuid: string;
-        iid: number;
-        format?: string;
-    }[];
-    stateIdMap?: Map<string, string>;
+    dataPollingCharacteristics?: PollingCharacteristic[];
+    subscriptionCharacteristics?: SubscriptionCharacteristic[];
 }
 
 export type HapDevice =
@@ -626,7 +622,7 @@ class HomekitController extends utils.Adapter {
                     if (device.serviceType === 'IP') {
                         requestedCharacteristics = (requestedCharacteristics as string[]).filter(el => el.startsWith(`${aid}.`));
                     } else {
-                        requestedCharacteristics = (requestedCharacteristics as PollingCharacteristicObject[]).filter(el => el.aid === aid);
+                        requestedCharacteristics = (requestedCharacteristics as PollingCharacteristic[]).filter(el => el.aid === aid);
                     }
                 }
                 try {
