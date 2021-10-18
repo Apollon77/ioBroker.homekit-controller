@@ -6,16 +6,16 @@
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core';
 import {
-    BLEDiscovery,
     IPDiscovery,
     HapServiceBle,
     HapServiceIp,
     PairingData,
     HttpClient,
-    GattClient,
     PairMethods,
     GattUtils
 } from 'hap-controller';
+let BLEDiscovery: typeof import('hap-controller').BLEDiscovery | undefined;
+let GattClient: typeof import('hap-controller').GattClient | undefined;
 import Debug from 'debug';
 import { Accessories } from 'hap-controller/lib/model/accessory';
 import * as Characteristic from 'hap-controller/lib/model/characteristic';
@@ -57,7 +57,7 @@ type HapDeviceBle = {
     id: string;
     service?: HapServiceBle;
     pairingData?: PairingData;
-    client?: GattClient;
+    client?: typeof GattClient;
     clientQueue?: PQueue;
     dataPollingInterval?: NodeJS.Timeout;
     dataPollingCharacteristics?: PollingCharacteristicObject[];
@@ -103,7 +103,7 @@ class HomekitController extends utils.Adapter {
     private devices = new Map<string, HapDevice>();
 
     private discoveryIp: IPDiscovery | null = null;
-    private discoveryBle: BLEDiscovery | null = null;
+    private discoveryBle: typeof BLEDiscovery | null = null;
 
     private isConnected: boolean | null = null;
 
@@ -155,6 +155,12 @@ class HomekitController extends utils.Adapter {
             this.log.info(`Data polling interval for BLE devices is less then 60s, set to 60s`);
             this.config.dataPollingIntervalBle = 60;
         }
+        if (this.config.discoverBle) {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            GattClient = require('hap-controller').GattClient;
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            BLEDiscovery = require('hap-controller').BLEDiscovery;
+        }
 
         this.setConnected(false);
 
@@ -175,14 +181,14 @@ class HomekitController extends utils.Adapter {
             this.discoveryIp.start();
         }
 
-        if (this.config.discoverBle) {
+        if (this.config.discoverBle && BLEDiscovery) {
             this.discoveryBle = new BLEDiscovery();
 
-            this.discoveryBle.on('serviceUp', (service) => {
+            this.discoveryBle.on('serviceUp', (service: HapServiceBle) => {
                 this.log.debug(`Discovered BLE device up: ${service.id}/${service.name}`);
                 this.handleDeviceDiscovery('BLE', service);
             });
-            this.discoveryBle.on('serviceChanged', (service) => {
+            this.discoveryBle.on('serviceChanged', (service: HapServiceBle) => {
                 this.log.debug(`Discovered BLE device changed: ${service.id}/${service.name}`);
                 this.handleDeviceDiscovery('BLE', service);
             });
