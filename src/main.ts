@@ -132,11 +132,14 @@ class HomekitController extends utils.Adapter {
             this.setState(`${device.id}.info.connected`, isConnected, true);
 
             let globalConnected = true;
-            for (const id in Array.from(this.devices.keys())) {
-                const hapDevice: HapDevice = this.devices.get(id)!;
-                if (!hapDevice || !hapDevice.pairingData) continue;
+            for (const hapDevice of this.devices.values()) {
+                if (!hapDevice.pairingData) continue;
                 globalConnected = globalConnected && hapDevice.connected;
             }
+            // Alternatively:
+            // const globalConnected = [...this.devices.values()]
+            //     .filter(d => !!d.pairingData)
+            //     .every(d => d.connected);
             this.setConnected(globalConnected);
         }
     }
@@ -236,9 +239,8 @@ class HomekitController extends utils.Adapter {
                 this.discoveryIp.stop();
             }
 
-            for (const id in Array.from(this.devices.keys())) {
-                const hapDevice: HapDevice = this.devices.get(id)!;
-                if (!hapDevice || !hapDevice.connected) continue;
+            for (const hapDevice of this.devices.values()) {
+                if (!hapDevice.connected) continue;
 
                 if (hapDevice.serviceType === 'IP') {
                     try {
@@ -297,22 +299,17 @@ class HomekitController extends utils.Adapter {
                 switch (obj.command) {
                     case 'getDiscoveredDevices':
                         response.devices = [];
-                        for (const id of Array.from(this.devices.keys())) {
-                            const hapDevice: HapDevice = this.devices.get(id)!;
-                            if (hapDevice) {
-                                response.devices.push({
-                                    id: hapDevice.id,
-                                    serviceType: hapDevice.serviceType,
-                                    connected: hapDevice.connected,
-                                    discovered: !!hapDevice.service,
-                                    availableToPair: hapDevice.service?.availableToPair,
-                                    discoveredName: hapDevice.service?.name,
-                                    discoveredCategory: hapDevice.service?.ci ? categoryFromId(hapDevice.service?.ci) : 'Unknown',
-                                    pairedWithThisInstance: !!hapDevice.pairingData,
-                                });
-                            } else {
-                                this.log.debug(`getDiscoveredDevices: ${id} not found`);
-                            }
+                        for (const hapDevice of this.devices.values()) {
+                            response.devices.push({
+                                id: hapDevice.id,
+                                serviceType: hapDevice.serviceType,
+                                connected: hapDevice.connected,
+                                discovered: !!hapDevice.service,
+                                availableToPair: hapDevice.service?.availableToPair,
+                                discoveredName: hapDevice.service?.name,
+                                discoveredCategory: hapDevice.service?.ci ? categoryFromId(hapDevice.service?.ci) : 'Unknown',
+                                pairedWithThisInstance: !!hapDevice.pairingData,
+                            });
                         }
                         break;
                     case 'pairDevice':
