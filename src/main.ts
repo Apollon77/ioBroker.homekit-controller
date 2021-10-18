@@ -7,7 +7,7 @@
 import * as utils from '@iobroker/adapter-core';
 import IPDiscovery from 'hap-controller/lib/transport/ip/ip-discovery';
 import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
-import PairingData, { PairMethods } from 'hap-controller/lib/protocol/pairing-protocol';
+import { PairingData, PairMethods } from 'hap-controller/lib/protocol/pairing-protocol';
 import HttpClient from 'hap-controller/lib/transport/ip/http-client';
 
 import GattUtils from 'hap-controller/lib/transport/ble/gatt-utils';
