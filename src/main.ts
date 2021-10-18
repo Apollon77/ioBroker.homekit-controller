@@ -28,7 +28,7 @@ import { categoryFromId } from 'hap-controller/lib/model/category';
 import * as IPConstants from 'hap-controller/lib/transport/ip/http-constants';
 import Converters from './lib/converter';
 
-type HapDeviceIp = {
+interface HapDeviceIp {
     serviceType: 'IP';
     connected: boolean;
     initInProgress: boolean;
@@ -41,17 +41,17 @@ type HapDeviceIp = {
     dataPollingCharacteristics?: string[];
     subscriptionCharacteristics?: string[];
     stateIdMap?: Map<string, string>;
-};
+}
 
-type PollingCharacteristicObject = {
+interface PollingCharacteristicObject {
     characteristicUuid: string;
     serviceUuid: string;
     iid: number;
     aid: number;
     format?: string;
-};
+}
 
-type HapDeviceBle = {
+interface HapDeviceBle {
     serviceType: 'BLE';
     connected: boolean;
     initInProgress: boolean;
@@ -69,7 +69,7 @@ type HapDeviceBle = {
         format?: string;
     }[];
     stateIdMap?: Map<string, string>;
-};
+}
 
 export type HapDevice =
     | HapDeviceIp
@@ -80,15 +80,15 @@ const ignoredHapServices = [
     'public.hap.service.protocol.information.service'
 ];
 
-type StateFunctions = {
+interface StateFunctions {
     converter?: {
         read: (value: ioBroker.StateValue) => ioBroker.StateValue,
         write?: (value: ioBroker.StateValue) => ioBroker.StateValue,
     },
     stateChangeFunction?: (value: ioBroker.StateValue) => Promise<void>
-};
+}
 
-type SetCharacteristicResponse = {
+interface SetCharacteristicResponse {
     characteristics: [
         {
             aid: number;
