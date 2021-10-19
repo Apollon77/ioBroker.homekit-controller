@@ -66,12 +66,15 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 ### TODO
 * Add a proper Config UI with options to pair/unpair/identify
 * check how the adapter works with buttons (they do not have a state, and I do not own such a device. need support for this)
-* check all "connected" cases to make sure "device "connected" states are updated correctly
 * look into supporting video devices
 * look into support devices that offer images
-* check all cases where polling updates might overlap
+* check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (Apollon77) Optimizations and added some Elgato states
+* (Apollon77) Initial GitHub release
 
 ### 0.0.x
 * (Apollon77) Initial commit and Alpha GitHub testing
