@@ -71,8 +71,7 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 0.1.0 (2021-10-19)
 * (Apollon77) Optimizations and added some Elgato states
 * (Apollon77) Initial GitHub release
 

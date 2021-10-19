@@ -1,114 +1,126 @@
 {
-    "common": {
-        "name": "homekit-controller",
-        "version": "0.0.1",
-        "news": {
-            "0.0.1": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "zh-cn": "首次出版"
-            }
-        },
-        "titleLang": {
-            "en": "HomeKit Controller",
-            "de": "HomeKit-Controller",
-            "ru": "Контроллер HomeKit",
-            "pt": "Controlador HomeKit",
-            "nl": "HomeKit-controller",
-            "fr": "Contrôleur HomeKit",
-            "it": "Controller HomeKit",
-            "es": "Controlador HomeKit",
-            "pl": "Kontroler HomeKit",
-            "zh-cn": "HomeKit 控制器"
-        },
-        "desc": {
-            "en": "Pair and control HomeKit devices directly",
-            "de": "HomeKit-Geräte direkt koppeln und steuern",
-            "ru": "Сопряжение и управление устройствами HomeKit напрямую",
-            "pt": "Emparelhe e controle dispositivos HomeKit diretamente",
-            "nl": "Koppel en bedien HomeKit-apparaten rechtstreeks",
-            "fr": "Associez et contrôlez directement les appareils HomeKit",
-            "it": "Associa e controlla direttamente i dispositivi HomeKit",
-            "es": "Empareje y controle los dispositivos HomeKit directamente",
-            "pl": "Paruj i steruj bezpośrednio urządzeniami HomeKit",
-            "zh-cn": "直接配对和控制 HomeKit 设备"
-        },
-        "authors": [
-            "Ingo Fischer <github@fischer-ka.de>"
-        ],
-        "keywords": [
-            "homekit",
-            "hap"
-        ],
-        "license": "MIT",
-        "platform": "Javascript/Node.js",
-        "icon": "homekit-controller.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/Apollon77/ioBroker.homekit-controller/master/admin/homekit-controller.png",
-        "readme": "https://github.com/Apollon77/ioBroker.homekit-controller/blob/master/README.md",
-        "loglevel": "info",
-        "mode": "daemon",
-        "type": "iot-systems",
-        "compact": true,
-        "connectionType": "local",
-        "dataSource": "push",
-        "materialize": true,
-        "dependencies": [
-            {
-                "js-controller": ">=3.3.15"
-            }
-        ],
-        "messagebox": true,
-        "plugins": {
-            "sentry": {
-                "dsn": "https://7d63ca90c6ac4233b96e8be000b1f3d0@sentry.iobroker.net/161",
-                "pathWhitelist": [
-                    "@apollon",
-                    "hap-controller"
-                ],
-                "errorBlacklist": [
-                    "SyntaxError"
-                ]
-            }
-        }
+  "common": {
+    "name": "homekit-controller",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "Optimizations and added some Elgato states\nInitial GitHub release",
+        "de": "Optimierungen und einige Elgato-Zustände hinzugefügt\nErste GitHub-Version",
+        "ru": "Оптимизация и добавлены некоторые состояния Elgato\nПервоначальный выпуск GitHub",
+        "pt": "Otimizações e alguns estados de Elgato adicionados\nLançamento inicial do GitHub",
+        "nl": "Optimalisaties en enkele Elgato-statussen toegevoegd\nEerste GitHub-release",
+        "fr": "Optimisations et ajout de certains états Elgato\nVersion initiale de GitHub",
+        "it": "Ottimizzazioni e aggiunti alcuni stati Elgato\nRilascio iniziale di GitHub",
+        "es": "Optimizaciones y agregados algunos estados de Elgato\nLanzamiento inicial de GitHub",
+        "pl": "Optymalizacje i dodanie niektórych stanów Elgato\nPierwsze wydanie GitHub",
+        "zh-cn": "优化并添加了一些 Elgato 状态\n最初的 GitHub 版本"
+      },
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "zh-cn": "首次出版"
+      }
     },
-    "native": {
-        "discoverIp": true,
-        "discoverBle": false,
-        "dataPollingIntervalIp": 30,
-        "dataPollingIntervalBle": 60,
-        "bleInterface": "",
-        "updateOnlyChangedValues": true
+    "titleLang": {
+      "en": "HomeKit Controller",
+      "de": "HomeKit-Controller",
+      "ru": "Контроллер HomeKit",
+      "pt": "Controlador HomeKit",
+      "nl": "HomeKit-controller",
+      "fr": "Contrôleur HomeKit",
+      "it": "Controller HomeKit",
+      "es": "Controlador HomeKit",
+      "pl": "Kontroler HomeKit",
+      "zh-cn": "HomeKit 控制器"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "Device or service connected",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
-    ]
+    "desc": {
+      "en": "Pair and control HomeKit devices directly",
+      "de": "HomeKit-Geräte direkt koppeln und steuern",
+      "ru": "Сопряжение и управление устройствами HomeKit напрямую",
+      "pt": "Emparelhe e controle dispositivos HomeKit diretamente",
+      "nl": "Koppel en bedien HomeKit-apparaten rechtstreeks",
+      "fr": "Associez et contrôlez directement les appareils HomeKit",
+      "it": "Associa e controlla direttamente i dispositivi HomeKit",
+      "es": "Empareje y controle los dispositivos HomeKit directamente",
+      "pl": "Paruj i steruj bezpośrednio urządzeniami HomeKit",
+      "zh-cn": "直接配对和控制 HomeKit 设备"
+    },
+    "authors": [
+      "Ingo Fischer <github@fischer-ka.de>"
+    ],
+    "keywords": [
+      "homekit",
+      "hap"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "icon": "homekit-controller.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/Apollon77/ioBroker.homekit-controller/master/admin/homekit-controller.png",
+    "readme": "https://github.com/Apollon77/ioBroker.homekit-controller/blob/master/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "iot-systems",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "push",
+    "materialize": true,
+    "dependencies": [
+      {
+        "js-controller": ">=3.3.15"
+      }
+    ],
+    "messagebox": true,
+    "plugins": {
+      "sentry": {
+        "dsn": "https://7d63ca90c6ac4233b96e8be000b1f3d0@sentry.iobroker.net/161",
+        "pathWhitelist": [
+          "@apollon",
+          "hap-controller"
+        ],
+        "errorBlacklist": [
+          "SyntaxError"
+        ]
+      }
+    }
+  },
+  "native": {
+    "discoverIp": true,
+    "discoverBle": false,
+    "dataPollingIntervalIp": 30,
+    "dataPollingIntervalBle": 60,
+    "bleInterface": "",
+    "updateOnlyChangedValues": true
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
