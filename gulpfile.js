@@ -11,7 +11,7 @@ const iopackage = require('./io-package.json');
 const version   = (pkg && pkg.version) ? pkg.version : iopackage.common.version;
 const fileName  = 'words.js';
 const EMPTY     = '';
-const translate = require('./lib/tools.js').translateText;
+const translate = require('./build/lib/tools').translateText;
 const del       = require('del');
 const cp        = require('child_process');
 
@@ -477,7 +477,7 @@ gulp.task('translate', async function () {
 gulp.task('translateAndUpdateWordsJS', gulp.series('translate', 'adminLanguages2words', 'adminWords2languages'));
 
 gulp.task('clean', () =>
-    del(['admin/*/**', 'admin/*', '!admin/actions.js', '!admin/alexalogo.png', '!admin/blockly.js', '!admin/iot.png']));
+    del(['admin/*/**', 'admin/*', '!admin/actions.js', '!admin/homekit-controller.png', '!admin/src/**/*', '!admin/src/*']));
 
 function npmInstall() {
     return new Promise((resolve, reject) => {
