@@ -477,7 +477,7 @@ gulp.task('translate', async function () {
 gulp.task('translateAndUpdateWordsJS', gulp.series('translate', 'adminLanguages2words', 'adminWords2languages'));
 
 gulp.task('clean', () =>
-    del(['admin/*/**', 'admin/*', '!admin/actions.js', '!admin/homekit-controller.png', '!admin/src/**/*', '!admin/src/*']));
+    del(['admin/*/**', 'admin/*', '!admin/actions.js', '!admin/homekit-controller.png', '!admin/src', '!admin/src/**/*', '!admin/src/*']));
 
 function npmInstall() {
     return new Promise((resolve, reject) => {
