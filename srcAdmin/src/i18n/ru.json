@@ -25,5 +25,8 @@
   "Update only changed values": "Обновлять только измененные значения",
   "Options": "Параметры",
   "Devices": "Устройства",
-  "seconds": "секунды"
+  "seconds": "секунды",
+  "Are you sure?": "Вы уверены?",
+  "Please confirm": "Пожалуйста подтвердите",
+  "Cancel": "Отмена"
 }

@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
+
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Popover from '@material-ui/core/Popover';
@@ -48,10 +50,10 @@ const styles = theme => ({
         color: '#FF8080'
     },
     cellId: {
-
+        width: 200,
     },
     cellButtons: {
-        width: 50
+        width: 90
     },
     cellType: {
         width: 50
@@ -75,6 +77,18 @@ const styles = theme => ({
     },
     iconBluetooth: {
         color: theme.palette.type === 'dark' ? '#0101e0' : '#0000bd'
+    },
+    buttonSmall: {
+        marginRight: 4,
+    },
+    buttonIdent: {
+
+    },
+    buttonPair: {
+
+    },
+    buttonUnpair: {
+
     }
 });
 
@@ -91,14 +105,15 @@ class Devices extends Component {
             popover: '',
             showPinDialog: false,
             pin: '',
-            pinFor: ''
+            pinFor: '',
+            showSureDialog: false,
         };
 
         this.aliveID = `system.adapter.${this.props.adapterName}.${this.props.instance}.alive`;
     }
     getDataWithTimeout() {
         this.getTimeout && clearTimeout(this.getTimeout);
-        this.getTimeout = this.setTimeout(() => {
+        this.getTimeout = setTimeout(() => {
             this.getTimeout = null;
             this.getData();
         }, 1500);
@@ -157,7 +172,7 @@ class Devices extends Component {
                         this.setState({processing: false, popover: I18n.t('Paired')});
                     }
                 })
-                .catch(error => this.setState({processing: false, message: I18n.t(error)}));
+                .catch(error => this.setState({processing: false, message: JSON.stringify(error)}));
         });
     }
 
@@ -172,7 +187,7 @@ class Devices extends Component {
                         this.setState({processing: false, popover: I18n.t('Unpaired')});
                     }
                 })
-                .catch(error => this.setState({processing: false, message: I18n.t(error)}));
+                .catch(error => this.setState({processing: false, message:JSON.stringify(error)}));
         });
     }
 
@@ -187,7 +202,7 @@ class Devices extends Component {
                         this.setState({processing: false, popover: I18n.t('Identified')});
                     }
                 })
-                .catch(error => this.setState({processing: false, message: I18n.t(error)}));
+                .catch(error => this.setState({processing: false, message: JSON.stringify(error)}));
         });
     }
 
@@ -200,9 +215,31 @@ class Devices extends Component {
             <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')}/> : null}</TableCell>
             <TableCell className={classes.cellDiscovered}>{device.discovered ? <IconDiscovered title={I18n.t('Discovered')} /> : null}</TableCell>
             <TableCell className={classes.cellButtons}>
-                {device.connected ? <Fab title={I18n.t('Identify')} size="small" onClick={() => this.onIdent(device.id)}><IconIdent /></Fab> : null}
-                {device.availableToPair ? <Fab title={I18n.t('Pair')} size="small" onClick={() => this.setState({showPinDialog: true,  pin: '', pinFor: device.id})}><IconPair /></Fab> : null}
-                {device.pairedWithThisInstance ? <Fab title={I18n.t('Unpair')} size="small" onClick={() => this.onUnpair(device.id)}><IconUnpair /></Fab> : null}
+                {device.connected ?
+                    <Fab
+                        className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonIdent)}
+                        disabled={this.state.processing}
+                        title={I18n.t('Identify')}
+                        size="small"
+                        onClick={() => this.onIdent(device.id)}
+                    ><IconIdent /></Fab> : null
+                }
+                {device.availableToPair ?
+                    <Fab
+                        className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonPair)}
+                        disabled={this.state.processing}
+                        title={I18n.t('Pair')}
+                        size="small"
+                        onClick={() => this.setState({showPinDialog: true, pin: '', pinFor: device.id})}
+                    ><IconPair /></Fab> : null}
+                {device.pairedWithThisInstance ?
+                    <Fab
+                        className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonUnpair)}
+                        disabled={this.state.processing}
+                        title={I18n.t('Unpair')}
+                        size="small"
+                        onClick={() => this.setState({showSureDialog: true, pinFor: device.id})}
+                    ><IconUnpair /></Fab> : null}
             </TableCell>
         </TableRow>;
     }
@@ -299,6 +336,34 @@ class Devices extends Component {
         </Dialog>;
     }
 
+    renderSureDialog() {
+        return <Dialog
+            open={this.state.showSureDialog}
+            onClose={() => this.setState({showSureDialog: false, pinFor: ''})}
+        >
+            <DialogTitle>{I18n.t('Please confirm')}</DialogTitle>
+            <DialogContent>
+                {I18n.t('Are you sure?')}
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={()=> {
+                        const deviceId = this.state.pinFor;
+                        this.setState({showSureDialog: false, pinFor: ''}, () =>
+                            this.onUnpair(deviceId));
+                    }}
+                >{I18n.t('Unpair')}</Button>
+                <Button
+                    autoFocus
+                    variant="contained"
+                    onClick={() => this.setState({showSureDialog: false, pinFor: ''})}
+                >{I18n.t('Cancel')}</Button>
+            </DialogActions>
+        </Dialog>;
+    }
+
     render() {
         if (this.state.loading && this.state.alive) {
             return <CircularProgress />;
@@ -312,6 +377,7 @@ class Devices extends Component {
             {this.renderMessage()}
             {this.showPopper()}
             {this.renderPinDialog()}
+            {this.renderSureDialog()}
         </Paper>;
     }
 }

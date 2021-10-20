@@ -25,5 +25,8 @@
   "Update only changed values": "仅更新更改的值",
   "Options": "选项",
   "Devices": "设备",
-  "seconds": "秒"
+  "seconds": "秒",
+  "Are you sure?": "你确定吗？",
+  "Please confirm": "请确认",
+  "Cancel": "取消"
 }
