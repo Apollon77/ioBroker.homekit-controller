@@ -26,6 +26,7 @@ import IconDiscovered from '@material-ui/icons/Visibility';
 import IconConnected from '@material-ui/icons/Wifi';
 import IconRefresh from '@material-ui/icons/Refresh';
 import IconBluetooth from '@material-ui/icons/Bluetooth';
+import IconIP from '@material-ui/icons/SettingsEthernet';
 //import IconNotConnected from '@material-ui/icons/WifiOff';
 
 import I18n from '@iobroker/adapter-react/i18n';
@@ -68,6 +69,12 @@ const styles = theme => ({
     },
     popover: {
         padding: 16
+    },
+    iconIP: {
+        color: theme.palette.type === 'dark' ? '#057305' : '#05a605'
+    },
+    iconBluetooth: {
+        color: theme.palette.type === 'dark' ? '#0101e0' : '#0000bd'
     }
 });
 
@@ -187,7 +194,7 @@ class Devices extends Component {
     renderDevice(device, classes) {
         return <TableRow key={device.id}>
             <TableCell className={classes.cellId}>{device.id}</TableCell>
-            <TableCell className={classes.cellType}>{device.serviceType === 'BLE' ? <IconBluetooth/> : device.serviceType}</TableCell>
+            <TableCell className={classes.cellType}>{device.serviceType === 'BLE' ? <IconBluetooth className={this.props.classes.iconBluetooth}/> : <IconIP className={this.props.classes.iconIP}/>}</TableCell>
             <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')}/> : null}</TableCell>
             <TableCell className={classes.cellDiscovered}>{device.discovered ? <IconDiscovered title={I18n.t('Discovered')} /> : null}</TableCell>
             <TableCell className={classes.cellName}>{device.discoveredName}</TableCell>
