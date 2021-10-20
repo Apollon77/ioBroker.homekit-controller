@@ -15,7 +15,7 @@ const styles = theme => ({
         minHeight: '100%'
     },
     input: {
-        minWidth: 300
+        minWidth: 350
     },
     button: {
         marginRight: 20,
@@ -58,15 +58,13 @@ class Options extends Component {
         this.state = {};
     }
 
-    renderInput(title, attr, type) {
-        const error = attr === 'pass' && this.checkPassword(this.props.native[attr]);
+    renderInput(title, attr, type, helpText) {
         return <TextField
             label={ I18n.t(title) }
-            error={ !!error  }
             className={ this.props.classes.input }
             value={ this.props.native[attr] }
             type={ type || 'text' }
-            helperText={ error || '' }
+            helperText={ helpText || '' }
             onChange={ e => this.props.onChange(attr, e.target.value) }
             margin="normal"
         />;
@@ -99,8 +97,8 @@ class Options extends Component {
                 { this.renderCheckbox('Discover over IP', 'discoverIp') }
                 { this.renderCheckbox('Discover over Bluetooth', 'discoverIp') }
                 <br/>
-                { this.renderInput('Data polling interval for IP', 'dataPollingIntervalIp', 'number') }<br/>
-                { this.renderInput('Data polling interval for Bluetooth', 'dataPollingIntervalBle', 'number') }<br/>
+                { this.renderInput('Data polling interval for IP', 'dataPollingIntervalIp', 'number', I18n.t('seconds')) }<br/>
+                { this.renderInput('Data polling interval for Bluetooth', 'dataPollingIntervalBle', 'number', I18n.t('seconds')) }<br/>
                 { this.renderCheckbox('Update only changed values', 'updateOnlyChangedValues') }
             </div>
         </form>;

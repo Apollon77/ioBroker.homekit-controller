@@ -1,26 +1,9 @@
 import React, {Component} from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import Switch from '@material-ui/core/Switch';
-import {MdEdit as IconEdit} from 'react-icons/md';
-
-import Utils from '@iobroker/adapter-react/Components/Utils';
-import I18n from '@iobroker/adapter-react/i18n';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import Dialog from '@material-ui/core/Dialog';
-import MessageDialog from '@iobroker/adapter-react/Dialogs/Message';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import IconClose from "@material-ui/icons/Close";
-import IconPlay from '@material-ui/icons/PlayArrow';
-import IconPair from '@material-ui/icons/Link';
-import IconUnpair from '@material-ui/icons/LinkOff';
-import IconIdent from '@material-ui/icons/QuestionAnswer';
-
+import Popover from '@material-ui/core/Popover';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -28,6 +11,26 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Fab from '@material-ui/core/Fab';
+
+import IconPlay from '@material-ui/icons/PlayArrow';
+import IconPair from '@material-ui/icons/Link';
+import IconUnpair from '@material-ui/icons/LinkOff';
+import IconIdent from '@material-ui/icons/QuestionAnswer';
+import IconDiscovered from '@material-ui/icons/Visibility';
+import IconConnected from '@material-ui/icons/Wifi';
+import IconRefresh from '@material-ui/icons/Refresh';
+import IconBluetooth from '@material-ui/icons/Bluetooth';
+//import IconNotConnected from '@material-ui/icons/WifiOff';
+
+import I18n from '@iobroker/adapter-react/i18n';
+import MessageDialog from '@iobroker/adapter-react/Dialogs/Message';
+import {TextField} from '@material-ui/core';
 
 const styles = theme => ({
     tab: {
@@ -42,6 +45,29 @@ const styles = theme => ({
         textAlign: 'center',
         fontSize: 16,
         color: '#FF8080'
+    },
+    cellId: {
+
+    },
+    cellButtons: {
+        width: 50
+    },
+    cellType: {
+        width: 50
+    },
+    cellName: {
+    },
+    cellCategory: {
+        width: 150
+    },
+    cellConnected: {
+        width: 80
+    },
+    cellDiscovered: {
+        width: 80
+    },
+    popover: {
+        padding: 16
     }
 });
 
@@ -53,17 +79,30 @@ class Devices extends Component {
             devices: [],
             loading: true,
             alive: false,
+            processing: false,
+            message: '',
+            popover: '',
+            showPinDialog: false,
+            pin: '',
+            pinFor: ''
         };
 
         this.aliveID = `system.adapter.${this.props.adapterName}.${this.props.instance}.alive`;
+    }
+    getDataWithTimeout() {
+        this.getTimeout && clearTimeout(this.getTimeout);
+        this.getTimeout = this.setTimeout(() => {
+            this.getTimeout = null;
+            this.getData();
+        }, 1500);
     }
 
     getData() {
         this.props.socket.getState(this.aliveID)
             .then(state => {
                 if (state && state.val) {
-                    this.props.socket.sendTo(null, 'getDiscoveredDevices')
-                        .then(devices => this.setState({devices, loading: false, alive: true}));
+                    this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'getDiscoveredDevices')
+                        .then(result => this.setState({devices: result.devices || [], loading: false, alive: true}));
                 } else if (this.state.alive) {
                     this.setState({alive: false});
                 }
@@ -87,51 +126,170 @@ class Devices extends Component {
 
     componentWillUnmount() {
         this.props.socket.unsubscribeState(this.aliveID, this.onAliveChanged);
+        this.hidePopuTimer && clearTimeout(this.hidePopuTimer);
+        this.getTimeout && clearTimeout(this.getTimeout);
     }
 
     renderMessage() {
         if (this.state.message) {
-            return <MessageDialog text={this.state.message} onClose={() => this.setState({message: ''})}/>;
+            return <MessageDialog text={this.state.message} title={I18n.t('Error')} onClose={() =>
+                this.setState({message: ''})}/>;
         } else {
             return null;
         }
     }
 
-    renderDevice(device) {
-        return <TableRow>
-            <TableCell>{device.id}</TableCell>
-            <TableCell>{device.serviceType}</TableCell>
-            <TableCell>{device.connected}</TableCell>
-            <TableCell>{device.discovered}</TableCell>
-            <TableCell>{device.discoveredName}</TableCell>
-            <TableCell>{device.discoveredCategory}</TableCell>
-            <TableCell>
-                {device.connected ? <IconButton title={I18n.t('Identify')} size="small"><IconIdent /></IconButton> : null}
-                {device.availableToPair ? <IconButton title={I18n.t('Pair')} size="small"><IconPair /></IconButton> : null}
-                {device.pairedWithThisInstance ? <IconButton title={I18n.t('Unpair')} size="small"><IconUnpair /></IconButton> : null}
+    onPair(deviceId, pin) {
+        this.setState({processing: true}, () => {
+            this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'pairDevice', {deviceId, pin})
+                .then(result => {
+                    if (result.error) {
+                        this.setState({processing: false, message: result.error});
+                    } else {
+                        this.getDataWithTimeout();
+                        this.setState({processing: false, popover: I18n.t('Paired')});
+                    }
+                })
+                .catch(error => this.setState({processing: false, message: I18n.t(error)}));
+        });
+    }
+
+    onUnpair(deviceId) {
+        this.setState({processing: true}, () => {
+            this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'unpairDevice', {deviceId})
+                .then(result => {
+                    if (result.error) {
+                        this.setState({processing: false, message: result.error});
+                    } else {
+                        this.getDataWithTimeout();
+                        this.setState({processing: false, popover: I18n.t('Unpaired')});
+                    }
+                })
+                .catch(error => this.setState({processing: false, message: I18n.t(error)}));
+        });
+    }
+
+    onIdent(deviceId) {
+        this.setState({processing: true}, () => {
+            this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'identify', {deviceId})
+                .then(result => {
+                    if (result.error) {
+                        this.setState({processing: false, message: result.error});
+                    } else {
+                        this.getDataWithTimeout();
+                        this.setState({processing: false, popover: I18n.t('Identified')});
+                    }
+                })
+                .catch(error => this.setState({processing: false, message: I18n.t(error)}));
+        });
+    }
+
+    renderDevice(device, classes) {
+        return <TableRow key={device.id}>
+            <TableCell className={classes.cellId}>{device.id}</TableCell>
+            <TableCell className={classes.cellType}>{device.serviceType === 'BLE' ? <IconBluetooth/> : device.serviceType}</TableCell>
+            <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')}/> : null}</TableCell>
+            <TableCell className={classes.cellDiscovered}>{device.discovered ? <IconDiscovered title={I18n.t('Discovered')} /> : null}</TableCell>
+            <TableCell className={classes.cellName}>{device.discoveredName}</TableCell>
+            <TableCell className={classes.cellCategory}>{device.discoveredCategory}</TableCell>
+            <TableCell className={classes.cellButtons}>
+                {device.connected ? <Fab title={I18n.t('Identify')} size="small" onClick={() => this.onIdent(device.id)}><IconIdent /></Fab> : null}
+                {device.availableToPair ? <Fab title={I18n.t('Pair')} size="small" onClick={() => this.setState({showPinDialog: true,  pin: '', pinFor: device.id})}><IconPair /></Fab> : null}
+                {device.pairedWithThisInstance ? <Fab title={I18n.t('Unpair')} size="small" onClick={() => this.onUnpair(device.id)}><IconUnpair /></Fab> : null}
             </TableCell>
         </TableRow>;
     }
 
     renderTable() {
-        return <TableContainer className={this.props.classes.container}>
-            <Table stickyHeader aria-label="sticky table">
+        const classes = this.props.classes;
+        return <TableContainer className={this.props.classes.container} >
+            <Table stickyHeader size="small" aria-label="sticky table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>{I18n.t('Type')}</TableCell>
-                        <TableCell>{I18n.t('Connected')}</TableCell>
-                        <TableCell>{I18n.t('Discovered')}</TableCell>
-                        <TableCell>{I18n.t('Name')}</TableCell>
-                        <TableCell>{I18n.t('Category')}</TableCell>
-                        <TableCell>{I18n.t('Pairing')}</TableCell>
+                        <TableCell className={classes.cellId}>
+                            <IconButton onClick={() => this.getData()} size="small" title={I18n.t('Refresh devices list')}>
+                                <IconRefresh/>
+                            </IconButton>
+                            {I18n.t('ID')}</TableCell>
+                        <TableCell className={classes.cellType}>{I18n.t('Type')}</TableCell>
+                        <TableCell className={classes.cellConnected}>{I18n.t('Connected')}</TableCell>
+                        <TableCell className={classes.cellDiscovered}>{I18n.t('Discovered')}</TableCell>
+                        <TableCell className={classes.cellName}>{I18n.t('Name')}</TableCell>
+                        <TableCell className={classes.cellCategory}>{I18n.t('Category')}</TableCell>
+                        <TableCell className={classes.cellButtons}/>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {this.state.devices.map(device => this.renderDevice(device))}
+                    {this.state.devices.map(device => this.renderDevice(device, classes))}
                 </TableBody>
             </Table>
         </TableContainer>;
+    }
+
+    showPopper() {
+        if (this.state.popover && !this.hidePopuTimer) {
+            this.hidePopuTimer = setTimeout(() => {
+                this.hidePopuTimer = null;
+                this.setState({popover: ''});
+            }, 4000);
+        }
+
+        return <Popover
+            open={!!this.state.popover}
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+            }}
+            onClose={() => this.setState({popover: ''})}
+            onClick={() => this.setState({popover: ''})}
+        >
+            <Paper className={this.props.classes.popover}>
+                {this.state.popover}
+            </Paper>
+        </Popover>
+    }
+
+    renderPinDialog() {
+        return <Dialog
+            open={this.state.showPinDialog}
+            onClose={() => this.setState({showPinDialog: false, pin: '', pinFor: ''})}
+        >
+            <DialogTitle>{I18n.t('Please enter PIN')}</DialogTitle>
+            <DialogContent>
+                <TextField
+                    value={this.state.pin}
+                    onChange={e => this.setState({pin: e.target.value})}
+                    label={I18n.t('PIN')}
+                    fullWidth
+                    autoFocus
+                    onKeyUp={e => {
+                        if (e.keyCode === 13 && (this.state.pin || this.state.pin === 0)) {
+                            const deviceId = this.state.pinFor;
+                            const pin = this.state.pin;
+                            this.setState({showPinDialog: false, pin: '', pinFor: ''}, () =>
+                                this.onPair(deviceId, pin));
+                        }
+                    }}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={!this.state.pin && this.state.pin !== 0}
+                    onClick={()=> {
+                        const deviceId = this.state.pinFor;
+                        const pin = this.state.pin;
+                        this.setState({showPinDialog: false, pin: '', pinFor: ''}, () =>
+                            this.onPair(deviceId, pin));
+                    }}
+                >{I18n.t('Pair')}</Button>
+                <Button
+                    variant="contained"
+                    onClick={() => this.setState({showPinDialog: false, pin: '', pinFor: ''})}
+                >{I18n.t('Close')}</Button>
+            </DialogActions>
+        </Dialog>;
     }
 
     render() {
@@ -145,6 +303,8 @@ class Devices extends Component {
                 this.props.socket.setState(this.aliveID, true);
             }} iconStart={<IconPlay />}>{I18n.t('Start?')}</Button>}
             {this.renderMessage()}
+            {this.showPopper()}
+            {this.renderPinDialog()}
         </Paper>;
     }
 }
