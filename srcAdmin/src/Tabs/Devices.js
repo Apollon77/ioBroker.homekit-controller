@@ -293,13 +293,13 @@ class Devices extends Component {
     }
 
     render() {
-        if (this.state.loading) {
+        if (this.state.loading && this.state.alive) {
             return <CircularProgress />;
         }
         return <Paper className={this.props.classes.tab}>
             {this.state.alive && this.renderTable()}
             {this.state.alive ? null : <div className={this.props.classes.notAlive}>{I18n.t('Instance must be started to set up the devices')}</div>}
-            {this.state.alive ? null : <Button onClick={() => {
+            {this.state.alive ? null : <Button className={this.props.classes.startButton} variant="contained" color="primary" onClick={() => {
                 this.props.socket.setState(this.aliveID, true);
             }} iconStart={<IconPlay />}>{I18n.t('Start?')}</Button>}
             {this.renderMessage()}

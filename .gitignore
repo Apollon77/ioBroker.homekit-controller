@@ -19,3 +19,5 @@ admin/i18n/*/flat.txt
 
 .dev-server
 /admin/src/package-lock.json
+/srcAdmin/package-lock.json
+/srcAdmin/build
