@@ -63,6 +63,10 @@ Because of the limitations of Bluetooth devices no "real-time updates" of state 
 
 After a restart of the adapter bluetooth devices can not be connected directly - the system needs to receive at least one discovery package from the device to get the needed connection details. This mean BLE devices might be available a bit delayed.
 
+### Resources and Links
+* Resource that tries to decode Elgato special states: https://gist.github.com/simont77/3f4d4330fa55b83f8ca96388d9004e7d
+* 
+
 ### TODO
 * Add a proper Config UI with options to pair/unpair/identify
 * check how the adapter works with buttons (they do not have a state, and I do not own such a device. need support for this)
@@ -71,6 +75,10 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
+### __WORK IN PROGRESS__
+* (Apollon77) Enhance error messages
+* (bluefox) Add Admin UI
+
 ### 0.1.0 (2021-10-19)
 * (Apollon77) Optimizations and added some Elgato states
 * (Apollon77) Initial GitHub release

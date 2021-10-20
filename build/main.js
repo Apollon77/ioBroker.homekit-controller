@@ -44,6 +44,15 @@ const ignoredHapServices = [
     'public.hap.service.pairing',
     'public.hap.service.protocol.information.service',
 ];
+const pairingErrorMessages = {
+    1: 'Unknown Error',
+    2: 'Setup code or signature verification failed.',
+    3: 'Retry later',
+    4: 'Device cannot accept any more pairings.',
+    5: 'Device reached its maximum number of authentication attempts.',
+    6: 'Pairing method is unavailable.',
+    7: 'Device is busy and cannot accept a pairing request at this time. Retry later.',
+};
 function isSetCharacteristicErrorResponse(value) {
     return value &&
         value.characteristics &&
@@ -797,13 +806,14 @@ class HomekitController extends utils.Adapter {
             await device.client.pairSetup(pin.toString(), pairMethod);
         }
         catch (err) {
-            throw new Error(`Cannot pair with device ${device.id} because of error ${err.statusCode}: ${err.message}`);
+            throw new Error(`Cannot pair with device ${device.id} because of error ${err.statusCode} (${pairingErrorMessages[err.statusCode]}): ${err.message}`);
         }
         const pairingData = device.client.getLongTermData();
         if (!pairingData) {
             throw new Error(`No pairing data retrieved after pair for device ${device.id}. Aborting.`);
         }
         device.pairingData = pairingData;
+        device.service.availableToPair = false;
         await this.initDevice(device);
     }
     async unpairDevice(device) {
@@ -829,6 +839,9 @@ class HomekitController extends utils.Adapter {
             throw new Error(`Cannot unpair from device ${device.id} because of error ${err.statusCode}: ${err.message}`);
         }
         delete device.pairingData;
+        if (device.service) {
+            device.service.availableToPair = false;
+        }
         device.client.removeAllListeners('event');
         device.client.removeAllListeners('event-disconnect');
         delete device.client;

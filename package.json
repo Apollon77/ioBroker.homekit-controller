@@ -53,6 +53,7 @@
     "axios": "^0.23.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "del": "^6.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.26.1",
     "gulp": "^4.0.2",
@@ -72,11 +73,9 @@
   "main": "build/main.js",
   "scripts": {
     "prebuild": "rimraf ./build",
-    "build:parcel": "parcel build admin/src/index.tsx -d admin/build",
     "build:ts": "tsc -p tsconfig.build.json",
-    "build": "npm run build:ts && npm run build:parcel",
+    "build": "npm run build:ts && npm run buildGui",
     "buildGui": "gulp",
-    "watch:parcel": "parcel admin/src/index.tsx -d admin/build",
     "watch:ts": "tsc -p tsconfig.build.json --watch",
     "watch": "npm run watch:ts",
     "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
@@ -85,7 +84,7 @@
     "test:integration": "mocha test/integration --exit",
     "test": "npm run test:ts && npm run test:package",
     "check": "tsc --noEmit",
-    "lint": "eslint --ext .ts,.tsx src/ admin/src/",
+    "lint": "eslint --ext .ts,.tsx src/",
     "release": "release-script"
   },
   "bugs": {

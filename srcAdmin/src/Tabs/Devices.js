@@ -215,7 +215,7 @@ class Devices extends Component {
             <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')}/> : null}</TableCell>
             <TableCell className={classes.cellDiscovered}>{device.discovered ? <IconDiscovered title={I18n.t('Discovered')} /> : null}</TableCell>
             <TableCell className={classes.cellButtons}>
-                {device.connected ?
+                {device.availableToPair ?
                     <Fab
                         className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonIdent)}
                         disabled={this.state.processing}

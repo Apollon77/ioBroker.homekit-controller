@@ -92,6 +92,16 @@ interface SetCharacteristicResponse {
     ]
 }
 
+const pairingErrorMessages = {
+    1: 'Unknown Error',
+    2: 'Setup code or signature verification failed.',
+    3: 'Retry later',
+    4: 'Device cannot accept any more pairings.',
+    5: 'Device reached its maximum number of authentication attempts.',
+    6: 'Pairing method is unavailable.',
+    7: 'Device is busy and cannot accept a pairing request at this time. Retry later.',
+}
+
 function isSetCharacteristicErrorResponse(value: any): value is SetCharacteristicResponse {
     return value &&
     value.characteristics &&
@@ -902,7 +912,7 @@ class HomekitController extends utils.Adapter {
         try {
             await device.client.pairSetup(pin.toString(), pairMethod);
         } catch (err) {
-            throw new Error(`Cannot pair with device ${device.id} because of error ${err.statusCode}: ${err.message}`);
+            throw new Error(`Cannot pair with device ${device.id} because of error ${err.statusCode} (${pairingErrorMessages[err.statusCode as keyof typeof pairingErrorMessages]}): ${err.message}`);
         }
 
         const pairingData = device.client.getLongTermData();
@@ -910,6 +920,7 @@ class HomekitController extends utils.Adapter {
             throw new Error(`No pairing data retrieved after pair for device ${device.id}. Aborting.`);
         }
         device.pairingData = pairingData;
+        device.service.availableToPair = false;
         await this.initDevice(device);
     }
 
@@ -937,6 +948,9 @@ class HomekitController extends utils.Adapter {
         }
 
         delete device.pairingData;
+        if (device.service) {
+            device.service.availableToPair = false;
+        }
         device.client.removeAllListeners('event');
         device.client.removeAllListeners('event-disconnect');
         delete device.client;
