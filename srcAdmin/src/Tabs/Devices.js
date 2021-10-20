@@ -194,11 +194,11 @@ class Devices extends Component {
     renderDevice(device, classes) {
         return <TableRow key={device.id}>
             <TableCell className={classes.cellId}>{device.id}</TableCell>
+            <TableCell className={classes.cellName}>{device.discoveredName}</TableCell>
+            <TableCell className={classes.cellCategory}>{device.discoveredCategory}</TableCell>
             <TableCell className={classes.cellType}>{device.serviceType === 'BLE' ? <IconBluetooth className={this.props.classes.iconBluetooth}/> : <IconIP className={this.props.classes.iconIP}/>}</TableCell>
             <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')}/> : null}</TableCell>
             <TableCell className={classes.cellDiscovered}>{device.discovered ? <IconDiscovered title={I18n.t('Discovered')} /> : null}</TableCell>
-            <TableCell className={classes.cellName}>{device.discoveredName}</TableCell>
-            <TableCell className={classes.cellCategory}>{device.discoveredCategory}</TableCell>
             <TableCell className={classes.cellButtons}>
                 {device.connected ? <Fab title={I18n.t('Identify')} size="small" onClick={() => this.onIdent(device.id)}><IconIdent /></Fab> : null}
                 {device.availableToPair ? <Fab title={I18n.t('Pair')} size="small" onClick={() => this.setState({showPinDialog: true,  pin: '', pinFor: device.id})}><IconPair /></Fab> : null}
@@ -218,11 +218,11 @@ class Devices extends Component {
                                 <IconRefresh/>
                             </IconButton>
                             {I18n.t('ID')}</TableCell>
+                        <TableCell className={classes.cellName}>{I18n.t('Name')}</TableCell>
+                        <TableCell className={classes.cellCategory}>{I18n.t('Category')}</TableCell>
                         <TableCell className={classes.cellType}>{I18n.t('Type')}</TableCell>
                         <TableCell className={classes.cellConnected}>{I18n.t('Connected')}</TableCell>
                         <TableCell className={classes.cellDiscovered}>{I18n.t('Discovered')}</TableCell>
-                        <TableCell className={classes.cellName}>{I18n.t('Name')}</TableCell>
-                        <TableCell className={classes.cellCategory}>{I18n.t('Category')}</TableCell>
                         <TableCell className={classes.cellButtons}/>
                     </TableRow>
                 </TableHead>
