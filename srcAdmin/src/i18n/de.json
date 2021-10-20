@@ -14,10 +14,10 @@
   "Name": "Name",
   "Category": "Kategorie",
   "Please enter PIN": "Bitte PIN eingeben",
-  "PIN": "STIFT",
-  "Close": "Nah dran",
+  "PIN": "PIN",
+  "Close": "Abbrechen",
   "Instance must be started to set up the devices": "Instanz muss zum Einrichten der Geräte gestartet werden",
-  "Start?": "Start?",
+  "Start?": "Starten?",
   "Discover over IP": "Über IP entdecken",
   "Discover over Bluetooth": "Über Bluetooth entdecken",
   "Data polling interval for IP": "Datenabfrageintervall für IP",
@@ -25,5 +25,8 @@
   "Update only changed values": "Nur geänderte Werte aktualisieren",
   "Options": "Optionen",
   "Devices": "Geräte",
-  "seconds": "Sekunden"
+  "seconds": "Sekunden",
+  "Are you sure?": "Bist du sicher?",
+  "Please confirm": "Bitte bestätigen",
+  "Cancel": "Abbrechen"
 }

@@ -25,5 +25,8 @@
   "Update only changed values": "Alleen gewijzigde waarden bijwerken",
   "Options": "Opties",
   "Devices": "Apparaten",
-  "seconds": "seconden"
+  "seconds": "seconden",
+  "Are you sure?": "Weet je zeker dat?",
+  "Please confirm": "Bevestig alstublieft",
+  "Cancel": "Annuleren"
 }

@@ -25,5 +25,8 @@
   "Update only changed values": "Atualizar apenas os valores alterados",
   "Options": "Opções",
   "Devices": "Dispositivos",
-  "seconds": "segundos"
+  "seconds": "segundos",
+  "Are you sure?": "Tem certeza?",
+  "Please confirm": "Por favor confirme",
+  "Cancel": "Cancelar"
 }
