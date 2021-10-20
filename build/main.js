@@ -364,6 +364,7 @@ class HomekitController extends utils.Adapter {
                 delete device.dataPollingInterval;
             }
             delete device.client;
+            this.setDeviceConnected(device, false);
         }
         else {
             if (!device.pairingData) {
@@ -387,6 +388,7 @@ class HomekitController extends utils.Adapter {
         try {
             const deviceData = await ((_c = device.clientQueue) === null || _c === void 0 ? void 0 : _c.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.getAccessories()); }));
             if (!deviceData) {
+                this.setDeviceConnected(device, false);
                 this.log.info(`${device.id} Could not load device accessories ... TODO`);
                 device.initInProgress = false;
                 return;
@@ -401,6 +403,7 @@ class HomekitController extends utils.Adapter {
         }
         catch (err) {
             this.log.info(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
+            this.setDeviceConnected(device, false);
         }
         device.initInProgress = false;
     }
@@ -482,7 +485,7 @@ class HomekitController extends utils.Adapter {
         if (!device.subscriptionCharacteristics.length ||
             !device.client ||
             device.serviceType === 'BLE') {
-            this.log.debug(`Device ${device.id} Subscriptions not initialized`);
+            this.log.debug(`Device ${device.id} no subscriptions to initialize`);
             return;
         }
         device.client.on('event', event => {
@@ -540,9 +543,11 @@ class HomekitController extends utils.Adapter {
                     if (data) {
                         this.setCharacteristicValues(device, data);
                     }
+                    this.setDeviceConnected(device, true);
                 }
                 catch (err) {
                     this.log.info(`Device ${device.id} data polling failed: ${err.message}`);
+                    this.setDeviceConnected(device, false);
                 }
             }
             this.scheduleCharacteristicsUpdate(device);
@@ -827,6 +832,7 @@ class HomekitController extends utils.Adapter {
         device.client.removeAllListeners('event');
         device.client.removeAllListeners('event-disconnect');
         delete device.client;
+        this.setDeviceConnected(device, false);
         await this.delObjectAsync(device.id, { recursive: true });
         await this.initDevice(device);
     }

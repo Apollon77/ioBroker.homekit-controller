@@ -11,7 +11,7 @@ travis/
 appveyor.yaml
 
 # React sources for the Admin UI
-admin/src/
+srcAdmin/
 
 # TypeScript sources and project configuration
 src/
