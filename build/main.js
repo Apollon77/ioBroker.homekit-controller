@@ -233,9 +233,11 @@ class HomekitController extends utils.Adapter {
             try {
                 switch (obj.command) {
                     case 'getDiscoveredDevices':
-                        response.devices = [];
+                        const unavailableDevices = [];
+                        const availableDevices = [];
+                        const pairedDevices = [];
                         for (const hapDevice of this.devices.values()) {
-                            response.devices.push({
+                            const deviceData = {
                                 id: hapDevice.id,
                                 serviceType: hapDevice.serviceType,
                                 connected: hapDevice.connected,
@@ -244,7 +246,17 @@ class HomekitController extends utils.Adapter {
                                 discoveredName: (_b = hapDevice.service) === null || _b === void 0 ? void 0 : _b.name,
                                 discoveredCategory: ((_c = hapDevice.service) === null || _c === void 0 ? void 0 : _c.ci) ? (0, category_1.categoryFromId)((_d = hapDevice.service) === null || _d === void 0 ? void 0 : _d.ci) : 'Unknown',
                                 pairedWithThisInstance: !!hapDevice.pairingData,
-                            });
+                            };
+                            if (deviceData.availableToPair) {
+                                availableDevices.push(deviceData);
+                            }
+                            else if (deviceData.pairedWithThisInstance) {
+                                pairedDevices.push(deviceData);
+                            }
+                            else {
+                                unavailableDevices.push(deviceData);
+                            }
+                            response.devices = [...pairedDevices, ...availableDevices, ...unavailableDevices];
                         }
                         break;
                     case 'pairDevice':
@@ -676,15 +688,44 @@ class HomekitController extends utils.Adapter {
     buildPairedDeviceAccessoryObjects(device, deviceData) {
         const objs = new Map();
         deviceData.accessories.forEach((accessory) => {
+            var _a;
+            let accessoryNameId;
             accessory.services.forEach((service) => {
-                const serviceType = (0, service_1.serviceFromUuid)(service.type);
-                if (ignoredHapServices.includes(serviceType)) {
+                var _a;
+                let serviceName = (0, service_1.serviceFromUuid)(service.type);
+                if (ignoredHapServices.includes(serviceName) || !service.type) {
                     return;
                 }
+                if (serviceName.startsWith('public.hap.service.')) {
+                    serviceName = serviceName.substr(19).replace(/\./g, '-'); // remove public.hap.service.
+                }
+                let nameId;
+                let serviceObjName;
                 service.characteristics.forEach((characteristic) => {
-                    ObjectMapper.addCharacteristicObjects(device, objs, accessory, service, characteristic);
+                    const id = ObjectMapper.addCharacteristicObjects(device, objs, accessory, service, characteristic);
+                    if (id === null || id === void 0 ? void 0 : id.endsWith(('accessory-information.name'))) {
+                        accessoryNameId = id;
+                    }
+                    else if (id === null || id === void 0 ? void 0 : id.endsWith('.name')) {
+                        nameId = id;
+                    }
                 });
+                if (nameId) {
+                    serviceObjName = (_a = objs.get(nameId)) === null || _a === void 0 ? void 0 : _a.native.value;
+                }
+                else {
+                    serviceObjName = `${serviceName} ${service.iid}`;
+                }
+                objs.set(`${device.id}.${accessory.aid}.${serviceName}`, ObjectDefaults.getChannelObject(serviceObjName));
             });
+            let accessoryObjName;
+            if (accessoryNameId) {
+                accessoryObjName = (_a = objs.get(accessoryNameId)) === null || _a === void 0 ? void 0 : _a.native.value;
+            }
+            if (!accessoryObjName) {
+                accessoryObjName = `Accessory ${accessory.aid}`;
+            }
+            objs.set(`${device.id}.${accessory.aid}`, ObjectDefaults.getDeviceObject(accessoryObjName));
         });
         return objs;
     }

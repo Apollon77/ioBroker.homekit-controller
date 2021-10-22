@@ -264,7 +264,7 @@ function addServiceObjects(device, objs, accessory, service) {
 exports.addServiceObjects = addServiceObjects;
 function addCharacteristicObjects(device, objs, accessory, service, characteristic) {
     if (!characteristic.type) {
-        return;
+        return undefined;
     }
     let serviceName = (0, service_1.serviceFromUuid)(service.type);
     if (serviceName.startsWith('public.hap.service.')) {
@@ -307,7 +307,9 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
     }
     objNative.aid = accessory.aid;
     objNative.serviceUuid = service.type;
-    objs.set(`${device.id}.${accessory.aid}.${serviceName}.${characteristicName}`, (0, objectDefaults_1.getStateObject)('state', characteristicName, characteristic.value, objCommon, objNative));
+    const id = `${device.id}.${accessory.aid}.${serviceName}.${characteristicName}`;
+    objs.set(id, (0, objectDefaults_1.getStateObject)('state', characteristicName, characteristic.value, objCommon, objNative));
+    return id;
 }
 exports.addCharacteristicObjects = addCharacteristicObjects;
 function getCommonForCharacteristic(characteristic) {

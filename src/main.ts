@@ -301,9 +301,11 @@ class HomekitController extends utils.Adapter {
             try {
                 switch (obj.command) {
                     case 'getDiscoveredDevices':
-                        response.devices = [];
+                        const unavailableDevices = [];
+                        const availableDevices = [];
+                        const pairedDevices = [];
                         for (const hapDevice of this.devices.values()) {
-                            response.devices.push({
+                            const deviceData = {
                                 id: hapDevice.id,
                                 serviceType: hapDevice.serviceType,
                                 connected: hapDevice.connected,
@@ -312,7 +314,15 @@ class HomekitController extends utils.Adapter {
                                 discoveredName: hapDevice.service?.name,
                                 discoveredCategory: hapDevice.service?.ci ? categoryFromId(hapDevice.service?.ci) : 'Unknown',
                                 pairedWithThisInstance: !!hapDevice.pairingData,
-                            });
+                            };
+                            if (deviceData.availableToPair) {
+                                availableDevices.push(deviceData);
+                            } else if (deviceData.pairedWithThisInstance) {
+                                pairedDevices.push(deviceData);
+                            } else {
+                                unavailableDevices.push(deviceData);
+                            }
+                            response.devices = [...pairedDevices, ...availableDevices, ...unavailableDevices];
                         }
                         break;
                     case 'pairDevice':
@@ -774,16 +784,44 @@ class HomekitController extends utils.Adapter {
 
         deviceData.accessories.forEach((accessory) => {
 
+            let accessoryNameId;
             accessory.services.forEach((service) => {
-                const serviceType = serviceFromUuid(service.type);
-                if (ignoredHapServices.includes(serviceType)) {
+                let serviceName = serviceFromUuid(service.type);
+                if (ignoredHapServices.includes(serviceName) || !service.type) {
                     return;
                 }
+                if (serviceName.startsWith('public.hap.service.')) {
+                    serviceName = serviceName.substr(19).replace(/\./g, '-'); // remove public.hap.service.
+                }
+                let nameId: string | undefined;
+                let serviceObjName;
 
                 service.characteristics.forEach((characteristic) => {
-                    ObjectMapper.addCharacteristicObjects(device, objs, accessory, service, characteristic);
+                    const id = ObjectMapper.addCharacteristicObjects(device, objs, accessory, service, characteristic);
+                    if (id?.endsWith(('accessory-information.name'))) {
+                        accessoryNameId = id;
+                    } else if (id?.endsWith('.name')) {
+                        nameId = id;
+                    }
                 });
+
+                if (nameId) {
+                    serviceObjName = objs.get(nameId)?.native.value;
+                } else {
+                    serviceObjName = `${serviceName} ${service.iid}`;
+                }
+                objs.set(`${device.id}.${accessory.aid}.${serviceName}`, ObjectDefaults.getChannelObject(serviceObjName));
             });
+
+            let accessoryObjName: string | undefined;
+            if (accessoryNameId) {
+                accessoryObjName = objs.get(accessoryNameId)?.native.value;
+            }
+            if (!accessoryObjName) {
+                accessoryObjName = `Accessory ${accessory.aid}`;
+            }
+
+            objs.set(`${device.id}.${accessory.aid}`, ObjectDefaults.getDeviceObject(accessoryObjName));
         });
 
         return objs;

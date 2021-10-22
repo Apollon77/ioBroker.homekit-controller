@@ -267,9 +267,9 @@ export function addServiceObjects(device: HapDevice, objs: Map<string, ioBroker.
     */
 }
 
-export function addCharacteristicObjects(device: HapDevice, objs: Map<string, ioBroker.Object>, accessory: AccessoryObject, service: ServiceObject, characteristic: CharacteristicObject): void {
+export function addCharacteristicObjects(device: HapDevice, objs: Map<string, ioBroker.Object>, accessory: AccessoryObject, service: ServiceObject, characteristic: CharacteristicObject): string | undefined {
     if (!characteristic.type) {
-        return;
+        return undefined;
     }
 
     let serviceName = serviceFromUuid(service.type);
@@ -322,7 +322,10 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
     objNative.aid = accessory.aid;
     objNative.serviceUuid = service.type;
 
-    objs.set(`${device.id}.${accessory.aid}.${serviceName}.${characteristicName}`, getStateObject('state', characteristicName, characteristic.value as ioBroker.StateValue, objCommon as unknown as Record<string, unknown>, objNative));
+    const id = `${device.id}.${accessory.aid}.${serviceName}.${characteristicName}`;
+    objs.set(id, getStateObject('state', characteristicName, characteristic.value as ioBroker.StateValue, objCommon as unknown as Record<string, unknown>, objNative));
+
+    return id;
 }
 
 function getCommonForCharacteristic(characteristic: CharacteristicObject): ioBroker.StateCommon {
