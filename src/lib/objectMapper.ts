@@ -287,10 +287,13 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
         characteristicName = characteristicName.substr(26).replace(/\./g, '-'); // remove public.hap.characteristic.
     }
 
-    const convertLogic = iobrokerCommon.convert;
+    let convertLogic = iobrokerCommon.convert;
     delete iobrokerCommon.convert;
 
     const characteristicCommon = getCommonForCharacteristic(characteristic);
+    if (!convertLogic && characteristicCommon.type === 'boolean') {
+        convertLogic = 'number-to-boolean';
+    }
     if (characteristicCommon.states && iobrokerCommon.states) {
         const targetStates: Record<string, string> = {};
         for (const key of Object.keys(characteristicCommon.states)) {

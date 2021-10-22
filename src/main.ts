@@ -658,6 +658,7 @@ class HomekitController extends utils.Adapter {
     }
 
     private setCharacteristicValues(device: HapDevice, values: { characteristics: Characteristic.CharacteristicObject[] }): void {
+        this.log.debug(`${device.id} Set Values: ${JSON.stringify(values.characteristics)}`);
         values.characteristics.forEach((characteristic) => {
             const id = `${characteristic.aid}.${characteristic.iid}`;
 
