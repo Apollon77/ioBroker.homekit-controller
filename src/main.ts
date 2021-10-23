@@ -879,7 +879,7 @@ class HomekitController extends utils.Adapter {
                 } else {
                     serviceObjName = `${serviceName} ${service.iid}`;
                 }
-                objs.set(`${device.id}.${accessory.aid}.${serviceName}`, ObjectDefaults.getChannelObject(serviceObjName));
+                objs.set(`${device.id}.${accessory.aid}.${serviceName}-${service.iid}`, ObjectDefaults.getChannelObject(serviceObjName));
             });
 
             let accessoryObjName: string | undefined;

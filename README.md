@@ -75,6 +75,10 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (Apollon77) BREAKING CHANGE: All channel names will be changed and a number gets added. Please manually delete the ones without such a number
+
 ### 0.2.0 (2021-10-23)
 * (bluefox) Add Admin UI
 * (Apollon77) Store pairing data additionally in an instance directory and retry them on start if objects where deleted or such

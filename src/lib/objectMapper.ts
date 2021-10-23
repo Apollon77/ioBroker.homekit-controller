@@ -329,7 +329,7 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
     objNative.aid = accessory.aid;
     objNative.serviceUuid = service.type;
 
-    const id = `${device.id}.${accessory.aid}.${serviceName}.${characteristicName}`;
+    const id = `${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}`;
     objs.set(id, getStateObject('state', characteristicName, characteristic.value as ioBroker.StateValue, objCommon as unknown as Record<string, unknown>, objNative));
 
     return id;
