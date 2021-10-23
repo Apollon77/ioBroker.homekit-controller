@@ -76,11 +76,14 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 
 ## Changelog
 ### __WORK IN PROGRESS__
-* (Apollon77) Enhance error messages
 * (bluefox) Add Admin UI
-* (Apollon77) sort devices for Admin UI to have those with available actions on top
+* (Apollon77) Store pairing data additionally in an instance directory and retry them on start if objects where deleted or such
+* (Apollon77) Add info.lastDiscovered state with a timestamp to allow manual cleanup of devices that are paired somewhere else then with the adapter instance (because such objects would currently not be deleted)
 * (Apollon77) Add missing device and channel objects
 * (Apollon77) Always convert bool-type to boolean because it might be numbers coming from the devices
+* (Apollon77) sort devices for Admin UI to have those with available actions on top
+* (Apollon77) Enhance error messages
+* (Apollon77) Adjust some roles
 
 ### 0.1.0 (2021-10-19)
 * (Apollon77) Optimizations and added some Elgato states

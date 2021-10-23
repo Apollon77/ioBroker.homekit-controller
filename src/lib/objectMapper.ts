@@ -44,6 +44,7 @@ const CharacteristicToIoBrokerMap: Record<string, Record<string, unknown>> = {
     'public.hap.characteristic.obstruction-detected': {role: 'sensor.alarm'}, // 24
     'public.hap.characteristic.rotation.direction': {states: {'0': 'Clockwise', '1': 'Counter-clockwise'}}, // 28
     'public.hap.characteristic.saturation': {role: 'level.color.saturation'}, // 2F
+    'public.hap.characteristic.serial-number': {role: 'info.serial'}, // 30
     'public.hap.characteristic.door-state.target': {role: 'switch.lock', convert: 'number-to-boolean-invert' /*states: {'0': 'Open', '1': 'Closed'}*/}, // 32
     'public.hap.characteristic.heating-cooling.target': {states: {'0': 'Off', '1': 'Heat', '2': 'Cool', '3': 'Auto'}}, // 33
     'public.hap.characteristic.temperature.target': {role: 'level.temperature'}, // 35
@@ -53,6 +54,8 @@ const CharacteristicToIoBrokerMap: Record<string, Record<string, unknown>> = {
     //[`0000004F${UuidSuffix}`]: 'public.hap.characteristic.pairing.features', // TODO IGNORE
     //'public.hap.characteristic.pairing.pairings': {type: 'object'}, // 50 // TODO IGNORE
     //[`0000005C${UuidSuffix}`]: 'public.hap.characteristic.relay-state', // TODO UNKNOWN
+    'public.hap.characteristic.firmware.revision': {role: 'info.firmware'}, // 52
+    'public.hap.characteristic.hardware.revision': {role: 'info.hardware'}, // 53
     'public.hap.characteristic.relay-control-point': {type: 'object'}, // 5E
     'public.hap.characteristic.air-particulate.density': {unit: 'micrograms/m3'}, // 64
     'public.hap.characteristic.air-particulate.size': {states: {'0': '2.5 Micrometers', '1': '10 Micrometers'}}, // 65

@@ -92,6 +92,16 @@ const templates = {
             write: false,
         },
     },
+    'timestamp': {
+        type: 'state',
+        common: {
+            name: 'Indicator',
+            type: 'boolean',
+            role: 'value.time',
+            read: true,
+            write: false,
+        },
+    },
     'state': {
         type: 'state',
         common: {

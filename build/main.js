@@ -26,6 +26,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils = __importStar(require("@iobroker/adapter-core"));
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 const ip_discovery_1 = __importDefault(require("hap-controller/lib/transport/ip/ip-discovery"));
 const pairing_protocol_1 = require("hap-controller/lib/protocol/pairing-protocol");
 const http_client_1 = __importDefault(require("hap-controller/lib/transport/ip/http-client"));
@@ -74,6 +76,15 @@ class HomekitController extends utils.Adapter {
         // this.on('objectChange', this.onObjectChange.bind(this));
         this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
+        this.instanceDataDir = utils.getAbsoluteInstanceDataDir(this);
+        try {
+            if (!fs.existsSync(this.instanceDataDir)) {
+                fs.mkdirSync(this.instanceDataDir);
+            }
+        }
+        catch (err) {
+            this.log.info(`Can not create pairing data storage directory ${this.instanceDataDir}. Pairing data can not be persisted!`);
+        }
     }
     setConnected(isConnected) {
         if (this.isConnected !== isConnected) {
@@ -360,6 +371,47 @@ class HomekitController extends utils.Adapter {
         hapDevice.service = service;
         await this.initDevice(hapDevice);
     }
+    getPairingDataFilename(id) {
+        const fileName = `${id.replace(/:/g, '-')}.json`;
+        return path.join(this.instanceDataDir, fileName);
+    }
+    storePairingData(device) {
+        if (!device.pairingData) {
+            return;
+        }
+        try {
+            fs.writeFileSync(this.getPairingDataFilename(device.id), JSON.stringify(device.pairingData), 'utf-8');
+        }
+        catch (err) {
+            this.log.info(`${device.id} Could not store pairing data to disk`);
+        }
+    }
+    loadPairingData(device) {
+        try {
+            const data = fs.readFileSync(this.getPairingDataFilename(device.id), 'utf-8');
+            return JSON.parse(data);
+        }
+        catch (err) {
+            this.log.info(`${device.id} Could not load pairing data from disk`);
+            return;
+        }
+    }
+    storedPairingDataExists(device) {
+        try {
+            return fs.existsSync(this.getPairingDataFilename(device.id));
+        }
+        catch (err) {
+            return false;
+        }
+    }
+    deleteStoredPairingData(device) {
+        try {
+            fs.unlinkSync(this.getPairingDataFilename(device.id));
+        }
+        catch {
+            // ignore
+        }
+    }
     async initDevice(device) {
         var _a, _b, _c;
         if (device.initInProgress) {
@@ -389,16 +441,27 @@ class HomekitController extends utils.Adapter {
         }
         else {
             if (!device.pairingData) {
+                const pairingDataFileExists = this.storedPairingDataExists(device);
                 if (device.service && !device.service.availableToPair) {
-                    this.log.info(`${device.id} (${device.service.name}) found without known pairing data and already paired: ignoring`);
+                    if (pairingDataFileExists) {
+                        device.pairingData = this.loadPairingData(device);
+                    }
+                    if (!device.pairingData) {
+                        this.log.info(`${device.id} (${device.service.name}) found without known pairing data and already paired: ignoring`);
+                        device.initInProgress = false;
+                        return;
+                    }
+                    else {
+                        this.log.info(`${device.id} Found stored Pairing data, try it ...`);
+                    }
                 }
                 else {
                     this.log.info(`${device.id} (${(_b = device.service) === null || _b === void 0 ? void 0 : _b.name}) found without pairing data but available for pairing: Create basic objects`);
                     const objs = await this.buildBasicUnpairedDeviceObjects(device);
                     await this.createObjects(device, objs);
+                    device.initInProgress = false;
+                    return;
                 }
-                device.initInProgress = false;
-                return;
             }
         }
         if (!this.initDeviceClient(device)) {
@@ -414,13 +477,14 @@ class HomekitController extends utils.Adapter {
                 device.initInProgress = false;
                 return;
             }
-            this.log.debug(`Accessory Structure: ${JSON.stringify(deviceData)}`);
+            this.log.debug(`${device.id} Accessory Structure: ${JSON.stringify(deviceData)}`);
             const accessoryObjects = this.buildPairedDeviceAccessoryObjects(device, deviceData);
             await this.createObjects(device, new Map([...baseObjects, ...accessoryObjects]));
             this.setDeviceConnected(device, true);
             this.initSupportingMaps(device, accessoryObjects);
             await this.initSubscriptions(device);
             this.scheduleCharacteristicsUpdate(device);
+            this.storePairingData(device);
         }
         catch (err) {
             this.log.info(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
@@ -624,11 +688,12 @@ class HomekitController extends utils.Adapter {
         objs.set(`${device.id}.info.connectionType`, ObjectDefaults.getStateObject('string', 'Connection type', device.serviceType, { def: device.serviceType, write: false }));
         objs.set(`${device.id}.info.id`, ObjectDefaults.getStateObject('string', 'HAP ID', (_b = device.service) === null || _b === void 0 ? void 0 : _b.id, { write: false }));
         if (device.serviceType === 'IP') {
-            objs.set(`${device.id}.info.address`, ObjectDefaults.getStateObject('string', 'IP Address', (_c = device.service) === null || _c === void 0 ? void 0 : _c.address, { write: false }));
+            objs.set(`${device.id}.info.address`, ObjectDefaults.getStateObject('string', 'IP Address', (_c = device.service) === null || _c === void 0 ? void 0 : _c.address, { role: 'info.ip', write: false }));
         }
         objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator', 'Connected', device.connected, { write: false }));
         objs.set(`${device.id}.admin`, ObjectDefaults.getChannelObject('Administration'));
         objs.set(`${device.id}.admin.isPaired`, ObjectDefaults.getStateObject('indicator', 'Paired with this Instance?', !!device.pairingData));
+        objs.set(`${device.id}.info.lastDiscovered`, ObjectDefaults.getStateObject('timestamp', 'Last Discovered', Date.now()));
         return objs;
     }
     buildBasicUnpairedDeviceObjects(device) {
@@ -880,6 +945,7 @@ class HomekitController extends utils.Adapter {
             throw new Error(`Cannot unpair from device ${device.id} because of error ${err.statusCode}: ${err.message}`);
         }
         delete device.pairingData;
+        this.deleteStoredPairingData(device);
         if (device.service) {
             device.service.availableToPair = false;
         }
