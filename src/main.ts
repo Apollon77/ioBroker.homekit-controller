@@ -867,7 +867,7 @@ class HomekitController extends utils.Adapter {
 
                 service.characteristics.forEach((characteristic) => {
                     const id = ObjectMapper.addCharacteristicObjects(device, objs, accessory, service, characteristic);
-                    if (id?.endsWith(('accessory-information.name'))) {
+                    if (id?.endsWith('.name') && id?.includes('.accessory-information')) {
                         accessoryNameId = id;
                     } else if (id?.endsWith('.name')) {
                         nameId = id;
@@ -901,7 +901,7 @@ class HomekitController extends utils.Adapter {
             const stateId = `${this.namespace}.${objId}`;
             if (obj.type === 'state' && !this.stateFunctionsForId.get(stateId)) {
                 const stateFuncs: StateFunctions = {};
-                if (objId.endsWith('accessory-information.identify')) {
+                if (objId.endsWith('.identify') && objId.includes('.accessory-information-')) {
                     continue;
                 }
                 const convertLogic: keyof typeof Converters = obj.native.convertLogic;
