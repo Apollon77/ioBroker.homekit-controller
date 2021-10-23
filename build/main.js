@@ -29,7 +29,7 @@ const utils = __importStar(require("@iobroker/adapter-core"));
 const ip_discovery_1 = __importDefault(require("hap-controller/lib/transport/ip/ip-discovery"));
 const pairing_protocol_1 = require("hap-controller/lib/protocol/pairing-protocol");
 const http_client_1 = __importDefault(require("hap-controller/lib/transport/ip/http-client"));
-const gatt_utils_1 = __importDefault(require("hap-controller/lib/transport/ble/gatt-utils"));
+const GattUtils = __importStar(require("hap-controller/lib/transport/ble/gatt-utils"));
 let BLEDiscoveryConstructor;
 let GattClientConstructor;
 const debug_1 = __importDefault(require("debug"));
@@ -575,6 +575,7 @@ class HomekitController extends utils.Adapter {
         }, delay * 1000);
     }
     setCharacteristicValues(device, values) {
+        this.log.debug(`${device.id} Set Values to ioBroker: ${JSON.stringify(values.characteristics)}`);
         values.characteristics.forEach((characteristic) => {
             var _a, _b;
             const id = `${characteristic.aid}.${characteristic.iid}`;
@@ -618,7 +619,7 @@ class HomekitController extends utils.Adapter {
         this.log.debug(`Service: ${JSON.stringify(device.service, (key, value) => {
             return key === 'peripheral' ? undefined : value;
         })}`);
-        objs.set(device.id, ObjectDefaults.getFolderObject(`HAP ${(_a = device.service) === null || _a === void 0 ? void 0 : _a.name} (${device.id})`, undefined, hapNative));
+        objs.set(device.id, ObjectDefaults.getFolderObject(`${(_a = device.service) === null || _a === void 0 ? void 0 : _a.name} (${device.id})`, undefined, hapNative));
         objs.set(`${device.id}.info`, ObjectDefaults.getChannelObject('Information'));
         objs.set(`${device.id}.info.connectionType`, ObjectDefaults.getStateObject('string', 'Connection type', device.serviceType, { def: device.serviceType, write: false }));
         objs.set(`${device.id}.info.id`, ObjectDefaults.getStateObject('string', 'HAP ID', (_b = device.service) === null || _b === void 0 ? void 0 : _b.id, { write: false }));
@@ -738,62 +739,61 @@ class HomekitController extends utils.Adapter {
                 if (objId.endsWith('accessory-information.identify')) {
                     continue;
                 }
+                const convertLogic = obj.native.convertLogic;
+                if (converter_1.default[convertLogic]) {
+                    stateFuncs.converter = converter_1.default[convertLogic];
+                }
                 if (obj.common.write) {
-                    const convertLogic = obj.native.convertLogic;
-                    if (converter_1.default[convertLogic]) {
-                        stateFuncs.converter = converter_1.default[convertLogic];
-                    }
-                    if (obj.common.write) {
-                        stateFuncs.stateChangeFunction = async (value) => {
-                            var _a, _b, _c;
-                            if (device.serviceType === 'IP') {
-                                const hapId = `${obj.native.aid}.${obj.native.iid}`;
-                                this.log.debug(`Device ${device.id}: Set Characteristic ${hapId} to ${JSON.stringify(value)}`);
-                                try {
-                                    const data = {};
-                                    data[hapId] = value;
-                                    const res = (await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.setCharacteristics(data)); })));
-                                    if (isSetCharacteristicErrorResponse(res)) {
-                                        this.log.info(`State update for ${objId} (${hapId}) failed with status ${res.characteristics[0].status}: ${
-                                        // Converting the thing you're indexing into any allows you to access what you want without TypeScript screaming
-                                        IPConstants.HapStatusCodes[res.characteristics[0].status]}`);
-                                        this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
-                                    }
-                                    else {
-                                        if (!((_b = device.subscriptionCharacteristics) === null || _b === void 0 ? void 0 : _b.includes(hapId))) {
-                                            this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
-                                        }
-                                    }
-                                }
-                                catch (err) {
-                                    this.log.info(`Device ${device.id}: State update for ${objId} (${hapId}) failed with error ${err.statusCode} ${err.message}`);
+                    stateFuncs.stateChangeFunction = async (value) => {
+                        var _a, _b, _c;
+                        if (device.serviceType === 'IP') {
+                            const hapId = `${obj.native.aid}.${obj.native.iid}`;
+                            this.log.debug(`Device ${device.id}: Set Characteristic ${hapId} to ${JSON.stringify(value)}`);
+                            try {
+                                const data = {};
+                                data[hapId] = value;
+                                const res = (await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.setCharacteristics(data)); })));
+                                if (isSetCharacteristicErrorResponse(res)) {
+                                    this.log.info(`State update for ${objId} (${hapId}) failed with status ${res.characteristics[0].status}: ${
+                                    // Converting the thing you're indexing into any allows you to access what you want without TypeScript screaming
+                                    IPConstants.HapStatusCodes[res.characteristics[0].status]}`);
                                     this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
                                 }
+                                else {
+                                    if (!((_b = device.subscriptionCharacteristics) === null || _b === void 0 ? void 0 : _b.includes(hapId))) {
+                                        this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
+                                    }
+                                }
                             }
-                            else {
-                                const hapData = {
-                                    characteristicUuid: obj.native.type,
-                                    serviceUuid: obj.native.serviceUuid,
-                                    iid: obj.native.iid,
-                                    value: gatt_utils_1.default.valueToBuffer(value, obj.native.format)
-                                };
-                                this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
-                                try {
-                                    await ((_c = device.clientQueue) === null || _c === void 0 ? void 0 : _c.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.setCharacteristics([hapData])); }));
-                                }
-                                catch (err) {
-                                    this.log.info(`State update for ${objId} (${JSON.stringify(hapData)}) failed with error ${err.statusCode} ${err.message}`);
-                                }
+                            catch (err) {
+                                this.log.info(`Device ${device.id}: State update for ${objId} (${hapId}) failed with error ${err.statusCode} ${err.message}`);
                                 this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
                             }
-                        };
-                    }
-                    else if ((_a = stateFuncs.converter) === null || _a === void 0 ? void 0 : _a.write) {
-                        delete stateFuncs.converter.write;
-                    }
+                        }
+                        else {
+                            const hapData = {
+                                characteristicUuid: obj.native.type,
+                                serviceUuid: obj.native.serviceUuid,
+                                iid: obj.native.iid,
+                                value: GattUtils.valueToBuffer(value, obj.native.format)
+                            };
+                            this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
+                            try {
+                                await ((_c = device.clientQueue) === null || _c === void 0 ? void 0 : _c.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.setCharacteristics([hapData])); }));
+                            }
+                            catch (err) {
+                                this.log.info(`State update for ${objId} (${JSON.stringify(hapData)}) failed with error ${err.statusCode} ${err.message}`);
+                            }
+                            this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
+                        }
+                    };
+                }
+                else if ((_a = stateFuncs.converter) === null || _a === void 0 ? void 0 : _a.write) {
+                    delete stateFuncs.converter.write;
                 }
                 if (stateFuncs.converter || stateFuncs.stateChangeFunction) {
                     this.stateFunctionsForId.set(stateId, stateFuncs);
+                    this.log.debug(`${device.id} initialize Object ${stateId} with Converter ${convertLogic}${stateFuncs.stateChangeFunction ? ' and stateChangeFunction' : ''}`);
                 }
             }
             let valueToSet;

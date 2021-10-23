@@ -8,7 +8,7 @@ import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
 import { PairingData, PairMethods } from 'hap-controller/lib/protocol/pairing-protocol';
 import HttpClient from 'hap-controller/lib/transport/ip/http-client';
 
-import GattUtils from 'hap-controller/lib/transport/ble/gatt-utils';
+import * as GattUtils from 'hap-controller/lib/transport/ble/gatt-utils';
 import type { HapServiceBle } from 'hap-controller/lib/transport/ble/ble-discovery'
 import type BLEDiscovery from 'hap-controller/lib/transport/ble/ble-discovery'
 import type GattClient from 'hap-controller/lib/transport/ble/gatt-client'
@@ -658,7 +658,7 @@ class HomekitController extends utils.Adapter {
     }
 
     private setCharacteristicValues(device: HapDevice, values: { characteristics: Characteristic.CharacteristicObject[] }): void {
-        this.log.debug(`${device.id} Set Values: ${JSON.stringify(values.characteristics)}`);
+        this.log.debug(`${device.id} Set Values to ioBroker: ${JSON.stringify(values.characteristics)}`);
         values.characteristics.forEach((characteristic) => {
             const id = `${characteristic.aid}.${characteristic.iid}`;
 
@@ -705,7 +705,7 @@ class HomekitController extends utils.Adapter {
             return key === 'peripheral' ? undefined : value;
         })}`);
 
-        objs.set(device.id, ObjectDefaults.getFolderObject(`HAP ${device.service?.name} (${device.id})`, undefined, hapNative));
+        objs.set(device.id, ObjectDefaults.getFolderObject(`${device.service?.name} (${device.id})`, undefined, hapNative));
 
         objs.set(`${device.id}.info`, ObjectDefaults.getChannelObject('Information'));
         objs.set(`${device.id}.info.connectionType`, ObjectDefaults.getStateObject('string', 'Connection type', device.serviceType, {def: device.serviceType, write: false}));

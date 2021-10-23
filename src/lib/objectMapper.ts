@@ -291,9 +291,6 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
     delete iobrokerCommon.convert;
 
     const characteristicCommon = getCommonForCharacteristic(characteristic);
-    if (!convertLogic && characteristicCommon.type === 'boolean') {
-        convertLogic = 'number-to-boolean';
-    }
     if (characteristicCommon.states && iobrokerCommon.states) {
         const targetStates: Record<string, string> = {};
         for (const key of Object.keys(characteristicCommon.states)) {
@@ -304,6 +301,10 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
     }
 
     const objCommon = Object.assign(characteristicCommon, iobrokerCommon);
+
+    if (!convertLogic && objCommon.type === 'boolean' && typeof characteristic.value === 'number') {
+        convertLogic = 'number-to-boolean';
+    }
 
     switch (convertLogic) {
         case 'number-to-boolean':

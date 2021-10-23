@@ -279,7 +279,7 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
     if (characteristicName.startsWith('public.hap.characteristic.')) {
         characteristicName = characteristicName.substr(26).replace(/\./g, '-'); // remove public.hap.characteristic.
     }
-    const convertLogic = iobrokerCommon.convert;
+    let convertLogic = iobrokerCommon.convert;
     delete iobrokerCommon.convert;
     const characteristicCommon = getCommonForCharacteristic(characteristic);
     if (characteristicCommon.states && iobrokerCommon.states) {
@@ -291,6 +291,9 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
         characteristicCommon.states = targetStates;
     }
     const objCommon = Object.assign(characteristicCommon, iobrokerCommon);
+    if (!convertLogic && objCommon.type === 'boolean' && typeof characteristic.value === 'number') {
+        convertLogic = 'number-to-boolean';
+    }
     switch (convertLogic) {
         case 'number-to-boolean':
         case 'number-to-boolean-invert':
