@@ -836,67 +836,65 @@ class HomekitController extends utils.Adapter {
                 if (objId.endsWith('accessory-information.identify')) {
                     continue;
                 }
+                const convertLogic: keyof typeof Converters = obj.native.convertLogic;
+                if (Converters[convertLogic]) {
+                    stateFuncs.converter = Converters[convertLogic];
+                }
                 if (obj.common.write) {
-                    const convertLogic: keyof typeof Converters = obj.native.convertLogic;
-                    if (Converters[convertLogic]) {
-                        stateFuncs.converter = Converters[convertLogic];
-                    }
-                    if (obj.common.write) {
-
-                        stateFuncs.stateChangeFunction = async (value: ioBroker.StateValue): Promise<void> => {
-                            if (device.serviceType === 'IP') {
-                                const hapId = `${obj.native.aid}.${obj.native.iid}`;
-                                this.log.debug(`Device ${device.id}: Set Characteristic ${hapId} to ${JSON.stringify(value)}`);
-                                try {
-                                    const data: Record<string, any> = {};
-                                    data[hapId] = value;
-                                    const res = (await device.clientQueue?.add(
-                                        async () =>
-                                            await device.client?.setCharacteristics(data)
-                                    ));
-                                    if (isSetCharacteristicErrorResponse(res)) {
-                                        this.log.info(
-                                            `State update for ${objId} (${hapId}) failed with status ${
+                    stateFuncs.stateChangeFunction = async (value: ioBroker.StateValue): Promise<void> => {
+                        if (device.serviceType === 'IP') {
+                            const hapId = `${obj.native.aid}.${obj.native.iid}`;
+                            this.log.debug(`Device ${device.id}: Set Characteristic ${hapId} to ${JSON.stringify(value)}`);
+                            try {
+                                const data: Record<string, any> = {};
+                                data[hapId] = value;
+                                const res = (await device.clientQueue?.add(
+                                    async () =>
+                                        await device.client?.setCharacteristics(data)
+                                ));
+                                if (isSetCharacteristicErrorResponse(res)) {
+                                    this.log.info(
+                                        `State update for ${objId} (${hapId}) failed with status ${
+                                            res.characteristics[0].status
+                                        }: ${
+                                            // Converting the thing you're indexing into any allows you to access what you want without TypeScript screaming
+                                            (IPConstants.HapStatusCodes as any)[
                                                 res.characteristics[0].status
-                                            }: ${
-                                                // Converting the thing you're indexing into any allows you to access what you want without TypeScript screaming
-                                                (IPConstants.HapStatusCodes as any)[
-                                                    res.characteristics[0].status
-                                                ]
-                                            }`
-                                        );
-                                        this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
-                                    } else {
-                                        if (!device.subscriptionCharacteristics?.includes(hapId)) {
-                                            this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
-                                        }
-                                    }
-                                } catch (err) {
-                                    this.log.info(`Device ${device.id}: State update for ${objId} (${hapId}) failed with error ${err.statusCode} ${err.message}`);
+                                            ]
+                                        }`
+                                    );
                                     this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
+                                } else {
+                                    if (!device.subscriptionCharacteristics?.includes(hapId)) {
+                                        this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
+                                    }
                                 }
-                            } else {
-                                const hapData = {
-                                    characteristicUuid: obj.native.type,
-                                    serviceUuid: obj.native.serviceUuid,
-                                    iid: obj.native.iid,
-                                    value: GattUtils.valueToBuffer(value, obj.native.format)
-                                };
-                                this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
-                                try {
-                                    await device.clientQueue?.add(async () => await device.client?.setCharacteristics([hapData]));
-                                } catch (err) {
-                                    this.log.info(`State update for ${objId} (${JSON.stringify(hapData)}) failed with error ${err.statusCode} ${err.message}`);
-                                }
+                            } catch (err) {
+                                this.log.info(`Device ${device.id}: State update for ${objId} (${hapId}) failed with error ${err.statusCode} ${err.message}`);
                                 this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
                             }
-                        };
-                    } else if (stateFuncs.converter?.write) {
-                        delete stateFuncs.converter.write;
-                    }
+                        } else {
+                            const hapData = {
+                                characteristicUuid: obj.native.type,
+                                serviceUuid: obj.native.serviceUuid,
+                                iid: obj.native.iid,
+                                value: GattUtils.valueToBuffer(value, obj.native.format)
+                            };
+                            this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
+                            try {
+                                await device.clientQueue?.add(async () => await device.client?.setCharacteristics([hapData]));
+                            } catch (err) {
+                                this.log.info(`State update for ${objId} (${JSON.stringify(hapData)}) failed with error ${err.statusCode} ${err.message}`);
+                            }
+                            this.scheduleCharacteristicsUpdate(device, 0.5, obj.native.aid);
+                        }
+                    };
+                } else if (stateFuncs.converter?.write) {
+                    delete stateFuncs.converter.write;
                 }
                 if (stateFuncs.converter || stateFuncs.stateChangeFunction) {
                     this.stateFunctionsForId.set(stateId, stateFuncs);
+                    this.log.debug(`${device.id} initialize Object ${stateId} with Converter ${convertLogic}${stateFuncs.stateChangeFunction ? ' and stateChangeFunction' : ''}`);
                 }
             }
             let valueToSet;
