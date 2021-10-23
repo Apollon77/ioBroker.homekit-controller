@@ -75,7 +75,7 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
-### __WORK IN PROGRESS__
+### 0.2.0 (2021-10-23)
 * (bluefox) Add Admin UI
 * (Apollon77) Store pairing data additionally in an instance directory and retry them on start if objects where deleted or such
 * (Apollon77) Add info.lastDiscovered state with a timestamp to allow manual cleanup of devices that are paired somewhere else then with the adapter instance (because such objects would currently not be deleted)
