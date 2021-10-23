@@ -479,7 +479,7 @@ class HomekitController extends utils.Adapter {
         }
     }
 
-    private deleteStoredPairingData(device: HapDevice) {
+    private deleteStoredPairingData(device: HapDevice): void {
         try {
             fs.unlinkSync(this.getPairingDataFilename(device.id));
         } catch {
