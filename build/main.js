@@ -769,7 +769,7 @@ class HomekitController extends utils.Adapter {
                 let serviceObjName;
                 service.characteristics.forEach((characteristic) => {
                     const id = ObjectMapper.addCharacteristicObjects(device, objs, accessory, service, characteristic);
-                    if (id === null || id === void 0 ? void 0 : id.endsWith(('accessory-information.name'))) {
+                    if ((id === null || id === void 0 ? void 0 : id.endsWith('.name')) && (id === null || id === void 0 ? void 0 : id.includes('.accessory-information'))) {
                         accessoryNameId = id;
                     }
                     else if (id === null || id === void 0 ? void 0 : id.endsWith('.name')) {
@@ -782,7 +782,7 @@ class HomekitController extends utils.Adapter {
                 else {
                     serviceObjName = `${serviceName} ${service.iid}`;
                 }
-                objs.set(`${device.id}.${accessory.aid}.${serviceName}`, ObjectDefaults.getChannelObject(serviceObjName));
+                objs.set(`${device.id}.${accessory.aid}.${serviceName}-${service.iid}`, ObjectDefaults.getChannelObject(serviceObjName));
             });
             let accessoryObjName;
             if (accessoryNameId) {
@@ -801,7 +801,7 @@ class HomekitController extends utils.Adapter {
             const stateId = `${this.namespace}.${objId}`;
             if (obj.type === 'state' && !this.stateFunctionsForId.get(stateId)) {
                 const stateFuncs = {};
-                if (objId.endsWith('accessory-information.identify')) {
+                if (objId.endsWith('.identify') && objId.includes('.accessory-information-')) {
                     continue;
                 }
                 const convertLogic = obj.native.convertLogic;

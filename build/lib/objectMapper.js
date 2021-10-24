@@ -313,7 +313,7 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
     }
     objNative.aid = accessory.aid;
     objNative.serviceUuid = service.type;
-    const id = `${device.id}.${accessory.aid}.${serviceName}.${characteristicName}`;
+    const id = `${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}`;
     objs.set(id, (0, objectDefaults_1.getStateObject)('state', characteristicName, characteristic.value, objCommon, objNative));
     return id;
 }

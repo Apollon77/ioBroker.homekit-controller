@@ -77,7 +77,7 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 ## Changelog
 
 ### __WORK IN PROGRESS__
-* (Apollon77) BREAKING CHANGE: All channel names will be changed and a number gets added. Please manually delete the ones without such a number
+* (Apollon77) BREAKING CHANGE: All channel names will be changed and a number gets added at the end of the name. Please manually delete the ones without such a number
 
 ### 0.2.0 (2021-10-23)
 * (bluefox) Add Admin UI
