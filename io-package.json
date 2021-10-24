@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "news": {
+      "0.3.0": {
+        "en": "BREAKING CHANGE: All channel names will be changed and a number gets added at the end of the name. Please manually delete the ones without such a number",
+        "de": "BREAKING CHANGE: Alle Kanalnamen werden geändert und eine Nummer wird am Ende des Namens hinzugefügt. Bitte löschen Sie diejenigen ohne eine solche Nummer manuell",
+        "ru": "ПРЕРЫВНОЕ ИЗМЕНЕНИЕ: все названия каналов будут изменены, и в конце названия будет добавлен номер. Удалите вручную те, у которых нет такого номера",
+        "pt": "QUEBRANDO A MUDANÇA: Todos os nomes dos canais serão alterados e um número será adicionado ao final do nome. Exclua manualmente aqueles sem esse número",
+        "nl": "BREAKING CHANGE: Alle kanaalnamen worden gewijzigd en er wordt een nummer toegevoegd aan het einde van de naam. Verwijder a.u.b. handmatig degene zonder zo'n nummer",
+        "fr": "BREAKING CHANGE : tous les noms de chaînes seront modifiés et un numéro sera ajouté à la fin du nom. Veuillez supprimer manuellement ceux qui n'ont pas ce numéro",
+        "it": "CAMBIAMENTO INTERROTTO: Tutti i nomi dei canali verranno modificati e verrà aggiunto un numero alla fine del nome. Si prega di eliminare manualmente quelli senza tale numero",
+        "es": "CAMBIO IMPORTANTE: Se cambiarán todos los nombres de los canales y se agregará un número al final del nombre. Elimine manualmente los que no tienen ese número",
+        "pl": "BREAKING CHANGE: Wszystkie nazwy kanałów zostaną zmienione, a na końcu nazwy zostanie dodana liczba. Usuń ręcznie te, które nie mają takiego numeru",
+        "zh-cn": "BREAKING CHANGE：所有频道名称都将更改，并在名称末尾添加一个数字。请手动删除没有此编号的"
+      },
       "0.2.0": {
         "en": "Add Admin UI\nStore pairing data additionally in an instance directory and retry them on start if objects where deleted or such\nAdd info.lastDiscovered state with a timestamp to allow manual cleanup of devices that are paired somewhere else then with the adapter instance (because such objects would currently not be deleted)\nAdd missing device and channel objects\nAlways convert bool-type to boolean because it might be numbers coming from the devices\nsort devices for Admin UI to have those with available actions on top\nEnhance error messages\nAdjust some roles",
         "de": "Admin-Benutzeroberfläche hinzufügen\nPairing-Daten zusätzlich in einem Instanzverzeichnis speichern und beim Start erneut versuchen, wenn Objekte gelöscht wurden oder ähnliches\nFügen Sie den Status info.lastDiscovered mit einem Zeitstempel hinzu, um die manuelle Bereinigung von Geräten zu ermöglichen, die an anderer Stelle als mit der Adapterinstanz gekoppelt sind (da solche Objekte derzeit nicht gelöscht werden würden)\nFehlende Geräte- und Kanalobjekte hinzufügen\nKonvertieren Sie bool-type immer in boolean, da es sich möglicherweise um Zahlen handelt, die von den Geräten kommen\nSortieren Sie Geräte für die Admin-Benutzeroberfläche, um diejenigen mit verfügbaren Aktionen oben anzuzeigen\nFehlermeldungen verbessern\nPassen Sie einige Rollen an",
