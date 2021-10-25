@@ -75,6 +75,10 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (Apollon77) Fix datatype of lastDiscovered state
+
 ### 0.3.0 (2021-10-24)
 * (Apollon77) BREAKING CHANGE: All channel names will be changed and a number gets added at the end of the name. Please manually delete the ones without such a number
 
