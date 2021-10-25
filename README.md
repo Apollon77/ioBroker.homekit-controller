@@ -75,8 +75,7 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 0.3.1 (2021-10-25)
 * (Apollon77) Fix datatype of lastDiscovered state
 
 ### 0.3.0 (2021-10-24)

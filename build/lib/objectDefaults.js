@@ -95,8 +95,8 @@ const templates = {
     'timestamp': {
         type: 'state',
         common: {
-            name: 'Indicator',
-            type: 'boolean',
+            name: 'Timestamp',
+            type: 'number',
             role: 'value.time',
             read: true,
             write: false,

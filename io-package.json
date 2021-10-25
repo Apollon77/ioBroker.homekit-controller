@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "news": {
+      "0.3.1": {
+        "en": "Fix datatype of lastDiscovered state",
+        "de": "Datentyp des lastDiscovered-Zustands korrigieren",
+        "ru": "Исправить тип данных последнего обнаруженного состояния",
+        "pt": "Corrigir o tipo de dados do estado lastDiscovered",
+        "nl": "Fix datatype van lastDiscovered state",
+        "fr": "Correction du type de données de l'état lastDiscovered",
+        "it": "Correggi il tipo di dati dello stato lastDiscovered",
+        "es": "Corregir el tipo de datos del último estado descubierto",
+        "pl": "Napraw typ danych ostatniego odkrytego stanu",
+        "zh-cn": "修复 lastDiscovered 状态的数据类型"
+      },
       "0.3.0": {
         "en": "BREAKING CHANGE: All channel names will be changed and a number gets added at the end of the name. Please manually delete the ones without such a number",
         "de": "BREAKING CHANGE: Alle Kanalnamen werden geändert und eine Nummer wird am Ende des Namens hinzugefügt. Bitte löschen Sie diejenigen ohne eine solche Nummer manuell",
