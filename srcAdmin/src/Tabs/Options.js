@@ -95,7 +95,7 @@ class Options extends Component {
             />*/}
             <div className={clsx(this.props.classes.column, this.props.classes.columnSettings) }>
                 { this.renderCheckbox('Discover over IP', 'discoverIp') }
-                { this.renderCheckbox('Discover over Bluetooth', 'discoverIp') }
+                { this.renderCheckbox('Discover over Bluetooth', 'discoverBle') }
                 <br/>
                 { this.renderInput('Data polling interval for IP', 'dataPollingIntervalIp', 'number', I18n.t('seconds')) }<br/>
                 { this.renderInput('Data polling interval for Bluetooth', 'dataPollingIntervalBle', 'number', I18n.t('seconds')) }<br/>
