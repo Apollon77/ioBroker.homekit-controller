@@ -1,15 +1,13 @@
 ![Logo](admin/homekit-controller.png)
 # ioBroker.homekit-controller
 
-[![NPM version](https://img.shields.io/npm/v/iobroker.homekit-controller.svg)](https://www.npmjs.com/package/iobroker.homekit-controller)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.homekit-controller.svg)](https://www.npmjs.com/package/iobroker.homekit-controller)
 ![Number of Installations (latest)](https://iobroker.live/badges/homekit-controller-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/homekit-controller-stable.svg)
-[![Dependency Status](https://img.shields.io/david/Apollon77/iobroker.homekit-controller.svg)](https://david-dm.org/Apollon77/iobroker.homekit-controller)
+[![NPM version](https://img.shields.io/npm/v/iobroker.homekit-controller.svg)](https://www.npmjs.com/package/iobroker.homekit-controller)
 
-[![NPM](https://nodei.co/npm/iobroker.homekit-controller.png?downloads=true)](https://nodei.co/npm/iobroker.homekit-controller/)
-
-**Tests:** ![Test and Release](https://github.com/Apollon77/ioBroker.homekit-controller/workflows/Test%20and%20Release/badge.svg)
+![Test and Release](https://github.com/Apollon77/ioBroker.homekit-controller/workflows/Test%20and%20Release/badge.svg)
+[![Translation status](https://weblate.iobroker.net/widgets/adapters/-/homekit-controller/svg-badge.svg)](https://weblate.iobroker.net/engage/adapters/?utm_source=widget)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.homekit-controller.svg)](https://www.npmjs.com/package/iobroker.homekit-controller)
 
 **This adapter uses Sentry libraries to automatically report exceptions and code errors to the developers.** For more details and for information how to disable the error reporting see [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry)! Sentry reporting is used starting with js-controller 3.0.
 
@@ -68,13 +66,16 @@ After a restart of the adapter bluetooth devices can not be connected directly -
 * 
 
 ### TODO
-* Add a proper Config UI with options to pair/unpair/identify
 * check how the adapter works with buttons (they do not have a state, and I do not own such a device. need support for this)
 * look into supporting video devices
 * look into support devices that offer images
 * check all cases where polling updates might overlap - feedback needed if there are problems
 
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (bluefox) Fix the Discovery checkboxes
+
 ### 0.3.1 (2021-10-25)
 * (Apollon77) Fix datatype of lastDiscovered state
 
