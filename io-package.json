@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "news": {
+      "0.3.3": {
+        "en": "Fix the Discovery checkboxes",
+        "de": "Korrigieren Sie die Discovery-Checkboxen",
+        "ru": "Установите флажки \"Обнаружение\"",
+        "pt": "Corrija as caixas de seleção de descoberta",
+        "nl": "Herstel de selectievakjes voor Ontdekking",
+        "fr": "Corrigez les cases à cocher Découverte",
+        "it": "Correggi le caselle di controllo Discovery",
+        "es": "Corrija las casillas de verificación de Descubrimiento",
+        "pl": "Napraw pola wyboru Discovery",
+        "zh-cn": "修复发现复选框"
+      },
       "0.3.1": {
         "en": "Fix datatype of lastDiscovered state",
         "de": "Datentyp des lastDiscovered-Zustands korrigieren",
