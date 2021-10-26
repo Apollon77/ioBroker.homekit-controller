@@ -1,6 +1,6 @@
 {
     "plugins": ["iobroker", "license"],
     "exec": {
-        "after_edit": "npm run build"
+        "before_commit": "npm run build"
     }
 }
