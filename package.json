@@ -20,7 +20,7 @@
     "@iobroker/adapter-core": "^2.5.1",
     "debug": "^4.3.2",
     "hap-controller": "^0.6.1",
-    "p-queue": "^6.6.2"
+    "p-queue": "^7.1.0"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^3.4.1",
