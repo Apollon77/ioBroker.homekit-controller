@@ -85,6 +85,7 @@ class HomekitController extends utils.Adapter {
         catch (err) {
             this.log.info(`Can not create pairing data storage directory ${this.instanceDataDir}. Pairing data can not be persisted!`);
         }
+        this.bluetoothQueue = new p_queue_1.default({ concurrency: 1, timeout: 45000, throwOnTimeout: true });
     }
     setConnected(isConnected) {
         if (this.isConnected !== isConnected) {
@@ -470,6 +471,7 @@ class HomekitController extends utils.Adapter {
         }
         const baseObjects = await this.buildBasicPairedDeviceObjects(device);
         try {
+            this.log.debug(`${device.id} Request Accessory information`);
             const deviceData = await ((_c = device.clientQueue) === null || _c === void 0 ? void 0 : _c.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.getAccessories()); }));
             if (!deviceData) {
                 this.setDeviceConnected(device, false);
@@ -519,7 +521,7 @@ class HomekitController extends utils.Adapter {
             }
             this.log.debug(`${device.id} Start Homekit Device Client initialization`);
             device.client = device.client || new GattClientConstructor(service.id, service.peripheral, device.pairingData);
-            device.clientQueue = new p_queue_1.default({ concurrency: 1, timeout: 120000, throwOnTimeout: true });
+            device.clientQueue = this.bluetoothQueue;
         }
         else {
             return false;
@@ -917,6 +919,9 @@ class HomekitController extends utils.Adapter {
         const pairingData = device.client.getLongTermData();
         if (!pairingData) {
             throw new Error(`No pairing data retrieved after pair for device ${device.id}. Aborting.`);
+        }
+        else {
+            this.log.info(`${device.id} Successfully paired to device.`);
         }
         device.pairingData = pairingData;
         device.service.availableToPair = false;
