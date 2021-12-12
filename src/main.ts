@@ -1033,6 +1033,9 @@ class HomekitController extends utils.Adapter {
         }
         device.pairingData = pairingData;
         device.service.availableToPair = false;
+
+        await this.storePairingData(device);
+
         await this.initDevice(device);
     }
 
