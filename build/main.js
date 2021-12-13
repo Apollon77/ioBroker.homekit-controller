@@ -170,6 +170,7 @@ class HomekitController extends utils.Adapter {
                         pairingData: device.native.pairingData,
                         initInProgress: false,
                     };
+                    this.log.debug(`Init ${hapDevice.id} as known device`);
                     await this.initDevice(hapDevice);
                 }
             }
@@ -921,10 +922,11 @@ class HomekitController extends utils.Adapter {
             throw new Error(`No pairing data retrieved after pair for device ${device.id}. Aborting.`);
         }
         else {
-            this.log.info(`${device.id} Successfully paired to device.`);
+            this.log.info(`${device.id} Successfully paired to device: ${JSON.stringify(pairingData)}`);
         }
         device.pairingData = pairingData;
         device.service.availableToPair = false;
+        this.storePairingData(device);
         await this.initDevice(device);
     }
     async unpairDevice(device) {
