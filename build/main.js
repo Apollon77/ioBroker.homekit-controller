@@ -890,7 +890,8 @@ class HomekitController extends utils.Adapter {
                     pairMethod = await this.discoveryIp.getPairMethod(device.service);
                 }
                 catch (err) {
-                    throw new Error(`Cannot retrieve IP PairMethod for device ${device.id} because of error ${err.statusCode}: ${err.message}`);
+                    this.log.info(`Cannot retrieve IP PairMethod for device ${device.id} because of error ${err.statusCode}: ${err.message}, try default`);
+                    pairMethod = pairing_protocol_1.PairMethods.PairSetup;
                 }
             }
         }
@@ -900,13 +901,10 @@ class HomekitController extends utils.Adapter {
                     pairMethod = await this.discoveryBle.getPairMethod(device.service);
                 }
                 catch (err) {
-                    throw new Error(`Cannot retrieve BLE PairMethod for device ${device.id} because of error ${err.statusCode}: ${err.message}`);
+                    this.log.info(`Cannot retrieve BLE PairMethod for device ${device.id} because of error ${err.statusCode}: ${err.message}, try default`);
+                    pairMethod = pairing_protocol_1.PairMethods.PairSetup;
                 }
             }
-        }
-        if (pairMethod === undefined) {
-            this.log.info(`Could not retrieve PairMethod for device ${device.id}, try default`);
-            pairMethod = pairing_protocol_1.PairMethods.PairSetup;
         }
         if (!this.initDeviceClient(device) || !device.client) {
             throw new Error(`Cannot pair with device ${device.id} because Client initialization not successful`);
