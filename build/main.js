@@ -902,7 +902,7 @@ class HomekitController extends utils.Adapter {
                 }
                 catch (err) {
                     this.log.info(`Cannot retrieve BLE PairMethod for device ${device.id} because of error ${err.statusCode}: ${err.message}, try default`);
-                    pairMethod = pairing_protocol_1.PairMethods.PairSetupWithAuth;
+                    pairMethod = pairing_protocol_1.PairMethods.PairSetup;
                 }
             }
         }
