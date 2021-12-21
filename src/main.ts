@@ -1008,10 +1008,12 @@ class HomekitController extends utils.Adapter {
                     pairMethod = await this.discoveryBle.getPairMethod(device.service);
                 } catch (err) {
                     this.log.info(`Cannot retrieve BLE PairMethod for device ${device.id} because of error ${err.statusCode}: ${err.message}, try default`);
-                    pairMethod = PairMethods.PairSetup;
+                    pairMethod = PairMethods.PairSetupWithAuth;
                 }
             }
         }
+
+        this.log.info(`Use PairMethod ${pairMethod} to pair ${device.id}`);
 
         if (!this.initDeviceClient(device) || !device.client) {
             throw new Error(`Cannot pair with device ${device.id} because Client initialization not successful`)
