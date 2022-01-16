@@ -216,7 +216,11 @@ class HomekitController extends utils.Adapter {
         var _a;
         if (state) {
             this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+            // Handle statechange if ack = true
             if (!state.ack) {
+                // Cleanup last value to always update next value
+                const stateIdNoNamespace = id.substring(this.namespace.length + 1);
+                delete this.lastValues[stateIdNoNamespace];
                 let value = state.val;
                 const stateFunctions = this.stateFunctionsForId.get(id);
                 if (stateFunctions) {
@@ -876,6 +880,7 @@ class HomekitController extends utils.Adapter {
                     valueToSet = stateFunc.converter.read(valueToSet);
                 }
                 await this.setStateAsync(objId, valueToSet, true);
+                this.lastValues[objId] = valueToSet;
             }
         }
     }
