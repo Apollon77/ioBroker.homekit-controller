@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "news": {
+      "0.4.1": {
+        "en": "Optimize close of connections on adapter stop",
+        "de": "Schließen von Verbindungen bei Adapterstopp optimieren",
+        "ru": "Оптимизация закрытия соединений при остановке адаптера",
+        "pt": "Otimize o fechamento das conexões na parada do adaptador",
+        "nl": "Optimaliseer het sluiten van verbindingen op adapterstop",
+        "fr": "Optimiser la fermeture des connexions à l'arrêt de l'adaptateur",
+        "it": "Ottimizza la chiusura delle connessioni sull'arresto dell'adattatore",
+        "es": "Optimizar el cierre de las conexiones en la parada del adaptador",
+        "pl": "Zoptymalizuj zamykanie połączeń na przystanku adaptera",
+        "zh-cn": "优化适配器停止时的连接关闭"
+      },
       "0.4.0": {
         "en": "performance increase by using persistent connections to IP devices and many more optimizations\nOnly use one queue for all BLE devices\nStore pairing data directly after pair\nOptimize handing of concurrent requests\nOptimize value update handling and better detect stale data to force an update on next polling",
         "de": "Leistungssteigerung durch dauerhafte Verbindungen zu IP-Geräten und viele weitere Optimierungen\nVerwenden Sie nur eine Warteschlange für alle BLE-Geräte\nPairing-Daten direkt nach dem Pairing speichern\nOptimieren Sie die Bearbeitung gleichzeitiger Anfragen\nOptimieren Sie die Handhabung von Wertaktualisierungen und erkennen Sie veraltete Daten besser, um eine Aktualisierung bei der nächsten Abfrage zu erzwingen",
@@ -74,18 +86,6 @@
         "es": "Optimizaciones y agregados algunos estados de Elgato\nLanzamiento inicial de GitHub",
         "pl": "Optymalizacje i dodanie niektórych stanów Elgato\nPierwsze wydanie GitHub",
         "zh-cn": "优化并添加了一些 Elgato 状态\n最初的 GitHub 版本"
-      },
-      "0.0.1": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "zh-cn": "首次出版"
       }
     },
     "title": "HomeKit Controller",
