@@ -141,7 +141,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 ## License
 MIT License
 
-Copyright (c) 2021 Ingo Fischer <github@fischer-ka.de>
+Copyright (c) 2021-2022 Ingo Fischer <github@fischer-ka.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
