@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "news": {
+      "0.4.0": {
+        "en": "performance increase by using persistent connections to IP devices and many more optimizations\nOnly use one queue for all BLE devices\nStore pairing data directly after pair\nOptimize handing of concurrent requests\nOptimize value update handling and better detect stale data to force an update on next polling",
+        "de": "Leistungssteigerung durch dauerhafte Verbindungen zu IP-Geräten und viele weitere Optimierungen\nVerwenden Sie nur eine Warteschlange für alle BLE-Geräte\nPairing-Daten direkt nach dem Pairing speichern\nOptimieren Sie die Bearbeitung gleichzeitiger Anfragen\nOptimieren Sie die Handhabung von Wertaktualisierungen und erkennen Sie veraltete Daten besser, um eine Aktualisierung bei der nächsten Abfrage zu erzwingen",
+        "ru": "повышение производительности за счет использования постоянных подключений к IP-устройствам и многих других оптимизаций\nИспользуйте только одну очередь для всех устройств BLE\nХраните данные сопряжения сразу после сопряжения\nОптимизация обработки одновременных запросов\nОптимизируйте обработку обновлений значений и лучше обнаруживайте устаревшие данные, чтобы принудительно обновить их при следующем опросе.",
+        "pt": "aumento de desempenho usando conexões persistentes com dispositivos IP e muito mais otimizações\nUse apenas uma fila para todos os dispositivos BLE\nArmazenar dados de emparelhamento diretamente após o emparelhamento\nOtimize o tratamento de solicitações simultâneas\nOtimize o tratamento de atualização de valor e detecte melhor dados obsoletos para forçar uma atualização na próxima sondagem",
+        "nl": "prestatieverbetering door gebruik te maken van permanente verbindingen met IP-apparaten en nog veel meer optimalisaties\nGebruik slechts één wachtrij voor alle BLE-apparaten\nKoppelingsgegevens direct na het koppelen opslaan\nOptimaliseer het afhandelen van gelijktijdige verzoeken\nOptimaliseer de verwerking van waarde-updates en detecteer oude gegevens beter om een update af te dwingen bij de volgende peiling",
+        "fr": "augmentation des performances en utilisant des connexions persistantes aux appareils IP et de nombreuses autres optimisations\nN'utilisez qu'une seule file d'attente pour tous les appareils BLE\nStockez les données d'appariement directement après l'appariement\nOptimiser le traitement des demandes simultanées\nOptimiser la gestion de la mise à jour des valeurs et mieux détecter les données obsolètes pour forcer une mise à jour lors de la prochaine interrogation",
+        "it": "aumento delle prestazioni utilizzando connessioni persistenti ai dispositivi IP e molte altre ottimizzazioni\nUtilizzare solo una coda per tutti i dispositivi BLE\nMemorizza i dati di associazione direttamente dopo l'associazione\nOttimizza la gestione delle richieste simultanee\nOttimizza la gestione dell'aggiornamento del valore e rileva meglio i dati non aggiornati per forzare un aggiornamento al prossimo polling",
+        "es": "aumento del rendimiento mediante el uso de conexiones persistentes a dispositivos IP y muchas más optimizaciones\nUse solo una cola para todos los dispositivos BLE\nAlmacenar datos de emparejamiento directamente después del emparejamiento\nOptimice la gestión de solicitudes simultáneas\nOptimice el manejo de la actualización de valores y detecte mejor los datos obsoletos para forzar una actualización en el próximo sondeo",
+        "pl": "wzrost wydajności dzięki wykorzystaniu trwałych połączeń z urządzeniami IP i wielu innych optymalizacji\nUżywaj tylko jednej kolejki dla wszystkich urządzeń BLE\nPrzechowuj dane parowania bezpośrednio po parowaniu\nZoptymalizuj obsługę jednoczesnych żądań\nZoptymalizuj obsługę aktualizacji wartości i lepiej wykrywaj nieaktualne dane, aby wymusić aktualizację podczas następnego odpytywania",
+        "zh-cn": "通过使用与 IP 设备的持久连接和更多优化来提高性能\n仅对所有 BLE 设备使用一个队列\n配对后直接存储配对数据\n优化并发请求的处理\n优化值更新处理并更好地检测陈旧数据以在下次轮询时强制更新"
+      },
       "0.3.3": {
         "en": "Fix the Discovery checkboxes",
         "de": "Korrigieren Sie die Discovery-Checkboxen",

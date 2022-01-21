@@ -104,8 +104,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 * look into support devices that offer images (method is there but never saw it in action)
 
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 0.4.0 (2022-01-21)
 * (Apollon77) performance increase by using persistent connections to IP devices and many more optimizations
 * (Apollon77) Only use one queue for all BLE devices
 * (Apollon77) Store pairing data directly after pair
