@@ -183,7 +183,7 @@ class HomekitController extends utils.Adapter {
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
     async onUnload(callback) {
-        var _a;
+        var _a, _b;
         try {
             if (this.discoveryBle) {
                 this.discoveryBle.stop();
@@ -202,6 +202,7 @@ class HomekitController extends utils.Adapter {
                         // ignore
                     }
                 }
+                (_b = hapDevice.client) === null || _b === void 0 ? void 0 : _b.close();
             }
             callback();
         }

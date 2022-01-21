@@ -277,6 +277,7 @@ class HomekitController extends utils.Adapter {
                         // ignore
                     }
                 }
+                hapDevice.client?.close();
             }
             callback();
         } catch (e) {
