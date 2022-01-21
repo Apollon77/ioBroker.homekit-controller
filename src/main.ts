@@ -592,7 +592,15 @@ class HomekitController extends utils.Adapter {
             const service = device.service!;
             this.log.debug(`${device.id} Start Homekit Device Client initialization on ${service.address}:${service!.port}`);
 
-            device.client = device.client || new HttpClient(service.id, service.address, service.port, device.pairingData || undefined);
+            device.client = device.client || new HttpClient(
+                service.id,
+                service.address,
+                service.port,
+                device.pairingData || undefined,
+                {
+                    usePersistentConnections: true,
+                }
+            );
             device.clientQueue = new PQueue({concurrency: 10, timeout: 120000, throwOnTimeout: true});
         } else if (device.serviceType === 'BLE') {
             if (!this.config.discoverBle || !GattClientConstructor) {

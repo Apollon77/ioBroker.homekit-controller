@@ -503,7 +503,9 @@ class HomekitController extends utils.Adapter {
         if (device.serviceType === 'IP') {
             const service = device.service;
             this.log.debug(`${device.id} Start Homekit Device Client initialization on ${service.address}:${service.port}`);
-            device.client = device.client || new http_client_1.default(service.id, service.address, service.port, device.pairingData || undefined);
+            device.client = device.client || new http_client_1.default(service.id, service.address, service.port, device.pairingData || undefined, {
+                usePersistentConnections: true,
+            });
             device.clientQueue = new p_queue_1.default({ concurrency: 10, timeout: 120000, throwOnTimeout: true });
         }
         else if (device.serviceType === 'BLE') {

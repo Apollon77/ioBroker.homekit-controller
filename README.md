@@ -106,9 +106,10 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 ## Changelog
 
 ### __WORK IN PROGRESS__
+* (Apollon77) performance increase by using persistent connections to IP devices and many more optimizations
 * (Apollon77) Only use one queue for all BLE devices
 * (Apollon77) Store pairing data directly after pair
-* (Apollon77) Optimize handing concurrent requests
+* (Apollon77) Optimize handing of concurrent requests
 * (Apollon77) Optimize value update handling and better detect stale data to force an update on next polling
 
 ### 0.3.3 (2021-10-26)
