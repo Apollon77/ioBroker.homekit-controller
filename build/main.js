@@ -420,7 +420,7 @@ class HomekitController extends utils.Adapter {
         }
     }
     async initDevice(device) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         if (device.initInProgress) {
             this.log.debug(`${device.id} Device initialization already in progress ... ignore call`);
             return;
@@ -443,6 +443,7 @@ class HomekitController extends utils.Adapter {
                 clearTimeout(device.dataPollingInterval);
                 delete device.dataPollingInterval;
             }
+            (_b = device.client) === null || _b === void 0 ? void 0 : _b.close();
             delete device.client;
             this.setDeviceConnected(device, false);
         }
@@ -463,7 +464,7 @@ class HomekitController extends utils.Adapter {
                     }
                 }
                 else {
-                    this.log.info(`${device.id} (${(_b = device.service) === null || _b === void 0 ? void 0 : _b.name}) found without pairing data but available for pairing: Create basic objects`);
+                    this.log.info(`${device.id} (${(_c = device.service) === null || _c === void 0 ? void 0 : _c.name}) found without pairing data but available for pairing: Create basic objects`);
                     const objs = await this.buildBasicUnpairedDeviceObjects(device);
                     await this.createObjects(device, objs);
                     device.initInProgress = false;
@@ -478,7 +479,7 @@ class HomekitController extends utils.Adapter {
         const baseObjects = await this.buildBasicPairedDeviceObjects(device);
         try {
             this.log.debug(`${device.id} Request Accessory information`);
-            const deviceData = await ((_c = device.clientQueue) === null || _c === void 0 ? void 0 : _c.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.getAccessories()); }));
+            const deviceData = await ((_d = device.clientQueue) === null || _d === void 0 ? void 0 : _d.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.getAccessories()); }));
             if (!deviceData) {
                 this.setDeviceConnected(device, false);
                 this.log.info(`${device.id} Could not load device accessories ... TODO`);

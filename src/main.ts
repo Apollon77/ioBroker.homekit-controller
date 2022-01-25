@@ -523,6 +523,7 @@ class HomekitController extends utils.Adapter {
                 clearTimeout(device.dataPollingInterval);
                 delete device.dataPollingInterval;
             }
+            device.client?.close();
             delete device.client;
             this.setDeviceConnected(device, false);
         } else {
