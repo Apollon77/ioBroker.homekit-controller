@@ -619,6 +619,7 @@ class HomekitController extends utils.Adapter {
             delay = device.serviceType === 'IP' ? this.config.dataPollingIntervalIp : this.config.dataPollingIntervalBle;
         }
         device.dataPollingInterval = setTimeout(async () => {
+            var _a;
             let requestedCharacteristics = device.dataPollingCharacteristics;
             if (requestedCharacteristics) {
                 this.log.debug(`Device ${device.id} Scheduled Characteristic update started ...`);
@@ -641,7 +642,10 @@ class HomekitController extends utils.Adapter {
                     this.setDeviceConnected(device, true);
                 }
                 catch (err) {
-                    this.log.info(`Device ${device.id} data polling failed: ${err.message}`);
+                    this.log.info(`Device ${device.id} data polling failed: ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
+                    if (device.serviceType === 'IP') {
+                        (_a = device.client) === null || _a === void 0 ? void 0 : _a.closePersistentConnection();
+                    }
                     this.setDeviceConnected(device, false);
                 }
             }

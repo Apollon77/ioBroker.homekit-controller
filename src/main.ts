@@ -737,7 +737,10 @@ class HomekitController extends utils.Adapter {
                     }
                     this.setDeviceConnected(device, true);
                 } catch (err) {
-                    this.log.info(`Device ${device.id} data polling failed: ${err.message}`);
+                    this.log.info(`Device ${device.id} data polling failed: ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
+                    if (device.serviceType === 'IP') {
+                        device.client?.closePersistentConnection();
+                    }
                     this.setDeviceConnected(device, false);
                 }
             }
