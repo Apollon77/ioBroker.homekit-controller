@@ -104,8 +104,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 * look into support devices that offer images (method is there but never saw it in action)
 
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 0.4.2 (2022-01-25)
 * (Apollon77) Reset HTTP connection if timeouts happen on data polling
 
 ### 0.4.1 (2022-01-21)

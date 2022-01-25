@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "news": {
+      "0.4.2": {
+        "en": "Reset HTTP connection if timeouts happen on data polling",
+        "de": "Setzen Sie die HTTP-Verbindung zurück, wenn beim Datenabruf Zeitüberschreitungen auftreten",
+        "ru": "Сбросить HTTP-соединение, если тайм-ауты происходят при опросе данных",
+        "pt": "Redefina a conexão HTTP se os tempos limite ocorrerem na sondagem de dados",
+        "nl": "Reset HTTP-verbinding als er time-outs optreden bij gegevenspolling",
+        "fr": "Réinitialiser la connexion HTTP si des délais d'attente se produisent lors de l'interrogation des données",
+        "it": "Reimposta la connessione HTTP se si verificano timeout durante il polling dei dati",
+        "es": "Restablecer la conexión HTTP si se agotan los tiempos de espera en el sondeo de datos",
+        "pl": "Zresetuj połączenie HTTP w przypadku przekroczenia limitu czasu podczas odpytywania danych",
+        "zh-cn": "如果数据轮询发生超时，则重置 HTTP 连接"
+      },
       "0.4.1": {
         "en": "Optimize close of connections on adapter stop",
         "de": "Schließen von Verbindungen bei Adapterstopp optimieren",
@@ -74,18 +86,6 @@
         "es": "Agregar interfaz de usuario de administrador\nAlmacene los datos de emparejamiento adicionalmente en un directorio de instancia y vuelva a intentarlo al iniciar si los objetos se eliminaron o tal\nAgregue el estado info.lastDiscovered con una marca de tiempo para permitir la limpieza manual de los dispositivos que están emparejados en otro lugar que no sea la instancia del adaptador (porque dichos objetos no se eliminarían actualmente)\nAgregar dispositivos faltantes y objetos de canal\nConvierta siempre el tipo bool en booleano porque pueden ser números provenientes de los dispositivos\nOrdene los dispositivos para que la interfaz de usuario del administrador tenga aquellos con acciones disponibles en la parte superior\nMejora los mensajes de error\nAjustar algunos roles",
         "pl": "Dodaj interfejs administratora\nPrzechowuj dane parowania dodatkowo w katalogu instancji i spróbuj ponownie przy starcie, jeśli obiekty zostały usunięte lub takie\nDodaj stan info.lastDiscovered ze znacznikiem czasu, aby umożliwić ręczne czyszczenie urządzeń, które są sparowane gdzie indziej niż z instancją adaptera (ponieważ takie obiekty nie byłyby obecnie usuwane)\nDodaj brakujące obiekty urządzeń i kanałów\nZawsze konwertuj typ bool na boolean, ponieważ mogą to być liczby pochodzące z urządzeń\nposortuj urządzenia w interfejsie administratora, aby mieć te z dostępnymi akcjami na górze\nPopraw komunikaty o błędach\nDostosuj niektóre role",
         "zh-cn": "添加管理界面\n将配对数据额外存储在实例目录中，如果对象被删除等，则在启动时重试\n添加带有时间戳的 info.lastDiscovered 状态，以允许手动清理在其他地方与适配器实例配对的设备（因为此类对象当前不会被删除）\n添加缺少的设备和通道对象\n始终将 bool-type 转换为 boolean，因为它可能是来自设备的数字\n为管理 UI 对设备进行排序，以将具有可用操作的设备放在最上面\n增强错误信息\n调整一些角色"
-      },
-      "0.1.0": {
-        "en": "Optimizations and added some Elgato states\nInitial GitHub release",
-        "de": "Optimierungen und einige Elgato-Zustände hinzugefügt\nErste GitHub-Version",
-        "ru": "Оптимизация и добавлены некоторые состояния Elgato\nПервоначальный выпуск GitHub",
-        "pt": "Otimizações e alguns estados de Elgato adicionados\nLançamento inicial do GitHub",
-        "nl": "Optimalisaties en enkele Elgato-statussen toegevoegd\nEerste GitHub-release",
-        "fr": "Optimisations et ajout de certains états Elgato\nVersion initiale de GitHub",
-        "it": "Ottimizzazioni e aggiunti alcuni stati Elgato\nRilascio iniziale di GitHub",
-        "es": "Optimizaciones y agregados algunos estados de Elgato\nLanzamiento inicial de GitHub",
-        "pl": "Optymalizacje i dodanie niektórych stanów Elgato\nPierwsze wydanie GitHub",
-        "zh-cn": "优化并添加了一些 Elgato 状态\n最初的 GitHub 版本"
       }
     },
     "title": "HomeKit Controller",
