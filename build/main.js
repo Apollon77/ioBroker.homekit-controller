@@ -25,6 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HomekitController = void 0;
 const utils = __importStar(require("@iobroker/adapter-core"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
@@ -42,6 +43,7 @@ const service_1 = require("hap-controller/lib/model/service");
 const category_1 = require("hap-controller/lib/model/category");
 const IPConstants = __importStar(require("hap-controller/lib/transport/ip/http-constants"));
 const converter_1 = __importDefault(require("./lib/converter"));
+const devicemgmt_1 = require("./lib/devicemgmt");
 const ignoredHapServices = [
     'public.hap.service.pairing',
     'public.hap.service.protocol.information.service',
@@ -86,6 +88,7 @@ class HomekitController extends utils.Adapter {
             this.log.info(`Can not create pairing data storage directory ${this.instanceDataDir}. Pairing data can not be persisted!`);
         }
         this.bluetoothQueue = new p_queue_1.default({ concurrency: 1, timeout: 45000, throwOnTimeout: true });
+        this.deviceManagement = new devicemgmt_1.HomeKitDeviceManagement(this);
     }
     setConnected(isConnected) {
         if (this.isConnected !== isConnected) {
@@ -240,8 +243,38 @@ class HomekitController extends utils.Adapter {
             this.log.debug(`state ${id} deleted`);
         }
     }
-    async onMessage(obj) {
+    getDiscoveredDevices() {
         var _a, _b, _c, _d;
+        const unavailableDevices = [];
+        const availableDevices = [];
+        const pairedDevices = [];
+        for (const hapDevice of this.devices.values()) {
+            const deviceData = {
+                id: hapDevice.id,
+                serviceType: hapDevice.serviceType,
+                connected: hapDevice.connected,
+                discovered: !!hapDevice.service,
+                availableToPair: (_a = hapDevice.service) === null || _a === void 0 ? void 0 : _a.availableToPair,
+                discoveredName: (_b = hapDevice.service) === null || _b === void 0 ? void 0 : _b.name,
+                discoveredCategory: ((_c = hapDevice.service) === null || _c === void 0 ? void 0 : _c.ci) ? (0, category_1.categoryFromId)((_d = hapDevice.service) === null || _d === void 0 ? void 0 : _d.ci) : 'Unknown',
+                pairedWithThisInstance: !!hapDevice.pairingData,
+            };
+            if (deviceData.availableToPair) {
+                availableDevices.push(deviceData);
+            }
+            else if (deviceData.pairedWithThisInstance) {
+                pairedDevices.push(deviceData);
+            }
+            else {
+                unavailableDevices.push(deviceData);
+            }
+        }
+        return [...pairedDevices, ...availableDevices, ...unavailableDevices];
+    }
+    getDevice(id) {
+        return this.devices.get(id);
+    }
+    async onMessage(obj) {
         if (typeof obj === 'object' && obj.command) {
             this.log.debug(`Message ${obj.command} received: ${JSON.stringify(obj)})`);
             let response = {
@@ -251,31 +284,7 @@ class HomekitController extends utils.Adapter {
             try {
                 switch (obj.command) {
                     case 'getDiscoveredDevices':
-                        const unavailableDevices = [];
-                        const availableDevices = [];
-                        const pairedDevices = [];
-                        for (const hapDevice of this.devices.values()) {
-                            const deviceData = {
-                                id: hapDevice.id,
-                                serviceType: hapDevice.serviceType,
-                                connected: hapDevice.connected,
-                                discovered: !!hapDevice.service,
-                                availableToPair: (_a = hapDevice.service) === null || _a === void 0 ? void 0 : _a.availableToPair,
-                                discoveredName: (_b = hapDevice.service) === null || _b === void 0 ? void 0 : _b.name,
-                                discoveredCategory: ((_c = hapDevice.service) === null || _c === void 0 ? void 0 : _c.ci) ? (0, category_1.categoryFromId)((_d = hapDevice.service) === null || _d === void 0 ? void 0 : _d.ci) : 'Unknown',
-                                pairedWithThisInstance: !!hapDevice.pairingData,
-                            };
-                            if (deviceData.availableToPair) {
-                                availableDevices.push(deviceData);
-                            }
-                            else if (deviceData.pairedWithThisInstance) {
-                                pairedDevices.push(deviceData);
-                            }
-                            else {
-                                unavailableDevices.push(deviceData);
-                            }
-                            response.devices = [...pairedDevices, ...availableDevices, ...unavailableDevices];
-                        }
+                        response.devices = this.getDiscoveredDevices();
                         break;
                     case 'pairDevice':
                         if (typeof obj.message === 'string')
@@ -995,6 +1004,7 @@ class HomekitController extends utils.Adapter {
         }
     }
 }
+exports.HomekitController = HomekitController;
 if (require.main !== module) {
     // Export the constructor in compact mode
     module.exports = (options) => new HomekitController(options);

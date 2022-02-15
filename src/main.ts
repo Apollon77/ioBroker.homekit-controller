@@ -27,6 +27,7 @@ import { serviceFromUuid } from 'hap-controller/lib/model/service';
 import { categoryFromId } from 'hap-controller/lib/model/category';
 import * as IPConstants from 'hap-controller/lib/transport/ip/http-constants';
 import Converters from './lib/converter';
+import { HomeKitDeviceManagement } from './lib/devicemgmt';
 
 interface HapDeviceBase {
     connected: boolean;
@@ -112,7 +113,7 @@ function isSetCharacteristicErrorResponse(value: any): value is SetCharacteristi
     value.characteristics[0].status
 }
 
-class HomekitController extends utils.Adapter {
+export class HomekitController extends utils.Adapter {
 
     private devices = new Map<string, HapDevice>();
 
@@ -128,6 +129,8 @@ class HomekitController extends utils.Adapter {
     private instanceDataDir: string;
 
     private bluetoothQueue: PQueue;
+
+    private readonly deviceManagement: HomeKitDeviceManagement;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
@@ -151,6 +154,8 @@ class HomekitController extends utils.Adapter {
         }
 
         this.bluetoothQueue = new PQueue({concurrency: 1, timeout: 45000, throwOnTimeout: true});
+
+        this.deviceManagement = new HomeKitDeviceManagement(this);
     }
 
     setConnected(isConnected: boolean): void {
@@ -316,6 +321,36 @@ class HomekitController extends utils.Adapter {
         }
     }
 
+    public getDiscoveredDevices(): Array<Record<string, unknown>> {
+        const unavailableDevices = [];
+        const availableDevices = [];
+        const pairedDevices = [];
+        for (const hapDevice of this.devices.values()) {
+            const deviceData = {
+                id: hapDevice.id,
+                serviceType: hapDevice.serviceType,
+                connected: hapDevice.connected,
+                discovered: !!hapDevice.service,
+                availableToPair: hapDevice.service?.availableToPair,
+                discoveredName: hapDevice.service?.name,
+                discoveredCategory: hapDevice.service?.ci ? categoryFromId(hapDevice.service?.ci) : 'Unknown',
+                pairedWithThisInstance: !!hapDevice.pairingData,
+            };
+            if (deviceData.availableToPair) {
+                availableDevices.push(deviceData);
+            } else if (deviceData.pairedWithThisInstance) {
+                pairedDevices.push(deviceData);
+            } else {
+                unavailableDevices.push(deviceData);
+            }
+        }
+        return [...pairedDevices, ...availableDevices, ...unavailableDevices]
+    }
+
+    public getDevice(id: string): HapDevice | undefined {
+        return this.devices.get(id);
+    }
+
     private async onMessage(obj: ioBroker.Message): Promise<void> {
         if (typeof obj === 'object' && obj.command) {
             this.log.debug(`Message ${obj.command} received: ${JSON.stringify(obj)})`);
@@ -326,29 +361,7 @@ class HomekitController extends utils.Adapter {
             try {
                 switch (obj.command) {
                     case 'getDiscoveredDevices':
-                        const unavailableDevices = [];
-                        const availableDevices = [];
-                        const pairedDevices = [];
-                        for (const hapDevice of this.devices.values()) {
-                            const deviceData = {
-                                id: hapDevice.id,
-                                serviceType: hapDevice.serviceType,
-                                connected: hapDevice.connected,
-                                discovered: !!hapDevice.service,
-                                availableToPair: hapDevice.service?.availableToPair,
-                                discoveredName: hapDevice.service?.name,
-                                discoveredCategory: hapDevice.service?.ci ? categoryFromId(hapDevice.service?.ci) : 'Unknown',
-                                pairedWithThisInstance: !!hapDevice.pairingData,
-                            };
-                            if (deviceData.availableToPair) {
-                                availableDevices.push(deviceData);
-                            } else if (deviceData.pairedWithThisInstance) {
-                                pairedDevices.push(deviceData);
-                            } else {
-                                unavailableDevices.push(deviceData);
-                            }
-                            response.devices = [...pairedDevices, ...availableDevices, ...unavailableDevices];
-                        }
+                        response.devices = this.getDiscoveredDevices();
                         break;
                     case 'pairDevice':
                         if (typeof obj.message === 'string') return;
@@ -1007,7 +1020,7 @@ class HomekitController extends utils.Adapter {
         }
     }
 
-    private async pairDevice(device: HapDevice, pin: string): Promise<void> {
+    public async pairDevice(device: HapDevice, pin: string): Promise<void> {
         if (!device.service) {
             throw new Error(`Cannot pair with device ${device.id} because not yet discovered`);
         }
@@ -1059,7 +1072,7 @@ class HomekitController extends utils.Adapter {
         await this.initDevice(device);
     }
 
-    private async unpairDevice(device: HapDevice): Promise<void> {
+    public async unpairDevice(device: HapDevice): Promise<void> {
         if (!device.pairingData) {
             throw new Error(`Cannot unpair from device ${device.id} because no pairing data existing`);
         }
@@ -1097,7 +1110,7 @@ class HomekitController extends utils.Adapter {
         await this.initDevice(device);
     }
 
-    private async identifyDevice(device: HapDevice): Promise<void> {
+    public async identifyDevice(device: HapDevice): Promise<void> {
         if (!device.service) {
             throw new Error(`Cannot identify device ${device.id} because not yet discovered`);
         }

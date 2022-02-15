@@ -19,6 +19,7 @@
   "dependencies": {
     "@iobroker/adapter-core": "^2.5.1",
     "debug": "^4.3.3",
+    "dm-utils": "https://github.com/UncleSamSwiss/dm-utils",
     "hap-controller": "^0.7.2",
     "p-queue": "^6.6.2"
   },
