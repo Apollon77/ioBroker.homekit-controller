@@ -7,20 +7,51 @@ class HomeKitDeviceManagement extends dm_utils_1.DeviceManagement {
         const data = {
             ...super.getInstanceInfo(),
             actions: [
-                { id: 'refresh', icon: 'refresh', title: 'Refresh', description: 'Refresh device list' }
+                {
+                    id: 'refresh',
+                    icon: 'fas fa-redo-alt',
+                    title: 'Refresh',
+                    description: 'Refresh device list',
+                    handler: this.handleRefresh.bind(this)
+                }
             ],
         };
         this.adapter.log.debug(`Send instance information: ${JSON.stringify(data)}`);
         return data;
     }
+    async handleRefresh(_context) {
+        this.log.info(`Refresh was pressed`);
+        /*
+        const progress = await context.openProgress('Searching...', { label: '0%' });
+        await this.delay(500);
+        for (let i = 10; i <= 100; i += 10) {
+            await this.delay(300);
+            this.log.info(`Progress at ${i}%`);
+            await progress.update({ value: i, label: `${i}%` });
+        }
+        await this.delay(1000);
+        await progress.close();*/
+        return { refresh: true };
+    }
     async listDevices() {
         const devices = this.adapter.getDiscoveredDevices();
         const devList = [];
         devices.forEach(device => {
+            const statusInfo = [
+                {
+                    icon: device
+                        .serviceType === 'IP' ? (device.connected ? 'fa-solid fa-wifi' : 'fa-solid fa-wifi-slash') : (device.connected ? 'fa-solid fa-bluetooth' : 'data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTMgNS44M2wxLjg4IDEuODgtMS42IDEuNiAxLjQxIDEuNDEgMy4wMi0zLjAyTDEyIDJoLTF2NS4wM2wyIDJ2LTMuMnpNNS40MSA0TDQgNS40MSAxMC41OSAxMiA1IDE3LjU5IDYuNDEgMTkgMTEgMTQuNDFWMjJoMWw0LjI5LTQuMjkgMi4zIDIuMjlMMjAgMTguNTkgNS40MSA0ek0xMyAxOC4xN3YtMy43NmwxLjg4IDEuODhMMTMgMTguMTd6Ii8+PC9zdmc+'),
+                    description: 'Connection type and Status'
+                },
+                {
+                    icon: device.discovered ? 'fas fa-eye' : '',
+                    description: 'Discovered Status'
+                }
+            ];
             const data = {
                 id: device.id,
-                name: `${device.id} - ${device.discoveredName} (${device.discoveredCategory})`,
-                status: device.connected ? 'connected' : 'disconnected',
+                name: `${device.discoveredName} (${device.discoveredCategory})`,
+                status: statusInfo,
                 hasDetails: device.pairedWithThisInstance,
                 //type: icon ... a type column
                 actions: []
@@ -28,123 +59,118 @@ class HomeKitDeviceManagement extends dm_utils_1.DeviceManagement {
             if (device.pairedWithThisInstance) {
                 data.actions.push({
                     id: 'unpairDevice',
-                    icon: 'fa-solid fa-link-slash',
-                    description: 'Unpair this device'
+                    icon: 'fas fa-unlink',
+                    description: 'Unpair this device',
+                    handler: device.connected ? this.handleUnpairDevice.bind(this) : undefined
                 });
             }
             else {
                 if (device.availableToPair) {
                     data.actions.push({
                         id: 'identify',
-                        icon: 'fa-solid fa-magnifying-glass-location',
-                        description: 'Unpair this device'
+                        icon: 'fas fa-search-location',
+                        description: 'Identify this device',
+                        handler: this.handleIdentify.bind(this)
                     });
                     data.actions.push({
                         id: 'pairDevice',
-                        icon: 'fa-solid fa-link',
-                        description: 'Pair this device'
+                        icon: 'fas fa-link',
+                        description: 'Pair this device',
+                        handler: this.handlePairDevice.bind(this)
                     });
                 }
             }
             data.actions.push({
                 id: 'delete',
-                icon: 'fa-solid fa-trash',
+                icon: 'fas fa-trash',
                 description: 'Delete this device',
-                disabled: !(device.connected || device.discovered || device.pairedWithThisInstance)
+                handler: !(device.connected || device.discovered || device.pairedWithThisInstance) ? this.handleDeleteInactiveDevice.bind(this) : undefined
             });
             devList.push(data);
         });
         this.adapter.log.debug(`Send device information: ${JSON.stringify(devList)}`);
         return devList;
     }
-    async handleInstanceAction(actionId, context) {
-        switch (actionId) {
-            case 'refresh':
-                this.log.info(`Refresh was pressed`);
-                /*
-                const progress = await context.openProgress('Searching...', { label: '0%' });
-                await this.delay(500);
-                for (let i = 10; i <= 100; i += 10) {
-                    await this.delay(300);
-                    this.log.info(`Progress at ${i}%`);
-                    await progress.update({ value: i, label: `${i}%` });
-                }
-                await this.delay(1000);
-                await progress.close();*/
-                return { refresh: true };
-            default:
-                throw new Error(`Unknown action ${actionId}`);
+    async handlePairDevice(deviceId, context) {
+        this.log.info(`pairDevice was pressed on ${deviceId}`);
+        const pairingDevice = this.adapter.getDevice(deviceId);
+        if (!pairingDevice) {
+            throw new Error(`Pair: Device with ID ${deviceId} not existing.`);
         }
+        const data = await context.showForm({
+            type: 'panel',
+            i18n: true,
+            items: {
+                pin: {
+                    help: 'Homekit PIN',
+                    type: 'text',
+                    maxLength: 10,
+                    //validator: TODO
+                    label: 'XXX-XX-XXX'
+                },
+            }
+        }, {
+            data: {
+                pin: ''
+            },
+            title: 'Please enter the HomeKit PIN',
+        });
+        if (data) {
+            this.log.info(`Pair with Pin: ${JSON.stringify(data)}`);
+            try {
+                await this.adapter.pairDevice(pairingDevice, data.pin);
+            }
+            catch (err) {
+                await context.showMessage(`Pairing was not successful: ${err.message}`);
+            }
+            return { refresh: 'device' };
+        }
+        return { refresh: false };
     }
-    async handleDeviceAction(deviceId, actionId, context) {
-        switch (actionId) {
-            case 'pairDevice': {
-                this.log.info(`pairDevice was pressed on ${deviceId}`);
-                const pairingDevice = this.adapter.getDevice(deviceId);
-                if (!pairingDevice) {
-                    throw new Error(`Pair: Device with ID ${deviceId} not existing.`);
-                }
-                const data = await context.showForm({
-                    type: 'panel',
-                    i18n: true,
-                    items: {
-                        pin: {
-                            sm: 6,
-                            help: 'XXX-XX-XXX',
-                            type: 'text',
-                            maxLength: 10,
-                            //validator: TODO
-                            label: 'pin'
-                        },
-                    }
-                }, {
-                    data: {
-                        pin: ''
-                    },
-                    title: 'Please enter the HomeKit PIN',
-                });
-                if (data) {
-                    this.log.info(`Pair with Pin: ${JSON.stringify(data)}`);
-                    await this.adapter.pairDevice(pairingDevice, data.pin);
-                    return { refresh: 'device' };
-                }
-                return { refresh: false };
-            }
-            case 'unpairDevice': {
-                this.log.info(`unpairDevice was pressed on ${deviceId}`);
-                const unpairingDevice = this.adapter.getDevice(deviceId);
-                if (!unpairingDevice) {
-                    throw new Error(`Unpair: Device with ID ${deviceId} not existing.`);
-                }
-                const confirm = await context.showConfirmation('Do you really want to Unpair this device?');
-                if (confirm) {
-                    await this.adapter.unpairDevice(unpairingDevice);
-                    return { refresh: 'instance' };
-                }
-                return { refresh: false };
-            }
-            case 'identify': {
-                this.log.info(`Identify was pressed on ${deviceId}`);
-                const identifyingDevice = this.adapter.getDevice(deviceId);
-                if (!identifyingDevice) {
-                    throw new Error(`Identify: Device with ID ${deviceId} not existing.`);
-                }
-                await this.adapter.identifyDevice(identifyingDevice);
-                await context.showMessage(`The device should now identify itself.`);
-                return { refresh: false };
-            }
-            case 'deleteInactiveDevice': {
-                this.log.info(`Identify was pressed on ${deviceId}`);
-                const identifyingDevice = this.adapter.getDevice(deviceId);
-                if (!identifyingDevice) {
-                    throw new Error(`Identify: Device with ID ${deviceId} not existing.`);
-                }
-                await this.adapter.identifyDevice(identifyingDevice);
-                return { refresh: false };
-            }
-            default:
-                throw new Error(`Unknown action ${actionId}`);
+    async handleUnpairDevice(deviceId, context) {
+        this.log.info(`unpairDevice was pressed on ${deviceId}`);
+        const unpairingDevice = this.adapter.getDevice(deviceId);
+        if (!unpairingDevice) {
+            throw new Error(`Unpair: Device with ID ${deviceId} not existing.`);
         }
+        const confirm = await context.showConfirmation('Do you really want to Unpair this device?');
+        if (confirm) {
+            try {
+                await this.adapter.unpairDevice(unpairingDevice);
+            }
+            catch (err) {
+                await context.showMessage(`Unpairing was not successful: ${err.message}`);
+            }
+            return { refresh: 'instance' };
+        }
+        return { refresh: false };
+    }
+    async handleIdentify(deviceId, context) {
+        this.log.info(`Identify was pressed on ${deviceId}`);
+        const identifyingDevice = this.adapter.getDevice(deviceId);
+        if (!identifyingDevice) {
+            throw new Error(`Identify: Device with ID ${deviceId} not existing.`);
+        }
+        try {
+            await this.adapter.identifyDevice(identifyingDevice);
+        }
+        catch (err) {
+            await context.showMessage(`Identify was not successful: ${err.message}`);
+        }
+        await context.showMessage(`The device should now identify itself.`);
+        return { refresh: false };
+    }
+    async handleDeleteInactiveDevice(deviceId, context) {
+        this.log.info(`Delete was pressed on ${deviceId}`);
+        const deletingDevice = this.adapter.getDevice(deviceId);
+        if (!deletingDevice) {
+            throw new Error(`Identify: Device with ID ${deviceId} not existing.`);
+        }
+        const confirm = await context.showConfirmation('Do you really want to Delete this device?');
+        if (confirm) {
+            // TODO
+        }
+        return { refresh: false };
     }
     async getDeviceDetails(id) {
         const device = this.adapter.getDevice(id);

@@ -165,6 +165,9 @@ class HomekitController extends utils.Adapter {
             if (devices.length) {
                 this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
                 for (const device of devices) {
+                    if (!device.native) {
+                        continue;
+                    }
                     const hapDevice = {
                         serviceType: device.native.serviceType,
                         id: device.native.id,
@@ -174,7 +177,13 @@ class HomekitController extends utils.Adapter {
                         initInProgress: false,
                     };
                     this.log.debug(`Init ${hapDevice.id} as known device`);
-                    await this.initDevice(hapDevice);
+                    try {
+                        await this.initDevice(hapDevice);
+                    }
+                    catch (err) {
+                        this.log.error(`Could not initialize existing device ${hapDevice.id}: ${err.message}`);
+                        hapDevice.initInProgress = false;
+                    }
                 }
             }
         }
@@ -276,6 +285,9 @@ class HomekitController extends utils.Adapter {
     }
     async onMessage(obj) {
         if (typeof obj === 'object' && obj.command) {
+            if (obj.command.startsWith('dm:')) { // Handled by Device management
+                return;
+            }
             this.log.debug(`Message ${obj.command} received: ${JSON.stringify(obj)})`);
             let response = {
                 success: true,
