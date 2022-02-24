@@ -139,6 +139,7 @@
       }
     ],
     "messagebox": true,
+    "eraseOnUpload": true,
     "plugins": {
       "sentry": {
         "dsn": "https://7d63ca90c6ac4233b96e8be000b1f3d0@sentry.iobroker.net/161",
