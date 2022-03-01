@@ -17,7 +17,7 @@
     "url": "https://github.com/Apollon77/ioBroker.homekit-controller"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.5.1",
+    "@iobroker/adapter-core": "^2.6.0",
     "debug": "^4.3.3",
     "hap-controller": "^0.7.2",
     "p-queue": "^6.6.2"
