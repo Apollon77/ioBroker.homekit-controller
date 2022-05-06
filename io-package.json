@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.4.3",
+    "version": "0.4.4",
     "news": {
+      "0.4.4": {
+        "en": "Add Host header to HTTP devices to prevent issues with some devices\nFix several edge case issues",
+        "de": "Host-Header zu HTTP-Geräten hinzufügen, um Probleme mit einigen Geräten zu vermeiden\nBeheben Sie mehrere Edge-Case-Probleme",
+        "ru": "Добавьте заголовок узла к устройствам HTTP, чтобы предотвратить проблемы с некоторыми устройствами.\nИсправление нескольких проблем с крайним случаем",
+        "pt": "Adicionar cabeçalho de host a dispositivos HTTP para evitar problemas com alguns dispositivos\nCorrigir vários problemas de caixa de borda",
+        "nl": "Voeg Host-header toe aan HTTP-apparaten om problemen met sommige apparaten te voorkomen\nLos verschillende problemen met randgevallen op",
+        "fr": "Ajouter l'en-tête Host aux appareils HTTP pour éviter les problèmes avec certains appareils\nRésoudre plusieurs problèmes de cas extrêmes",
+        "it": "Aggiungi l'intestazione Host ai dispositivi HTTP per evitare problemi con alcuni dispositivi\nRisolvi diversi problemi di edge case",
+        "es": "Agregue el encabezado Host a los dispositivos HTTP para evitar problemas con algunos dispositivos\nSolucionar varios problemas de casos extremos",
+        "pl": "Dodaj nagłówek hosta do urządzeń HTTP, aby zapobiec problemom z niektórymi urządzeniami\nNapraw kilka problemów z przypadkiem brzegowym",
+        "zh-cn": "将 Host 标头添加到 HTTP 设备以防止某些设备出现问题\n修复几个边缘情况问题"
+      },
       "0.4.3": {
         "en": "make sure all connections get closed on reconnect",
         "de": "Stellen Sie sicher, dass alle Verbindungen beim erneuten Verbinden geschlossen werden",
@@ -74,18 +86,6 @@
         "es": "Corregir el tipo de datos del último estado descubierto",
         "pl": "Napraw typ danych ostatniego odkrytego stanu",
         "zh-cn": "修复 lastDiscovered 状态的数据类型"
-      },
-      "0.3.0": {
-        "en": "BREAKING CHANGE: All channel names will be changed and a number gets added at the end of the name. Please manually delete the ones without such a number",
-        "de": "BREAKING CHANGE: Alle Kanalnamen werden geändert und eine Nummer wird am Ende des Namens hinzugefügt. Bitte löschen Sie diejenigen ohne eine solche Nummer manuell",
-        "ru": "ПРЕРЫВНОЕ ИЗМЕНЕНИЕ: все названия каналов будут изменены, и в конце названия будет добавлен номер. Удалите вручную те, у которых нет такого номера",
-        "pt": "QUEBRANDO A MUDANÇA: Todos os nomes dos canais serão alterados e um número será adicionado ao final do nome. Exclua manualmente aqueles sem esse número",
-        "nl": "BREAKING CHANGE: Alle kanaalnamen worden gewijzigd en er wordt een nummer toegevoegd aan het einde van de naam. Verwijder a.u.b. handmatig degene zonder zo'n nummer",
-        "fr": "BREAKING CHANGE : tous les noms de chaînes seront modifiés et un numéro sera ajouté à la fin du nom. Veuillez supprimer manuellement ceux qui n'ont pas ce numéro",
-        "it": "CAMBIAMENTO INTERROTTO: Tutti i nomi dei canali verranno modificati e verrà aggiunto un numero alla fine del nome. Si prega di eliminare manualmente quelli senza tale numero",
-        "es": "CAMBIO IMPORTANTE: Se cambiarán todos los nombres de los canales y se agregará un número al final del nombre. Elimine manualmente los que no tienen ese número",
-        "pl": "BREAKING CHANGE: Wszystkie nazwy kanałów zostaną zmienione, a na końcu nazwy zostanie dodana liczba. Usuń ręcznie te, które nie mają takiego numeru",
-        "zh-cn": "BREAKING CHANGE：所有频道名称都将更改，并在名称末尾添加一个数字。请手动删除没有此编号的"
       }
     },
     "title": "HomeKit Controller",

@@ -104,8 +104,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 * look into support devices that offer images (method is there but never saw it in action)
 
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 0.4.4 (2022-05-06)
 * (Apollon77) Add Host header to HTTP devices to prevent issues with some devices
 * (Apollon77) Fix several edge case issues
 
