@@ -4,7 +4,11 @@
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -43,7 +47,6 @@ const service_1 = require("hap-controller/lib/model/service");
 const category_1 = require("hap-controller/lib/model/category");
 const IPConstants = __importStar(require("hap-controller/lib/transport/ip/http-constants"));
 const converter_1 = __importDefault(require("./lib/converter"));
-const devicemgmt_1 = require("./lib/devicemgmt");
 const ignoredHapServices = [
     'public.hap.service.pairing',
     'public.hap.service.protocol.information.service',
@@ -65,6 +68,7 @@ function isSetCharacteristicErrorResponse(value) {
         value.characteristics[0].status;
 }
 class HomekitController extends utils.Adapter {
+    //private readonly deviceManagement: HomeKitDeviceManagement;
     constructor(options = {}) {
         super({
             ...options,
@@ -88,7 +92,7 @@ class HomekitController extends utils.Adapter {
             this.log.info(`Can not create pairing data storage directory ${this.instanceDataDir}. Pairing data can not be persisted!`);
         }
         this.bluetoothQueue = new p_queue_1.default({ concurrency: 1, timeout: 45000, throwOnTimeout: true });
-        this.deviceManagement = new devicemgmt_1.HomeKitDeviceManagement(this);
+        //this.deviceManagement = new HomeKitDeviceManagement(this);
     }
     setConnected(isConnected) {
         if (this.isConnected !== isConnected) {
@@ -1010,7 +1014,7 @@ class HomekitController extends utils.Adapter {
         await this.initDevice(device);
     }
     async identifyDevice(device) {
-        if (!device.service) {
+        if (!device.service || (device.serviceType === 'BLE' && !device.service.peripheral)) {
             throw new Error(`Cannot identify device ${device.id} because not yet discovered`);
         }
         this.log.debug(`Device ${device.id}: Identify triggered`);
