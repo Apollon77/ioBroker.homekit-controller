@@ -119,11 +119,12 @@ class HomeKitDeviceManagement extends dm_utils_1.DeviceManagement {
             this.log.info(`Pair with Pin: ${JSON.stringify(data)}`);
             try {
                 await this.adapter.pairDevice(pairingDevice, data.pin);
+                await context.showMessage(`Device successfully paired!`);
             }
             catch (err) {
                 await context.showMessage(`Pairing was not successful: ${err.message}`);
             }
-            return { refresh: 'device' };
+            return { refresh: 'instance' };
         }
         return { refresh: false };
     }
@@ -137,6 +138,7 @@ class HomeKitDeviceManagement extends dm_utils_1.DeviceManagement {
         if (confirm) {
             try {
                 await this.adapter.unpairDevice(unpairingDevice);
+                await context.showMessage(`Device successfully unpaired!`);
             }
             catch (err) {
                 await context.showMessage(`Unpairing was not successful: ${err.message}`);

@@ -44,7 +44,7 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         const devList:DeviceInfo[] = [];
 
         devices.forEach(device => {
-            const statusInfo = [
+            const statusInfo: DeviceStatus[] = [
                 {
                     icon: device
                         .serviceType === 'IP' ? (device.connected ? 'fa-solid fa-wifi' : 'fa-solid fa-wifi-slash') : (device.connected ? 'fa-solid fa-bluetooth' : 'data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTMgNS44M2wxLjg4IDEuODgtMS42IDEuNiAxLjQxIDEuNDEgMy4wMi0zLjAyTDEyIDJoLTF2NS4wM2wyIDJ2LTMuMnpNNS40MSA0TDQgNS40MSAxMC41OSAxMiA1IDE3LjU5IDYuNDEgMTkgMTEgMTQuNDFWMjJoMWw0LjI5LTQuMjkgMi4zIDIuMjlMMjAgMTguNTkgNS40MSA0ek0xMyAxOC4xN3YtMy43NmwxLjg4IDEuODhMMTMgMTguMTd6Ii8+PC9zdmc+'),
@@ -54,15 +54,15 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
                     icon: device.discovered ? 'fas fa-eye' : '',
                     description: 'Discovered Status'
                 }
-            ] as DeviceStatus[];
-            const data = {
+            ];
+            const data: DeviceInfo = {
                 id: device.id,
                 name: `${device.discoveredName} (${device.discoveredCategory})`,
                 status: statusInfo,
                 hasDetails: device.pairedWithThisInstance,
                 //type: icon ... a type column
                 actions: []
-            } as DeviceInfo;
+            };
 
             if (device.pairedWithThisInstance) {
                 data.actions!.push({
@@ -135,10 +135,11 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
             this.log.info(`Pair with Pin: ${JSON.stringify(data)}`);
             try {
                 await this.adapter.pairDevice(pairingDevice, data.pin);
+                await context.showMessage(`Device successfully paired!`);
             } catch (err) {
                 await context.showMessage(`Pairing was not successful: ${err.message}`);
             }
-            return { refresh: 'device'}
+            return { refresh: 'instance'}
         }
         return { refresh: false };
     }
@@ -158,6 +159,7 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         if (confirm) {
             try {
                 await this.adapter.unpairDevice(unpairingDevice);
+                await context.showMessage(`Device successfully unpaired!`);
             } catch (err) {
                 await context.showMessage(`Unpairing was not successful: ${err.message}`);
             }
