@@ -1,4 +1,4 @@
-import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from 'dm-utils';
+/*import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from 'dm-utils';
 import { HomekitController } from '../main';
 
 export class HomeKitDeviceManagement extends DeviceManagement<HomekitController> {
@@ -25,16 +25,7 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         refresh: boolean;
     }> {
         this.log.info(`Refresh was pressed`);
-        /*
-        const progress = await context.openProgress('Searching...', { label: '0%' });
-        await this.delay(500);
-        for (let i = 10; i <= 100; i += 10) {
-            await this.delay(300);
-            this.log.info(`Progress at ${i}%`);
-            await progress.update({ value: i, label: `${i}%` });
-        }
-        await this.delay(1000);
-        await progress.close();*/
+
         return { refresh: true };
     }
 
@@ -227,3 +218,4 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
     }
 
 }
+*/
