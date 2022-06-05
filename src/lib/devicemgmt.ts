@@ -1,4 +1,4 @@
-/*import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from 'dm-utils';
+import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from 'dm-utils';
 import { HomekitController } from '../main';
 
 export class HomeKitDeviceManagement extends DeviceManagement<HomekitController> {
@@ -218,4 +218,4 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
     }
 
 }
-*/
+

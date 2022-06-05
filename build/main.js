@@ -47,6 +47,7 @@ const service_1 = require("hap-controller/lib/model/service");
 const category_1 = require("hap-controller/lib/model/category");
 const IPConstants = __importStar(require("hap-controller/lib/transport/ip/http-constants"));
 const converter_1 = __importDefault(require("./lib/converter"));
+const devicemgmt_1 = require("./lib/devicemgmt");
 const ignoredHapServices = [
     'public.hap.service.pairing',
     'public.hap.service.protocol.information.service',
@@ -68,7 +69,6 @@ function isSetCharacteristicErrorResponse(value) {
         value.characteristics[0].status;
 }
 class HomekitController extends utils.Adapter {
-    //private readonly deviceManagement: HomeKitDeviceManagement;
     constructor(options = {}) {
         super({
             ...options,
@@ -92,7 +92,7 @@ class HomekitController extends utils.Adapter {
             this.log.info(`Can not create pairing data storage directory ${this.instanceDataDir}. Pairing data can not be persisted!`);
         }
         this.bluetoothQueue = new p_queue_1.default({ concurrency: 1, timeout: 45000, throwOnTimeout: true });
-        //this.deviceManagement = new HomeKitDeviceManagement(this);
+        this.deviceManagement = new devicemgmt_1.HomeKitDeviceManagement(this);
     }
     setConnected(isConnected) {
         if (this.isConnected !== isConnected) {
@@ -180,6 +180,7 @@ class HomekitController extends utils.Adapter {
                         pairingData: device.native.pairingData,
                         initInProgress: false,
                         stopping: false,
+                        errorCounter: 0,
                     };
                     this.log.debug(`Init ${hapDevice.id} as known device`);
                     try {
@@ -654,7 +655,7 @@ class HomekitController extends utils.Adapter {
             delay = device.serviceType === 'IP' ? this.config.dataPollingIntervalIp : this.config.dataPollingIntervalBle;
         }
         device.dataPollingInterval = setTimeout(async () => {
-            var _a;
+            var _a, _b, _c;
             let requestedCharacteristics = device.dataPollingCharacteristics;
             if (requestedCharacteristics) {
                 this.log.debug(`Device ${device.id} Scheduled Characteristic update started ...`);
@@ -675,13 +676,28 @@ class HomekitController extends utils.Adapter {
                         this.setCharacteristicValues(device, data);
                     }
                     this.setDeviceConnected(device, true);
+                    device.errorCounter = 0;
                 }
                 catch (err) {
-                    this.log.info(`Device ${device.id} data polling failed: ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
+                    device.errorCounter++;
+                    this.log.info(`Device ${device.id} data polling failed (${device.errorCounter}): ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
                     if (device.serviceType === 'IP') {
                         (_a = device.client) === null || _a === void 0 ? void 0 : _a.closePersistentConnection();
                     }
                     this.setDeviceConnected(device, false);
+                    if (device.errorCounter > 10) {
+                        this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
+                        if (device.serviceType === 'IP') {
+                            try {
+                                await ((_b = device.clientQueue) === null || _b === void 0 ? void 0 : _b.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.unsubscribeCharacteristics()); }));
+                            }
+                            catch {
+                                // ignore
+                            }
+                        }
+                        await ((_c = device.client) === null || _c === void 0 ? void 0 : _c.close());
+                        await this.initDevice(device);
+                    }
                 }
             }
             this.scheduleCharacteristicsUpdate(device);
@@ -732,14 +748,18 @@ class HomekitController extends utils.Adapter {
         this.log.debug(`Service: ${JSON.stringify(device.service, (key, value) => {
             return key === 'peripheral' ? undefined : value;
         })}`);
-        objs.set(device.id, ObjectDefaults.getFolderObject(`${(_a = device.service) === null || _a === void 0 ? void 0 : _a.name} (${device.id})`, undefined, hapNative));
+        objs.set(device.id, ObjectDefaults.getFolderObject(`${(_a = device.service) === null || _a === void 0 ? void 0 : _a.name} (${device.id})`, {
+            statusStates: {
+                onlineId: `${this.namespace}.${device.id}.info.connected`
+            }
+        }, hapNative));
         objs.set(`${device.id}.info`, ObjectDefaults.getChannelObject('Information'));
         objs.set(`${device.id}.info.connectionType`, ObjectDefaults.getStateObject('string', 'Connection type', device.serviceType, { def: device.serviceType, write: false }));
         objs.set(`${device.id}.info.id`, ObjectDefaults.getStateObject('string', 'HAP ID', (_b = device.service) === null || _b === void 0 ? void 0 : _b.id, { write: false }));
         if (device.serviceType === 'IP') {
             objs.set(`${device.id}.info.address`, ObjectDefaults.getStateObject('string', 'IP Address', (_c = device.service) === null || _c === void 0 ? void 0 : _c.address, { role: 'info.ip', write: false }));
         }
-        objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator', 'Connected', device.connected, { write: false }));
+        objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator.reachable', 'Connected', device.connected, { write: false }));
         objs.set(`${device.id}.admin`, ObjectDefaults.getChannelObject('Administration'));
         objs.set(`${device.id}.admin.isPaired`, ObjectDefaults.getStateObject('indicator', 'Paired with this Instance?', !!device.pairingData));
         objs.set(`${device.id}.info.lastDiscovered`, ObjectDefaults.getStateObject('timestamp', 'Last Discovered', Date.now()));
@@ -840,7 +860,11 @@ class HomekitController extends utils.Adapter {
             if (!accessoryObjName) {
                 accessoryObjName = `Accessory ${accessory.aid}`;
             }
-            objs.set(`${device.id}.${accessory.aid}`, ObjectDefaults.getDeviceObject(accessoryObjName));
+            objs.set(`${device.id}.${accessory.aid}`, ObjectDefaults.getDeviceObject(accessoryObjName, {
+                statusStates: {
+                    onlineId: `${this.namespace}.${device.id}.info.connected`
+                }
+            }));
         });
         return objs;
     }

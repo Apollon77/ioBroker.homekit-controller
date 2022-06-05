@@ -27,8 +27,8 @@ import { serviceFromUuid } from 'hap-controller/lib/model/service';
 import { categoryFromId } from 'hap-controller/lib/model/category';
 import * as IPConstants from 'hap-controller/lib/transport/ip/http-constants';
 import Converters from './lib/converter';
-//import { HomeKitDeviceManagement } from './lib/devicemgmt';
-//     "dm-utils": "https://github.com/UncleSamSwiss/dm-utils"
+import { HomeKitDeviceManagement } from './lib/devicemgmt';
+
 interface HapDeviceBase {
     connected: boolean;
     initInProgress: boolean;
@@ -143,7 +143,7 @@ export class HomekitController extends utils.Adapter {
 
     private bluetoothQueue: PQueue;
 
-    //private readonly deviceManagement: HomeKitDeviceManagement;
+    private readonly deviceManagement: HomeKitDeviceManagement;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
@@ -168,7 +168,7 @@ export class HomekitController extends utils.Adapter {
 
         this.bluetoothQueue = new PQueue({concurrency: 1, timeout: 45000, throwOnTimeout: true});
 
-        //this.deviceManagement = new HomeKitDeviceManagement(this);
+        this.deviceManagement = new HomeKitDeviceManagement(this);
     }
 
     setConnected(isConnected: boolean): void {

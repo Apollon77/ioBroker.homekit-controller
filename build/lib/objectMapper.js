@@ -306,6 +306,11 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
             objCommon.type = 'string';
             break;
     }
+    if (objCommon.type !== 'number') {
+        delete objCommon.min;
+        delete objCommon.max;
+        delete objCommon.step;
+    }
     const objNative = characteristic;
     objNative.convertLogic = convertLogic;
     if (!objCommon.role) {

@@ -1,11 +1,11 @@
 "use strict";
-/*import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from 'dm-utils';
-import { HomekitController } from '../main';
-
-export class HomeKitDeviceManagement extends DeviceManagement<HomekitController> {
-    protected getInstanceInfo(): InstanceDetails {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HomeKitDeviceManagement = void 0;
+const dm_utils_1 = require("dm-utils");
+class HomeKitDeviceManagement extends dm_utils_1.DeviceManagement {
+    getInstanceInfo() {
         const data = {
-            ...(super.getInstanceInfo() as InstanceDetails),
+            ...super.getInstanceInfo(),
             actions: [
                 {
                     id: 'refresh',
@@ -16,27 +16,18 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
                 }
             ],
         };
-
         this.adapter.log.debug(`Send instance information: ${JSON.stringify(data)}`);
-
         return data;
     }
-
-    protected async handleRefresh(_context: ActionContext): Promise<{
-        refresh: boolean;
-    }> {
+    async handleRefresh(_context) {
         this.log.info(`Refresh was pressed`);
-
         return { refresh: true };
     }
-
-    protected async listDevices(): Promise<DeviceInfo[]> {
+    async listDevices() {
         const devices = this.adapter.getDiscoveredDevices();
-
-        const devList:DeviceInfo[] = [];
-
+        const devList = [];
         devices.forEach(device => {
-            const statusInfo: DeviceStatus[] = [
+            const statusInfo = [
                 {
                     icon: device
                         .serviceType === 'IP' ? (device.connected ? 'fa-solid fa-wifi' : 'fa-solid fa-wifi-slash') : (device.connected ? 'fa-solid fa-bluetooth' : 'data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTMgNS44M2wxLjg4IDEuODgtMS42IDEuNiAxLjQxIDEuNDEgMy4wMi0zLjAyTDEyIDJoLTF2NS4wM2wyIDJ2LTMuMnpNNS40MSA0TDQgNS40MSAxMC41OSAxMiA1IDE3LjU5IDYuNDEgMTkgMTEgMTQuNDFWMjJoMWw0LjI5LTQuMjkgMi4zIDIuMjlMMjAgMTguNTkgNS40MSA0ek0xMyAxOC4xN3YtMy43NmwxLjg4IDEuODhMMTMgMTguMTd6Ii8+PC9zdmc+'),
@@ -47,7 +38,7 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
                     description: 'Discovered Status'
                 }
             ];
-            const data: DeviceInfo = {
+            const data = {
                 id: device.id,
                 name: `${device.discoveredName} (${device.discoveredCategory})`,
                 status: statusInfo,
@@ -55,23 +46,23 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
                 //type: icon ... a type column
                 actions: []
             };
-
             if (device.pairedWithThisInstance) {
-                data.actions!.push({
+                data.actions.push({
                     id: 'unpairDevice',
                     icon: 'fas fa-unlink',
                     description: 'Unpair this device',
                     handler: device.connected ? this.handleUnpairDevice.bind(this) : undefined
                 });
-            } else {
+            }
+            else {
                 if (device.availableToPair) {
-                    data.actions!.push({
+                    data.actions.push({
                         id: 'identify',
                         icon: 'fas fa-search-location',
                         description: 'Identify this device',
                         handler: this.handleIdentify.bind(this)
                     });
-                    data.actions!.push({
+                    data.actions.push({
                         id: 'pairDevice',
                         icon: 'fas fa-link',
                         description: 'Pair this device',
@@ -79,27 +70,18 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
                     });
                 }
             }
-            data.actions!.push({
+            data.actions.push({
                 id: 'delete',
                 icon: 'fas fa-trash',
                 description: 'Delete this device',
                 handler: !(device.connected || device.discovered || device.pairedWithThisInstance) ? this.handleDeleteInactiveDevice.bind(this) : undefined
             });
-
             devList.push(data);
         });
-
         this.adapter.log.debug(`Send device information: ${JSON.stringify(devList)}`);
-
         return devList;
     }
-
-    protected async handlePairDevice(
-        deviceId: string,
-        context: ActionContext,
-    ): Promise<{
-            refresh: DeviceRefresh;
-        }> {
+    async handlePairDevice(deviceId, context) {
         this.log.info(`pairDevice was pressed on ${deviceId}`);
         const pairingDevice = this.adapter.getDevice(deviceId);
         if (!pairingDevice) {
@@ -128,20 +110,15 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
             try {
                 await this.adapter.pairDevice(pairingDevice, data.pin);
                 await context.showMessage(`Device successfully paired!`);
-            } catch (err) {
+            }
+            catch (err) {
                 await context.showMessage(`Pairing was not successful: ${err.message}`);
             }
-            return { refresh: 'instance'}
+            return { refresh: 'instance' };
         }
         return { refresh: false };
     }
-
-    protected async handleUnpairDevice(
-        deviceId: string,
-        context: ActionContext,
-    ): Promise<{
-            refresh: DeviceRefresh;
-        }> {
+    async handleUnpairDevice(deviceId, context) {
         this.log.info(`unpairDevice was pressed on ${deviceId}`);
         const unpairingDevice = this.adapter.getDevice(deviceId);
         if (!unpairingDevice) {
@@ -152,21 +129,15 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
             try {
                 await this.adapter.unpairDevice(unpairingDevice);
                 await context.showMessage(`Device successfully unpaired!`);
-            } catch (err) {
+            }
+            catch (err) {
                 await context.showMessage(`Unpairing was not successful: ${err.message}`);
             }
             return { refresh: 'instance' };
         }
         return { refresh: false };
     }
-
-
-    protected async handleIdentify(
-        deviceId: string,
-        context: ActionContext,
-    ): Promise<{
-            refresh: DeviceRefresh;
-        }> {
+    async handleIdentify(deviceId, context) {
         this.log.info(`Identify was pressed on ${deviceId}`);
         const identifyingDevice = this.adapter.getDevice(deviceId);
         if (!identifyingDevice) {
@@ -174,20 +145,14 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         }
         try {
             await this.adapter.identifyDevice(identifyingDevice);
-        } catch (err) {
+        }
+        catch (err) {
             await context.showMessage(`Identify was not successful: ${err.message}`);
         }
         await context.showMessage(`The device should now identify itself.`);
         return { refresh: false };
     }
-
-
-    protected async handleDeleteInactiveDevice(
-        deviceId: string,
-        context: ActionContext,
-    ): Promise<{
-            refresh: DeviceRefresh;
-        }> {
+    async handleDeleteInactiveDevice(deviceId, context) {
         this.log.info(`Delete was pressed on ${deviceId}`);
         const deletingDevice = this.adapter.getDevice(deviceId);
         if (!deletingDevice) {
@@ -199,11 +164,10 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         }
         return { refresh: false };
     }
-
-    protected override async getDeviceDetails(id: string): Promise<DeviceDetails> {
+    async getDeviceDetails(id) {
         const device = this.adapter.getDevice(id);
-        if (! device) {
-            return {id, schema: {}};
+        if (!device) {
+            return { id, schema: {} };
         }
         const schema = {
             type: 'panel',
@@ -217,7 +181,6 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         };
         return { id, schema };
     }
-
 }
-*/
+exports.HomeKitDeviceManagement = HomeKitDeviceManagement;
 //# sourceMappingURL=devicemgmt.js.map
