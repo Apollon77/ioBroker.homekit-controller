@@ -89,7 +89,16 @@ const templates: Record<string, ioBroker.Object> = {
             write: false,
         },
     } as ioBroker.StateObject,
-    'timestamp': {
+    'indicator.reachable': {
+        type: 'state',
+        common: {
+            name: 'Reachable',
+            type: 'boolean',
+            role: 'indicator.reachable',
+            read: true,
+            write: false,
+        },
+    } as ioBroker.StateObject,    'timestamp': {
         type: 'state',
         common: {
             name: 'Timestamp',

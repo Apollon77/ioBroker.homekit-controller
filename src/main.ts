@@ -38,6 +38,7 @@ interface HapDeviceBase {
     clientQueue?: PQueue;
     dataPollingInterval?: NodeJS.Timeout;
     stateIdMap?: Map<string, string>;
+    errorCounter: number;
 }
 
 interface SubscriptionCharacteristic {
@@ -266,6 +267,7 @@ export class HomekitController extends utils.Adapter {
                         pairingData: device.native.pairingData,
                         initInProgress: false,
                         stopping: false,
+                        errorCounter: 0,
                     }
                     this.log.debug(`Init ${hapDevice.id} as known device`);
                     try {
@@ -782,12 +784,28 @@ export class HomekitController extends utils.Adapter {
                         this.setCharacteristicValues(device, data);
                     }
                     this.setDeviceConnected(device, true);
+                    device.errorCounter = 0;
                 } catch (err) {
-                    this.log.info(`Device ${device.id} data polling failed: ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
+                    device.errorCounter++;
+                    this.log.info(`Device ${device.id} data polling failed (${device.errorCounter}): ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
                     if (device.serviceType === 'IP') {
                         device.client?.closePersistentConnection();
                     }
                     this.setDeviceConnected(device, false);
+
+                    if (device.errorCounter > 10) {
+                        this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
+
+                        if (device.serviceType === 'IP') {
+                            try {
+                                await device.clientQueue?.add(async () => await device.client?.unsubscribeCharacteristics());
+                            } catch {
+                                // ignore
+                            }
+                        }
+                        await device.client?.close();
+                        await this.initDevice(device);
+                    }
                 }
             }
             this.scheduleCharacteristicsUpdate(device);
@@ -842,7 +860,11 @@ export class HomekitController extends utils.Adapter {
             return key === 'peripheral' ? undefined : value;
         })}`);
 
-        objs.set(device.id, ObjectDefaults.getFolderObject(`${device.service?.name} (${device.id})`, undefined, hapNative));
+        objs.set(device.id, ObjectDefaults.getFolderObject(`${device.service?.name} (${device.id})`, {
+            statusStates: {
+                onlineId: `${this.namespace}.${device.id}.info.connected`
+            }
+        }, hapNative));
 
         objs.set(`${device.id}.info`, ObjectDefaults.getChannelObject('Information'));
         objs.set(`${device.id}.info.connectionType`, ObjectDefaults.getStateObject('string', 'Connection type', device.serviceType, {def: device.serviceType, write: false}));
@@ -850,7 +872,7 @@ export class HomekitController extends utils.Adapter {
         if (device.serviceType === 'IP') {
             objs.set(`${device.id}.info.address`, ObjectDefaults.getStateObject('string', 'IP Address', device.service?.address, { role: 'info.ip', write: false }));
         }
-        objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator', 'Connected',  device.connected,{write: false}));
+        objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator.reachable', 'Connected',  device.connected,{write: false}));
 
         objs.set(`${device.id}.admin`, ObjectDefaults.getChannelObject('Administration'));
         objs.set(`${device.id}.admin.isPaired`, ObjectDefaults.getStateObject('indicator', 'Paired with this Instance?', !!device.pairingData));
@@ -960,7 +982,11 @@ export class HomekitController extends utils.Adapter {
                 accessoryObjName = `Accessory ${accessory.aid}`;
             }
 
-            objs.set(`${device.id}.${accessory.aid}`, ObjectDefaults.getDeviceObject(accessoryObjName));
+            objs.set(`${device.id}.${accessory.aid}`, ObjectDefaults.getDeviceObject(accessoryObjName, {
+                statusStates: {
+                    onlineId: `${this.namespace}.${device.id}.info.connected`
+                }
+            }));
         });
 
         return objs;
