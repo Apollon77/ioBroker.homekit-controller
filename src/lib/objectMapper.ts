@@ -319,6 +319,12 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
             break;
     }
 
+    if (objCommon.type !== 'number') {
+        delete objCommon.min;
+        delete objCommon.max;
+        delete objCommon.step;
+    }
+
     const objNative: Record<string, unknown> = characteristic as Record<string, unknown>;
     objNative.convertLogic = convertLogic;
 
