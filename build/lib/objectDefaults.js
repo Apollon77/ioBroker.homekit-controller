@@ -92,7 +92,16 @@ const templates = {
             write: false,
         },
     },
-    'timestamp': {
+    'indicator.reachable': {
+        type: 'state',
+        common: {
+            name: 'Reachable',
+            type: 'boolean',
+            role: 'indicator.reachable',
+            read: true,
+            write: false,
+        },
+    }, 'timestamp': {
         type: 'state',
         common: {
             name: 'Timestamp',
