@@ -119,6 +119,7 @@ class HomekitController extends utils.Adapter {
     async onReady() {
         debug_1.default.enable('hap-controller:*');
         debug_1.default.log = this.log.debug.bind(this);
+        this.setConnected(false);
         if (this.config.discoverBle) {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -135,35 +136,6 @@ class HomekitController extends utils.Adapter {
                 this.config.dataPollingIntervalBle = 60;
             }
         }
-        this.setConnected(false);
-        if (this.config.discoverIp) {
-            this.discoveryIp = new ip_discovery_1.default();
-            this.discoveryIp.on('serviceUp', (service) => {
-                this.log.debug(`Discovered IP device up: ${service.id}/${service.name}`);
-                this.handleDeviceDiscovery('IP', service);
-            });
-            this.discoveryIp.on('serviceDown', (service) => {
-                this.log.debug(`Discovered IP device down: ${service.id}/${service.name}`);
-            });
-            this.discoveryIp.on('serviceChanged', (service) => {
-                this.log.debug(`Discovered IP device changed: ${service.id}/${service.name}`);
-                this.handleDeviceDiscovery('IP', service);
-            });
-            this.discoveryIp.start();
-        }
-        if (this.config.discoverBle && BLEDiscoveryConstructor) {
-            this.discoveryBle = new BLEDiscoveryConstructor();
-            this.discoveryBle.on('serviceUp', (service) => {
-                this.log.debug(`Discovered BLE device up: ${service.id}/${service.name}`);
-                this.handleDeviceDiscovery('BLE', service);
-            });
-            this.discoveryBle.on('serviceChanged', (service) => {
-                this.log.debug(`Discovered BLE device changed: ${service.id}/${service.name}`);
-                this.handleDeviceDiscovery('BLE', service);
-            });
-            this.discoveryBle.start();
-        }
-        this.subscribeStates('*');
         try {
             const devices = await this.getKnownDevices();
             if (devices.length) {
@@ -196,6 +168,34 @@ class HomekitController extends utils.Adapter {
         catch (err) {
             this.log.error(`Could not initialize existing devices: ${err.message}`);
         }
+        if (this.config.discoverIp) {
+            this.discoveryIp = new ip_discovery_1.default();
+            this.discoveryIp.on('serviceUp', (service) => {
+                this.log.debug(`Discovered IP device up: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('IP', service);
+            });
+            this.discoveryIp.on('serviceDown', (service) => {
+                this.log.debug(`Discovered IP device down: ${service.id}/${service.name}`);
+            });
+            this.discoveryIp.on('serviceChanged', (service) => {
+                this.log.debug(`Discovered IP device changed: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('IP', service);
+            });
+            this.discoveryIp.start();
+        }
+        if (this.config.discoverBle && BLEDiscoveryConstructor) {
+            this.discoveryBle = new BLEDiscoveryConstructor();
+            this.discoveryBle.on('serviceUp', (service) => {
+                this.log.debug(`Discovered BLE device up: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('BLE', service);
+            });
+            this.discoveryBle.on('serviceChanged', (service) => {
+                this.log.debug(`Discovered BLE device changed: ${service.id}/${service.name}`);
+                this.handleDeviceDiscovery('BLE', service);
+            });
+            this.discoveryBle.start();
+        }
+        this.subscribeStates('*');
     }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!

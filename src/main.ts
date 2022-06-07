@@ -199,6 +199,8 @@ export class HomekitController extends utils.Adapter {
         Debug.enable('hap-controller:*');
         Debug.log = this.log.debug.bind(this);
 
+        this.setConnected(false);
+
         if (this.config.discoverBle) {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -216,7 +218,36 @@ export class HomekitController extends utils.Adapter {
             }
         }
 
-        this.setConnected(false);
+        try {
+            const devices = await this.getKnownDevices();
+            if (devices.length) {
+                this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
+                for (const device of devices) {
+                    if (!device.native) {
+                        continue;
+                    }
+                    const hapDevice: HapDevice = {
+                        serviceType: device.native.serviceType,
+                        id: device.native.id,
+                        connected: false,
+                        service: device.native.lastService || undefined,
+                        pairingData: device.native.pairingData,
+                        initInProgress: false,
+                        stopping: false,
+                        errorCounter: 0,
+                    }
+                    this.log.debug(`Init ${hapDevice.id} as known device`);
+                    try {
+                        await this.initDevice(hapDevice);
+                    } catch (err) {
+                        this.log.error(`Could not initialize existing device ${hapDevice.id}: ${err.message}`);
+                        hapDevice.initInProgress = false;
+                    }
+                }
+            }
+        } catch (err) {
+            this.log.error(`Could not initialize existing devices: ${err.message}`);
+        }
 
         if (this.config.discoverIp) {
             this.discoveryIp = new IPDiscovery();
@@ -250,37 +281,6 @@ export class HomekitController extends utils.Adapter {
         }
 
         this.subscribeStates('*');
-
-        try {
-            const devices = await this.getKnownDevices();
-            if (devices.length) {
-                this.log.debug('Init ' + devices.length + ' known devices without discovery ...');
-                for (const device of devices) {
-                    if (!device.native) {
-                        continue;
-                    }
-                    const hapDevice: HapDevice = {
-                        serviceType: device.native.serviceType,
-                        id: device.native.id,
-                        connected: false,
-                        service: device.native.lastService || undefined,
-                        pairingData: device.native.pairingData,
-                        initInProgress: false,
-                        stopping: false,
-                        errorCounter: 0,
-                    }
-                    this.log.debug(`Init ${hapDevice.id} as known device`);
-                    try {
-                        await this.initDevice(hapDevice);
-                    } catch (err) {
-                        this.log.error(`Could not initialize existing device ${hapDevice.id}: ${err.message}`);
-                        hapDevice.initInProgress = false;
-                    }
-                }
-            }
-        } catch (err) {
-            this.log.error(`Could not initialize existing devices: ${err.message}`);
-        }
     }
 
     /**
