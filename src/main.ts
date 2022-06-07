@@ -793,7 +793,7 @@ export class HomekitController extends utils.Adapter {
                     }
                     this.setDeviceConnected(device, false);
 
-                    if (device.errorCounter > 10) {
+                    if (device.errorCounter > 3) {
                         this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
 
                         if (device.serviceType === 'IP') {

@@ -294,6 +294,7 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
         characteristicCommon.states = targetStates;
     }
     const objCommon = Object.assign(characteristicCommon, iobrokerCommon);
+    console.log(`${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}: BEFORE ${JSON.stringify(objCommon)} with ${convertLogic}`);
     if (!convertLogic && objCommon.type === 'boolean' && typeof characteristic.value === 'number') {
         convertLogic = 'number-to-boolean';
     }
@@ -311,6 +312,7 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
         delete objCommon.max;
         delete objCommon.step;
     }
+    console.log(`${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}: AFTER ${JSON.stringify(objCommon)} with ${JSON.stringify(convertLogic)}`);
     const objNative = characteristic;
     objNative.convertLogic = convertLogic;
     if (!objCommon.role) {

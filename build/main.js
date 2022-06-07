@@ -685,7 +685,7 @@ class HomekitController extends utils.Adapter {
                         (_a = device.client) === null || _a === void 0 ? void 0 : _a.closePersistentConnection();
                     }
                     this.setDeviceConnected(device, false);
-                    if (device.errorCounter > 10) {
+                    if (device.errorCounter > 3) {
                         this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
                         if (device.serviceType === 'IP') {
                             try {
