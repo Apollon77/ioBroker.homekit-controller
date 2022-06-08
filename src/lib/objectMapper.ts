@@ -305,7 +305,6 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
 
     const objCommon = Object.assign(characteristicCommon, iobrokerCommon);
 
-    console.log(`${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}: BEFORE ${JSON.stringify(objCommon)} with ${convertLogic}`);
     if (!convertLogic && objCommon.type === 'boolean' && typeof characteristic.value === 'number') {
         convertLogic = 'number-to-boolean';
     }
@@ -325,8 +324,6 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
         delete objCommon.max;
         delete objCommon.step;
     }
-
-    console.log(`${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}: AFTER ${JSON.stringify(objCommon)} with ${JSON.stringify(convertLogic)}`);
 
     const objNative: Record<string, unknown> = characteristic as Record<string, unknown>;
     objNative.convertLogic = convertLogic;

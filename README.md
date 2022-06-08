@@ -70,6 +70,8 @@ If you have issues pairing the device with this adapter please try to pair it wi
 
 This is currently that way for some Tado Door Locks as example. They need to be paired using the Tado App which is somehow registering the device into Apple Home, but not via an official pair process.
 
+Additional also Nuki 3 Locks (BLE) are not possible to pair because they use Hardware Authentication components that are not publicly documented by Apple.
+
 #### Other potential issues to check before opening a ticket
 
 ##### for BLE devices
@@ -108,6 +110,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 ### __WORK IN PROGRESS__
 * (Apollon77) Add Connection identifier for Admin object list
 * (Apollon77) Count polling errors and reinitialize device connection when too many errors occur
+* (Apollon77) Optimize adapter startup to prevent double initialization of devices
 
 ### 0.4.4 (2022-05-06)
 * (Apollon77) Add Host header to HTTP devices to prevent issues with some devices
