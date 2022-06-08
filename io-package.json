@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "news": {
+      "0.5.0": {
+        "en": "Add Connection identifier for Admin object list\nCount polling errors and reinitialize device connection when too many errors occur\nOptimize adapter startup to prevent double initialization of devices",
+        "de": "Fügen Sie Verbindungskennung für Admin-Objektliste hinzu\nZählen Sie Fehler bei der Fehlersuche und reitialisieren Sie die Geräteverbindung, wenn zu viele Fehler auftreten\nOptimieren Sie Adapter-Startup, um eine doppelte Initialisierung von Geräten zu verhindern",
+        "ru": "Добавить идентификатор подключения для списка объектов Admin\nОтсчет загрязняющих ошибок и реинициализовать подключение устройства, когда возникает слишком много ошибок\nОптимизируйте запуск адаптера для предотвращения двойной инициализации устройств",
+        "pt": "Adicionar identificador de conexão para lista de objetos Admin\nContar erros de votação e reiniciar a conexão do dispositivo quando muitos erros ocorrem\nOtimize a inicialização do adaptador para evitar a inicialização dupla de dispositivos",
+        "nl": "Vertaling:\nTel fouten in en herstart apparatuur als er te veel fouten komen\nOptimize adapter startup om dubbele initialisatie van apparatuur te voorkomen",
+        "fr": "Ajouter Identifiant de connexion pour la liste d'objets Admin\nCompter les erreurs de sondage et réinitialiser la connexion de périphérique lorsque trop d'erreurs surviennent\nOptimiser le démarrage de l'adaptateur pour éviter une double initialisation des appareils",
+        "it": "Aggiungi l'identificativo di connessione per l'elenco degli oggetti Admin\nContare gli errori di polling e riavviare la connessione del dispositivo quando si verificano troppi errori\nOttimizzare l'avvio dell'adattatore per prevenire la doppia inizializzazione dei dispositivi",
+        "es": "Añadir identificador de conexión para lista de objetos de Admin\nCuenta con errores de votación y reiniciar la conexión del dispositivo cuando ocurren demasiados errores\nOptimize adapter startup to prevent double initialization of devices",
+        "pl": "Add Connection identifier\nObserwuje błędy i ponowne zainicjowanie połączenia urządzenie, gdy zachodzi zbyt wiele błędów\nOptymizacja adapteru zapobiega podwójnej inicjacji urządzeń",
+        "zh-cn": "添加识别符号\n在发生许多错误时,污染错误和重新启动装置连接\n利用适应人员开始防止装置的双重化"
+      },
       "0.4.4": {
         "en": "Add Host header to HTTP devices to prevent issues with some devices\nFix several edge case issues",
         "de": "Host-Header zu HTTP-Geräten hinzufügen, um Probleme mit einigen Geräten zu vermeiden\nBeheben Sie mehrere Edge-Case-Probleme",
@@ -74,18 +86,6 @@
         "es": "Corrija las casillas de verificación de Descubrimiento",
         "pl": "Napraw pola wyboru Discovery",
         "zh-cn": "修复发现复选框"
-      },
-      "0.3.1": {
-        "en": "Fix datatype of lastDiscovered state",
-        "de": "Datentyp des lastDiscovered-Zustands korrigieren",
-        "ru": "Исправить тип данных последнего обнаруженного состояния",
-        "pt": "Corrigir o tipo de dados do estado lastDiscovered",
-        "nl": "Fix datatype van lastDiscovered state",
-        "fr": "Correction du type de données de l'état lastDiscovered",
-        "it": "Correggi il tipo di dati dello stato lastDiscovered",
-        "es": "Corregir el tipo de datos del último estado descubierto",
-        "pl": "Napraw typ danych ostatniego odkrytego stanu",
-        "zh-cn": "修复 lastDiscovered 状态的数据类型"
       }
     },
     "title": "HomeKit Controller",
