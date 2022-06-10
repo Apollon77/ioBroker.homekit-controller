@@ -106,6 +106,10 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 * look into support devices that offer images (method is there but never saw it in action)
 
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (Apollon77) Optimizations for BLE connections
+
 ### 0.5.0 (2022-06-08)
 * (Apollon77) Add Connection identifier for Admin object list
 * (Apollon77) Count polling errors and reinitialize device connection when too many errors occur
