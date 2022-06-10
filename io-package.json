@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "news": {
+      "0.5.1": {
+        "en": "Optimizations for BLE connections",
+        "de": "Optimierungen für BLE-Verbindungen",
+        "ru": "Оптимизация для BLE соединений",
+        "pt": "Otimizações para conexões BLE",
+        "nl": "Optimatie voor BLE connecties",
+        "fr": "Optimisation des connexions BLE",
+        "it": "Ottimizzazione per connessioni BLE",
+        "es": "Optimizaciones para conexiones BLE",
+        "pl": "Optymizacja połączeń BLE",
+        "zh-cn": "B. 利用低地连接"
+      },
       "0.5.0": {
         "en": "Add Connection identifier for Admin object list\nCount polling errors and reinitialize device connection when too many errors occur\nOptimize adapter startup to prevent double initialization of devices",
         "de": "Fügen Sie Verbindungskennung für Admin-Objektliste hinzu\nZählen Sie Fehler bei der Fehlersuche und reitialisieren Sie die Geräteverbindung, wenn zu viele Fehler auftreten\nOptimieren Sie Adapter-Startup, um eine doppelte Initialisierung von Geräten zu verhindern",
@@ -74,18 +86,6 @@
         "es": "aumento del rendimiento mediante el uso de conexiones persistentes a dispositivos IP y muchas más optimizaciones\nUse solo una cola para todos los dispositivos BLE\nAlmacenar datos de emparejamiento directamente después del emparejamiento\nOptimice la gestión de solicitudes simultáneas\nOptimice el manejo de la actualización de valores y detecte mejor los datos obsoletos para forzar una actualización en el próximo sondeo",
         "pl": "wzrost wydajności dzięki wykorzystaniu trwałych połączeń z urządzeniami IP i wielu innych optymalizacji\nUżywaj tylko jednej kolejki dla wszystkich urządzeń BLE\nPrzechowuj dane parowania bezpośrednio po parowaniu\nZoptymalizuj obsługę jednoczesnych żądań\nZoptymalizuj obsługę aktualizacji wartości i lepiej wykrywaj nieaktualne dane, aby wymusić aktualizację podczas następnego odpytywania",
         "zh-cn": "通过使用与 IP 设备的持久连接和更多优化来提高性能\n仅对所有 BLE 设备使用一个队列\n配对后直接存储配对数据\n优化并发请求的处理\n优化值更新处理并更好地检测陈旧数据以在下次轮询时强制更新"
-      },
-      "0.3.3": {
-        "en": "Fix the Discovery checkboxes",
-        "de": "Korrigieren Sie die Discovery-Checkboxen",
-        "ru": "Установите флажки \"Обнаружение\"",
-        "pt": "Corrija as caixas de seleção de descoberta",
-        "nl": "Herstel de selectievakjes voor Ontdekking",
-        "fr": "Corrigez les cases à cocher Découverte",
-        "it": "Correggi le caselle di controllo Discovery",
-        "es": "Corrija las casillas de verificación de Descubrimiento",
-        "pl": "Napraw pola wyboru Discovery",
-        "zh-cn": "修复发现复选框"
       }
     },
     "title": "HomeKit Controller",
