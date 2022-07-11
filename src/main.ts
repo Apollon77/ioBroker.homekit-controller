@@ -624,7 +624,7 @@ export class HomekitController extends utils.Adapter {
 
             this.storePairingData(device);
         } catch (err) {
-            this.log.info(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
+            this.log.error(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
             this.setDeviceConnected(device, false);
         }
         device.initInProgress = false;
@@ -647,7 +647,7 @@ export class HomekitController extends utils.Adapter {
             device.clientQueue = new PQueue({concurrency: 10, timeout: 120000, throwOnTimeout: true});
         } else if (device.serviceType === 'BLE') {
             if (!this.config.discoverBle || !GattClientConstructor) {
-                this.log.info(`Could not initialize device ${device.id} because BLE discovery is not activated. Skipping device`);
+                this.log.warn(`Could not initialize device ${device.id} because BLE discovery is not activated. Skipping device`);
                 return false;
             }
 
