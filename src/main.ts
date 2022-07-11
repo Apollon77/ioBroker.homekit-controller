@@ -787,14 +787,14 @@ export class HomekitController extends utils.Adapter {
                     device.errorCounter = 0;
                 } catch (err) {
                     device.errorCounter++;
-                    this.log.info(`Device ${device.id} data polling failed (${device.errorCounter}): ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
+                    this.log.error(`Device ${device.id} data polling failed (${device.errorCounter}): ${(!err.message && err.name === 'TimeoutError') ? 'Timeout' : err.message}`);
                     if (device.serviceType === 'IP') {
                         device.client?.closePersistentConnection();
                     }
                     this.setDeviceConnected(device, false);
 
                     if (device.errorCounter > 3) {
-                        this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
+                        this.log.warn(`Device ${device.id} had too many errors, reinitialize connection`);
 
                         if (device.serviceType === 'IP') {
                             try {
