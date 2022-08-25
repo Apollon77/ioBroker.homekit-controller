@@ -20,7 +20,7 @@ let GattClientConstructor: typeof GattClient | undefined;
 import Debug from 'debug';
 import { Accessories } from 'hap-controller/lib/model/accessory';
 import * as Characteristic from 'hap-controller/lib/model/characteristic';
-import PQueue from 'p-queue';
+import PQueue from '@esm2cjs/p-queue';
 import * as ObjectDefaults from './lib/objectDefaults';
 import * as ObjectMapper from './lib/objectMapper';
 import { serviceFromUuid } from 'hap-controller/lib/model/service';
