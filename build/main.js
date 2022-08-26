@@ -40,7 +40,7 @@ const GattUtils = __importStar(require("hap-controller/lib/transport/ble/gatt-ut
 let BLEDiscoveryConstructor;
 let GattClientConstructor;
 const debug_1 = __importDefault(require("debug"));
-const p_queue_1 = __importDefault(require("p-queue"));
+const p_queue_1 = __importDefault(require("@esm2cjs/p-queue"));
 const ObjectDefaults = __importStar(require("./lib/objectDefaults"));
 const ObjectMapper = __importStar(require("./lib/objectMapper"));
 const service_1 = require("hap-controller/lib/model/service");
