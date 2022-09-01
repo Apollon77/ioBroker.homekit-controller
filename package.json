@@ -28,7 +28,7 @@
     "@alcalzone/release-script-plugin-license": "^3.5.9",
     "@babel/cli": "^7.17.10",
     "@babel/core": "^7.18.2",
-    "@babel/plugin-proposal-decorators": "^7.18.2",
+    "@babel/plugin-proposal-decorators": "^7.18.10",
     "@babel/preset-env": "^7.18.2",
     "@babel/preset-typescript": "^7.17.12",
     "@iobroker/dev-server": "^0.5.0",
