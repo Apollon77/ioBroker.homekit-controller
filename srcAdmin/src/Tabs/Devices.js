@@ -1,39 +1,39 @@
 import React, {Component} from 'react';
-import {withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import Popover from '@material-ui/core/Popover';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Fab from '@material-ui/core/Fab';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import CircularProgress from '@mui/material/CircularProgress';
+import Fab from '@mui/material/Fab';
 
-import IconPlay from '@material-ui/icons/PlayArrow';
-import IconPair from '@material-ui/icons/Link';
-import IconUnpair from '@material-ui/icons/LinkOff';
-import IconIdent from '@material-ui/icons/QuestionAnswer';
-import IconDiscovered from '@material-ui/icons/Visibility';
-import IconConnected from '@material-ui/icons/Wifi';
-import IconRefresh from '@material-ui/icons/Refresh';
-import IconBluetooth from '@material-ui/icons/Bluetooth';
-import IconIP from '@material-ui/icons/SettingsEthernet';
-//import IconNotConnected from '@material-ui/icons/WifiOff';
+import IconPlay from '@mui/icons-material/PlayArrow';
+import IconPair from '@mui/icons-material/Link';
+import IconUnpair from '@mui/icons-material/LinkOff';
+import IconIdent from '@mui/icons-material/QuestionAnswer';
+import IconDiscovered from '@mui/icons-material/Visibility';
+import IconConnected from '@mui/icons-material/Wifi';
+import IconRefresh from '@mui/icons-material/Refresh';
+import IconBluetooth from '@mui/icons-material/Bluetooth';
+import IconIP from '@mui/icons-material/SettingsEthernet';
+//import IconNotConnected from '@mui/icons-material/WifiOff';
 
-import I18n from '@iobroker/adapter-react/i18n';
-import MessageDialog from '@iobroker/adapter-react/Dialogs/Message';
-import {TextField} from '@material-ui/core';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import MessageDialog from '@iobroker/adapter-react-v5/Dialogs/Message';
+import {TextField} from '@mui/material';
 
 const styles = theme => ({
     tab: {
@@ -73,10 +73,10 @@ const styles = theme => ({
         padding: 16
     },
     iconIP: {
-        color: theme.palette.type === 'dark' ? '#057305' : '#05a605'
+        color: theme.palette.mode === 'dark' ? '#057305' : '#05a605'
     },
     iconBluetooth: {
-        color: theme.palette.type === 'dark' ? '#0101e0' : '#0000bd'
+        color: theme.palette.mode === 'dark' ? '#0101e0' : '#0000bd'
     },
     buttonSmall: {
         marginRight: 4,
@@ -301,6 +301,7 @@ class Devices extends Component {
             <DialogTitle>{I18n.t('Please enter PIN')}</DialogTitle>
             <DialogContent>
                 <TextField
+                    variant="standard"
                     value={this.state.pin}
                     onChange={e => this.setState({pin: e.target.value})}
                     label={I18n.t('PIN')}
@@ -329,6 +330,7 @@ class Devices extends Component {
                     }}
                 >{I18n.t('Pair')}</Button>
                 <Button
+                    color="grey"
                     variant="contained"
                     onClick={() => this.setState({showPinDialog: false, pin: '', pinFor: ''})}
                 >{I18n.t('Close')}</Button>
@@ -356,6 +358,7 @@ class Devices extends Component {
                     }}
                 >{I18n.t('Unpair')}</Button>
                 <Button
+                    color="grey"
                     autoFocus
                     variant="contained"
                     onClick={() => this.setState({showSureDialog: false, pinFor: ''})}
