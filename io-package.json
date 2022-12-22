@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "news": {
+      "0.5.3": {
+        "en": "Corrected active TAB Background",
+        "de": "Aktiver TAB Hintergrund korrigiert",
+        "ru": "Правильный активный фон TAB",
+        "pt": "Fundo ativo corrigido do TAB",
+        "nl": "Vertaling:",
+        "fr": "Contexte de l'ACR actif corrigé",
+        "it": "Corretto sfondo attivo TAB",
+        "es": "Fondo TAB activo corregido",
+        "pl": "Reklamowany TAB Background",
+        "uk": "Правильний активний TAB фон",
+        "zh-cn": "B. 适应积极经验"
+      },
       "0.5.2": {
         "en": "Updated GUI packages\nUpgraded noble BLE library",
         "de": "Aktualisierte GUI-Pakete\nAufgerüstete edle Bibliothek BLE",
@@ -80,19 +93,6 @@
         "pl": "Zresetuj połączenie HTTP w przypadku przekroczenia limitu czasu podczas odpytywania danych",
         "zh-cn": "如果数据轮询发生超时，则重置 HTTP 连接",
         "uk": "Скидання HTTP-з’єднання, якщо під час опитування даних виникають тайм-аути"
-      },
-      "0.4.1": {
-        "en": "Optimize close of connections on adapter stop",
-        "de": "Schließen von Verbindungen bei Adapterstopp optimieren",
-        "ru": "Оптимизация закрытия соединений при остановке адаптера",
-        "pt": "Otimize o fechamento das conexões na parada do adaptador",
-        "nl": "Optimaliseer het sluiten van verbindingen op adapterstop",
-        "fr": "Optimiser la fermeture des connexions à l'arrêt de l'adaptateur",
-        "it": "Ottimizza la chiusura delle connessioni sull'arresto dell'adattatore",
-        "es": "Optimizar el cierre de las conexiones en la parada del adaptador",
-        "pl": "Zoptymalizuj zamykanie połączeń na przystanku adaptera",
-        "zh-cn": "优化适配器停止时的连接关闭",
-        "uk": "Оптимізуйте закриття з’єднань після зупинки адаптера"
       }
     },
     "title": "HomeKit Controller",
