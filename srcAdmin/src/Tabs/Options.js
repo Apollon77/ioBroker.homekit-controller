@@ -1,15 +1,14 @@
 import React, {Component} from 'react';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { I18n, Utils } from '@iobroker/adapter-react-v5';
 
-const styles = theme => ({
+const styles = () => ({
     tab: {
         width: '100%',
         minHeight: '100%'
@@ -61,12 +60,12 @@ class Options extends Component {
     renderInput(title, attr, type, helpText) {
         return <TextField
             variant="standard"
-            label={ I18n.t(title) }
-            className={ this.props.classes.input }
-            value={ this.props.native[attr] }
-            type={ type || 'text' }
-            helperText={ helpText || '' }
-            onChange={ e => this.props.onChange(attr, e.target.value) }
+            label={I18n.t(title) }
+            className={this.props.classes.input}
+            value={this.props.native[attr]}
+            type={type || 'text'}
+            helperText={helpText || ''}
+            onChange={e => this.props.onChange(attr, e.target.value)}
             margin="normal"
         />;
     }
@@ -85,7 +84,7 @@ class Options extends Component {
     }
 
     render() {
-        return <form className={ this.props.classes.tab }>
+        return <form className={this.props.classes.tab}>
             {/*<Logo
                 classes={{}}
                 instance={ this.props.instance }
@@ -94,13 +93,13 @@ class Options extends Component {
                 onError={ text => this.setState({errorText: text}) }
                 onLoad={ this.props.onLoad }
             />*/}
-            <div className={clsx(this.props.classes.column, this.props.classes.columnSettings) }>
-                { this.renderCheckbox('Discover over IP', 'discoverIp') }
-                { this.renderCheckbox('Discover over Bluetooth', 'discoverBle') }
+            <div className={Utils.clsx(this.props.classes.column, this.props.classes.columnSettings)}>
+                {this.renderCheckbox('Discover over IP', 'discoverIp')}
+                {this.renderCheckbox('Discover over Bluetooth', 'discoverBle')}
                 <br/>
-                { this.renderInput('Data polling interval for IP', 'dataPollingIntervalIp', 'number', I18n.t('seconds')) }<br/>
-                { this.renderInput('Data polling interval for Bluetooth', 'dataPollingIntervalBle', 'number', I18n.t('seconds')) }<br/>
-                { this.renderCheckbox('Update only changed values', 'updateOnlyChangedValues') }
+                {this.renderInput('Data polling interval for IP', 'dataPollingIntervalIp', 'number', I18n.t('seconds'))}<br/>
+                {this.renderInput('Data polling interval for Bluetooth', 'dataPollingIntervalBle', 'number', I18n.t('seconds'))}<br/>
+                {this.renderCheckbox('Update only changed values', 'updateOnlyChangedValues')}
             </div>
         </form>;
     }
@@ -115,7 +114,6 @@ Options.propTypes = {
     onLoad: PropTypes.func,
     onChange: PropTypes.func,
     changed: PropTypes.bool,
-    socket: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Options);

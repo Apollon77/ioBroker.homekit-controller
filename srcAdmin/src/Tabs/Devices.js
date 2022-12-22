@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -19,6 +18,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import CircularProgress from '@mui/material/CircularProgress';
 import Fab from '@mui/material/Fab';
+import { TextField } from '@mui/material';
 
 import IconPlay from '@mui/icons-material/PlayArrow';
 import IconPair from '@mui/icons-material/Link';
@@ -31,9 +31,7 @@ import IconBluetooth from '@mui/icons-material/Bluetooth';
 import IconIP from '@mui/icons-material/SettingsEthernet';
 //import IconNotConnected from '@mui/icons-material/WifiOff';
 
-import I18n from '@iobroker/adapter-react-v5/i18n';
-import MessageDialog from '@iobroker/adapter-react-v5/Dialogs/Message';
-import {TextField} from '@mui/material';
+import { I18n, Utils, Message as MessageDialog } from '@iobroker/adapter-react-v5';
 
 const styles = theme => ({
     tab: {
@@ -123,7 +121,7 @@ class Devices extends Component {
         this.props.socket.getState(this.aliveID)
             .then(state => {
                 if (state && state.val) {
-                    this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'getDiscoveredDevices')
+                    this.props.socket.sendTo(`${this.props.adapterName}.${this.props.instance}`, 'getDiscoveredDevices')
                         .then(result => this.setState({devices: result.devices || [], loading: false, alive: true}));
                 } else if (this.state.alive) {
                     this.setState({alive: false});
@@ -163,7 +161,7 @@ class Devices extends Component {
 
     onPair(deviceId, pin) {
         this.setState({processing: true}, () => {
-            this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'pairDevice', {deviceId, pin})
+            this.props.socket.sendTo(`${this.props.adapterName}.${this.props.instance}`, 'pairDevice', {deviceId, pin})
                 .then(result => {
                     if (result.error) {
                         this.setState({processing: false, message: result.error});
@@ -178,7 +176,7 @@ class Devices extends Component {
 
     onUnpair(deviceId) {
         this.setState({processing: true}, () => {
-            this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'unpairDevice', {deviceId})
+            this.props.socket.sendTo(`${this.props.adapterName}.${this.props.instance}`, 'unpairDevice', {deviceId})
                 .then(result => {
                     if (result.error) {
                         this.setState({processing: false, message: result.error});
@@ -193,16 +191,16 @@ class Devices extends Component {
 
     onIdent(deviceId) {
         this.setState({processing: true}, () => {
-            this.props.socket.sendTo(this.props.adapterName + '.' + this.props.instance, 'identify', {deviceId})
+            this.props.socket.sendTo(`${this.props.adapterName}.${this.props.instance}`, 'identify', {deviceId})
                 .then(result => {
                     if (result.error) {
                         this.setState({processing: false, message: result.error});
                     } else {
                         this.getDataWithTimeout();
-                        this.setState({processing: false, popover: I18n.t('Identified')});
+                        this.setState({ processing: false, popover: I18n.t('Identified') });
                     }
                 })
-                .catch(error => this.setState({processing: false, message: JSON.stringify(error)}));
+                .catch(error => this.setState({ processing: false, message: JSON.stringify(error) }));
         });
     }
 
@@ -211,13 +209,13 @@ class Devices extends Component {
             <TableCell className={classes.cellId}>{device.id}</TableCell>
             <TableCell className={classes.cellName}>{device.discoveredName}</TableCell>
             <TableCell className={classes.cellCategory}>{device.discoveredCategory}</TableCell>
-            <TableCell className={classes.cellType}>{device.serviceType === 'BLE' ? <IconBluetooth className={this.props.classes.iconBluetooth}/> : <IconIP className={this.props.classes.iconIP}/>}</TableCell>
-            <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')}/> : null}</TableCell>
+            <TableCell className={classes.cellType}>{device.serviceType === 'BLE' ? <IconBluetooth className={this.props.classes.iconBluetooth}/> : <IconIP className={this.props.classes.iconIP} />}</TableCell>
+            <TableCell className={classes.cellConnected}>{device.connected ? <IconConnected title={I18n.t('Connected')} /> : null}</TableCell>
             <TableCell className={classes.cellDiscovered}>{device.discovered ? <IconDiscovered title={I18n.t('Discovered')} /> : null}</TableCell>
             <TableCell className={classes.cellButtons}>
                 {device.availableToPair ?
                     <Fab
-                        className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonIdent)}
+                        className={Utils.clsx(this.props.classes.buttonSmall, this.props.classes.buttonIdent)}
                         disabled={this.state.processing}
                         title={I18n.t('Identify')}
                         size="small"
@@ -226,19 +224,19 @@ class Devices extends Component {
                 }
                 {device.availableToPair ?
                     <Fab
-                        className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonPair)}
+                        className={Utils.clsx(this.props.classes.buttonSmall, this.props.classes.buttonPair)}
                         disabled={this.state.processing}
                         title={I18n.t('Pair')}
                         size="small"
-                        onClick={() => this.setState({showPinDialog: true, pin: '', pinFor: device.id})}
+                        onClick={() => this.setState({ showPinDialog: true, pin: '', pinFor: device.id })}
                     ><IconPair /></Fab> : null}
                 {device.pairedWithThisInstance ?
                     <Fab
-                        className={clsx(this.props.classes.buttonSmall, this.props.classes.buttonUnpair)}
+                        className={Utils.clsx(this.props.classes.buttonSmall, this.props.classes.buttonUnpair)}
                         disabled={this.state.processing}
                         title={I18n.t('Unpair')}
                         size="small"
-                        onClick={() => this.setState({showSureDialog: true, pinFor: device.id})}
+                        onClick={() => this.setState({ showSureDialog: true, pinFor: device.id })}
                     ><IconUnpair /></Fab> : null}
             </TableCell>
         </TableRow>;

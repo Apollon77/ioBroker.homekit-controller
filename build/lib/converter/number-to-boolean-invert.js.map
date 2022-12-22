@@ -1,1 +1,0 @@
-{"version":3,"file":"number-to-boolean-invert.js","sourceRoot":"","sources":["../../../src/lib/converter/number-to-boolean-invert.ts"],"names":[],"mappings":";;AAEA,kBAAe;IACX,IAAI,EAAE,CAAC,KAA0B,EAAuB,EAAE;QACtD,OAAO,CAAC,KAAK,CAAC;IAClB,CAAC;IACD,KAAK,EAAE,CAAC,KAA0B,EAAuB,EAAE;QACvD,OAAO,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;IACzB,CAAC;CACa,CAAC"}
