@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "news": {
+      "0.5.4": {
+        "en": "Downgrade noble library again",
+        "de": "Edelbibliothek wieder abbauen",
+        "ru": "Downgrade благородная библиотека снова",
+        "pt": "Biblioteca nobre Downgrade novamente",
+        "nl": "Downgrade nobele bibliotheek opnieuw",
+        "fr": "Reclassez la noble bibliothèque",
+        "it": "Biblioteca nobile di sotto",
+        "es": "Biblioteca noble degradada otra vez",
+        "pl": "Biblioteka zdegradowana ponownie",
+        "uk": "Бібліотека Downgrade",
+        "zh-cn": "Down职等崇高图书馆"
+      },
       "0.5.3": {
         "en": "Corrected active TAB Background",
         "de": "Aktiver TAB Hintergrund korrigiert",
@@ -80,19 +93,6 @@
         "pl": "upewnij się, że wszystkie połączenia zostaną zamknięte po ponownym połączeniu",
         "zh-cn": "确保所有连接在重新连接时关闭",
         "uk": "переконайтеся, що всі з’єднання закриваються після повторного підключення"
-      },
-      "0.4.2": {
-        "en": "Reset HTTP connection if timeouts happen on data polling",
-        "de": "Setzen Sie die HTTP-Verbindung zurück, wenn beim Datenabruf Zeitüberschreitungen auftreten",
-        "ru": "Сбросить HTTP-соединение, если тайм-ауты происходят при опросе данных",
-        "pt": "Redefina a conexão HTTP se os tempos limite ocorrerem na sondagem de dados",
-        "nl": "Reset HTTP-verbinding als er time-outs optreden bij gegevenspolling",
-        "fr": "Réinitialiser la connexion HTTP si des délais d'attente se produisent lors de l'interrogation des données",
-        "it": "Reimposta la connessione HTTP se si verificano timeout durante il polling dei dati",
-        "es": "Restablecer la conexión HTTP si se agotan los tiempos de espera en el sondeo de datos",
-        "pl": "Zresetuj połączenie HTTP w przypadku przekroczenia limitu czasu podczas odpytywania danych",
-        "zh-cn": "如果数据轮询发生超时，则重置 HTTP 连接",
-        "uk": "Скидання HTTP-з’єднання, якщо під час опитування даних виникають тайм-аути"
       }
     },
     "title": "HomeKit Controller",
