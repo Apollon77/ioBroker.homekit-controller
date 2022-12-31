@@ -110,6 +110,9 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### __WORK IN PROGRESS__
+* (Apollon77) Downgrade noble library again
+
 ### 0.5.3 (2022-12-22)
 * (bluefox) Corrected active TAB Background
 
