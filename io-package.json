@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.4",
+    "version": "0.5.5",
     "news": {
+      "0.5.5": {
+        "en": "Downgrade noble library again",
+        "de": "Edelbibliothek wieder abbauen",
+        "ru": "Downgrade благородная библиотека снова",
+        "pt": "Biblioteca nobre Downgrade novamente",
+        "nl": "Downgrade nobele bibliotheek opnieuw",
+        "fr": "Reclassez la noble bibliothèque",
+        "it": "Biblioteca nobile di sotto",
+        "es": "Biblioteca noble degradada otra vez",
+        "pl": "Biblioteka zdegradowana ponownie",
+        "uk": "Бібліотека Downgrade",
+        "zh-cn": "Down职等崇高图书馆"
+      },
       "0.5.3": {
         "en": "Corrected active TAB Background",
         "de": "Aktiver TAB Hintergrund korrigiert",
