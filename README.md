@@ -110,6 +110,9 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### __WORK IN PROGRESS__
+* (Apollon77) Upgrade noble library
+
 ### 0.5.5 (2022-12-31)
 * (Apollon77) Downgrade noble library again
 
@@ -177,7 +180,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 ## License
 MIT License
 
-Copyright (c) 2021-2022 Ingo Fischer <github@fischer-ka.de>
+Copyright (c) 2021-2023 Ingo Fischer <github@fischer-ka.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
