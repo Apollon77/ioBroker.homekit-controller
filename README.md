@@ -110,7 +110,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-### __WORK IN PROGRESS__
+### 0.5.6 (2023-01-05)
 * (Apollon77) Upgrade noble library
 
 ### 0.5.5 (2022-12-31)
