@@ -5,6 +5,7 @@
 import * as utils from '@iobroker/adapter-core';
 import * as fs from 'fs';
 import * as path from 'path';
+import BigNumber from 'bignumber.js';
 import IPDiscovery from 'hap-controller/lib/transport/ip/ip-discovery';
 import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
 import { PairingData, PairMethods } from 'hap-controller/lib/protocol/pairing-protocol';
@@ -88,8 +89,8 @@ interface StateFunctions {
 interface SetCharacteristicResponse {
     characteristics: [
         {
-            aid: number;
-            iid: number;
+            aid: number | BigNumber;
+            iid: number | BigNumber;
             value?: unknown;
             // HapStatusCodes should be an enum and this should be of type HapStatusCodes
             status: number;
@@ -694,8 +695,8 @@ export class HomekitController extends utils.Adapter {
                     const charData = {
                         characteristicUuid: obj.native.type,
                         serviceUuid: obj.native.serviceUuid,
-                        iid: obj.native.iid,
-                        aid: obj.native.aid,
+                        iid: Number(obj.native.iid),
+                        aid: Number(obj.native.aid),
                         format: obj.native.format
                     }
                     if (!objId.includes('.accessory-information.') && obj.native.perms && obj.native.perms.includes('pr')) {
@@ -756,7 +757,7 @@ export class HomekitController extends utils.Adapter {
         }
     }
 
-    private scheduleCharacteristicsUpdate(device: HapDevice, delay?: number, aid?: number): void {
+    private scheduleCharacteristicsUpdate(device: HapDevice, delay?: number, aid?: string | number): void {
         if (device.dataPollingInterval) {
             clearTimeout(device.dataPollingInterval);
             delete device.dataPollingInterval;
@@ -773,7 +774,8 @@ export class HomekitController extends utils.Adapter {
                         // This should become better in TS 4.5, for now you actually need the `as` here.
                         requestedCharacteristics = (requestedCharacteristics as string[]).filter(el => el.startsWith(`${aid}.`));
                     } else {
-                        requestedCharacteristics = (requestedCharacteristics as PollingCharacteristic[]).filter(el => el.aid === aid);
+                        const aidNumber = Number(aid);
+                        requestedCharacteristics = (requestedCharacteristics as PollingCharacteristic[]).filter(el => Number(el.aid) === aidNumber);
                     }
                 }
                 try {
@@ -1041,7 +1043,7 @@ export class HomekitController extends utils.Adapter {
                             const hapData = {
                                 characteristicUuid: obj.native.type,
                                 serviceUuid: obj.native.serviceUuid,
-                                iid: obj.native.iid,
+                                iid: Number(obj.native.iid),
                                 value: GattUtils.valueToBuffer(value, obj.native.format)
                             };
                             this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);

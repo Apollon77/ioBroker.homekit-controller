@@ -242,7 +242,7 @@ export function addAccessoryObjects(device: HapDevice, objs: Map<string, ioBroke
     if (device.service?.ci) {
         accessoryName = `${categoryFromId(device.service.ci)} ${accessoryName}`;
     }
-    objs.set(`${device.id}.${accessory.aid}`, getDeviceObject(accessoryName, undefined, {aid: accessory.aid}));
+    objs.set(`${device.id}.${accessory.aid}`, getDeviceObject(accessoryName, undefined, {aid: accessory.aid.toFixed()}));
 }
 
 export function addServiceObjects(device: HapDevice, objs: Map<string, ioBroker.Object>, accessory: AccessoryObject, service: ServiceObject): void {
@@ -251,7 +251,7 @@ export function addServiceObjects(device: HapDevice, objs: Map<string, ioBroker.
         serviceName = serviceName.substr(19).replace(/\./g, '-'); // remove public.hap.service.
     }
 
-    objs.set(`${device.id}.${accessory.aid}.${serviceName}`, getChannelObject(`Service ${serviceName}`, undefined, {aid: accessory.aid, iid: service.iid, type: service.type}));
+    objs.set(`${device.id}.${accessory.aid}.${serviceName}`, getChannelObject(`Service ${serviceName}`, undefined, {aid: accessory.aid.toFixed(), iid: service.iid.toFixed(), type: service.type}));
     objs.set(`${device.id}.${accessory.aid}.${serviceName}.serviceIsHidden`, getStateObject('indicator', 'Is Hidden Service?', !!service.hidden));
     objs.set(`${device.id}.${accessory.aid}.${serviceName}.serviceIsPrimary`, getStateObject('indicator', 'Is Primary Service?', !!service.primary));
 
@@ -332,7 +332,7 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
         objCommon.role = getRole(objCommon);
     }
 
-    objNative.aid = accessory.aid;
+    objNative.aid = accessory.aid.toFixed();
     objNative.serviceUuid = service.type;
 
     const id = `${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}`;

@@ -586,8 +586,8 @@ class HomekitController extends utils.Adapter {
                     const charData = {
                         characteristicUuid: obj.native.type,
                         serviceUuid: obj.native.serviceUuid,
-                        iid: obj.native.iid,
-                        aid: obj.native.aid,
+                        iid: Number(obj.native.iid),
+                        aid: Number(obj.native.aid),
                         format: obj.native.format
                     };
                     if (!objId.includes('.accessory-information.') && obj.native.perms && obj.native.perms.includes('pr')) {
@@ -665,7 +665,8 @@ class HomekitController extends utils.Adapter {
                         requestedCharacteristics = requestedCharacteristics.filter(el => el.startsWith(`${aid}.`));
                     }
                     else {
-                        requestedCharacteristics = requestedCharacteristics.filter(el => el.aid === aid);
+                        const aidNumber = Number(aid);
+                        requestedCharacteristics = requestedCharacteristics.filter(el => Number(el.aid) === aidNumber);
                     }
                 }
                 try {
@@ -912,7 +913,7 @@ class HomekitController extends utils.Adapter {
                             const hapData = {
                                 characteristicUuid: obj.native.type,
                                 serviceUuid: obj.native.serviceUuid,
-                                iid: obj.native.iid,
+                                iid: Number(obj.native.iid),
                                 value: GattUtils.valueToBuffer(value, obj.native.format)
                             };
                             this.log.debug(`Device ${device.id}: Set Characteristic ${JSON.stringify(hapData)}`);
