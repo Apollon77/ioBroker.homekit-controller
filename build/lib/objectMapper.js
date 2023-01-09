@@ -239,7 +239,7 @@ function addAccessoryObjects(device, objs, accessory) {
     if ((_a = device.service) === null || _a === void 0 ? void 0 : _a.ci) {
         accessoryName = `${(0, category_1.categoryFromId)(device.service.ci)} ${accessoryName}`;
     }
-    objs.set(`${device.id}.${accessory.aid}`, (0, objectDefaults_1.getDeviceObject)(accessoryName, undefined, { aid: accessory.aid }));
+    objs.set(`${device.id}.${accessory.aid}`, (0, objectDefaults_1.getDeviceObject)(accessoryName, undefined, { aid: accessory.aid.toFixed() }));
 }
 exports.addAccessoryObjects = addAccessoryObjects;
 function addServiceObjects(device, objs, accessory, service) {
@@ -247,7 +247,7 @@ function addServiceObjects(device, objs, accessory, service) {
     if (serviceName.startsWith('public.hap.service.')) {
         serviceName = serviceName.substr(19).replace(/\./g, '-'); // remove public.hap.service.
     }
-    objs.set(`${device.id}.${accessory.aid}.${serviceName}`, (0, objectDefaults_1.getChannelObject)(`Service ${serviceName}`, undefined, { aid: accessory.aid, iid: service.iid, type: service.type }));
+    objs.set(`${device.id}.${accessory.aid}.${serviceName}`, (0, objectDefaults_1.getChannelObject)(`Service ${serviceName}`, undefined, { aid: accessory.aid.toFixed(), iid: service.iid.toFixed(), type: service.type }));
     objs.set(`${device.id}.${accessory.aid}.${serviceName}.serviceIsHidden`, (0, objectDefaults_1.getStateObject)('indicator', 'Is Hidden Service?', !!service.hidden));
     objs.set(`${device.id}.${accessory.aid}.${serviceName}.serviceIsPrimary`, (0, objectDefaults_1.getStateObject)('indicator', 'Is Primary Service?', !!service.primary));
     /* TODO
@@ -316,7 +316,7 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
     if (!objCommon.role) {
         objCommon.role = getRole(objCommon);
     }
-    objNative.aid = accessory.aid;
+    objNative.aid = accessory.aid.toFixed();
     objNative.serviceUuid = service.type;
     const id = `${device.id}.${accessory.aid}.${serviceName}-${service.iid}.${characteristicName}`;
     objs.set(id, (0, objectDefaults_1.getStateObject)('state', characteristicName, characteristic.value, objCommon, objNative));
