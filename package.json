@@ -20,7 +20,7 @@
     "@iobroker/adapter-core": "^2.6.7",
     "bignumber.js": "^9.1.1",
     "debug": "^4.3.4",
-    "hap-controller": "^0.9.0",
+    "hap-controller": "^0.9.1",
     "@esm2cjs/p-queue": "^7.3.0"
   },
   "devDependencies": {
