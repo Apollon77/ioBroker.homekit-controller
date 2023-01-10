@@ -525,7 +525,7 @@ class HomekitController extends utils.Adapter {
             this.storePairingData(device);
         }
         catch (err) {
-            this.log.info(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
+            this.log.warn(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
             this.setDeviceConnected(device, false);
         }
         device.initInProgress = false;
@@ -640,7 +640,8 @@ class HomekitController extends utils.Adapter {
             }
         });
         try {
-            await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.subscribeCharacteristics(device.subscriptionCharacteristics)); }));
+            const res = await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.subscribeCharacteristics(device.subscriptionCharacteristics)); }));
+            this.log.debug(`${device.id} Subscribed to ${device.subscriptionCharacteristics.length} characteristics: ${JSON.stringify(res)}`);
         }
         catch (err) {
             this.log.info(`Device ${device.id} subscribing for updates failed: ${err.message}`);
@@ -687,7 +688,7 @@ class HomekitController extends utils.Adapter {
                     }
                     this.setDeviceConnected(device, false);
                     if (device.errorCounter > 3) {
-                        this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
+                        this.log.warn(`Device ${device.id} had too many errors, reinitialize connection`);
                         if (device.serviceType === 'IP') {
                             try {
                                 await ((_b = device.clientQueue) === null || _b === void 0 ? void 0 : _b.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.unsubscribeCharacteristics()); }));

@@ -625,7 +625,7 @@ export class HomekitController extends utils.Adapter {
 
             this.storePairingData(device);
         } catch (err) {
-            this.log.info(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
+            this.log.warn(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
             this.setDeviceConnected(device, false);
         }
         device.initInProgress = false;
@@ -751,7 +751,8 @@ export class HomekitController extends utils.Adapter {
         });
 
         try {
-            await device.clientQueue?.add(async () => await device.client?.subscribeCharacteristics(device.subscriptionCharacteristics!));
+            const res = await device.clientQueue?.add(async () => await device.client?.subscribeCharacteristics(device.subscriptionCharacteristics!));
+            this.log.debug(`${device.id} Subscribed to ${device.subscriptionCharacteristics!.length} characteristics: ${JSON.stringify(res)}`);
         } catch (err) {
             this.log.info(`Device ${device.id} subscribing for updates failed: ${err.message}`);
         }
@@ -796,7 +797,7 @@ export class HomekitController extends utils.Adapter {
                     this.setDeviceConnected(device, false);
 
                     if (device.errorCounter > 3) {
-                        this.log.info(`Device ${device.id} had too many errors, reinitialize connection`);
+                        this.log.warn(`Device ${device.id} had too many errors, reinitialize connection`);
 
                         if (device.serviceType === 'IP') {
                             try {
