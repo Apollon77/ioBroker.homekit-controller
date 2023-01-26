@@ -101,6 +101,9 @@ class HomekitController extends utils.Adapter {
         }
     }
     setDeviceConnected(device, isConnected) {
+        if (!isConnected && device.subscriptionsInitialized) {
+            isConnected = true;
+        }
         if (device.connected !== isConnected) {
             device.connected = isConnected;
             this.setState(`${device.id}.info.connected`, isConnected, true);
@@ -479,6 +482,7 @@ class HomekitController extends utils.Adapter {
                 }
                 device.client.removeAllListeners('event');
                 device.client.removeAllListeners('event-disconnect');
+                device.subscriptionsInitialized = false;
             }
             if (device.dataPollingInterval) {
                 clearTimeout(device.dataPollingInterval);
@@ -643,16 +647,22 @@ class HomekitController extends utils.Adapter {
                 return;
             }
             this.log.debug(`${device.id} Subscription Event connection disconnected, try to resubscribe`);
+            device.subscriptionsInitialized = false;
+            this.setDeviceConnected(device, false);
             try {
                 await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.subscribeCharacteristics(formerSubscribes)); }));
+                device.subscriptionsInitialized = true;
+                this.setDeviceConnected(device, true);
             }
             catch (err) {
+                this.setDeviceConnected(device, false);
                 this.log.info(`${device.id} Resubscribe not successful, reinitialize device`);
                 await this.initDevice(device);
             }
         });
         try {
             const res = await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.subscribeCharacteristics(device.subscriptionCharacteristics)); }));
+            device.subscriptionsInitialized = true;
             this.log.debug(`${device.id} Subscribed to ${device.subscriptionCharacteristics.length} characteristics: ${JSON.stringify(res)}`);
         }
         catch (err) {

@@ -40,6 +40,7 @@ interface HapDeviceBase {
     dataPollingInterval?: NodeJS.Timeout;
     stateIdMap?: Map<string, string>;
     errorCounter: number;
+    subscriptionsInitialized?: boolean;
 }
 
 interface SubscriptionCharacteristic {
@@ -180,6 +181,9 @@ export class HomekitController extends utils.Adapter {
     }
 
     setDeviceConnected(device: HapDevice, isConnected: boolean): void {
+        if (!isConnected && device.subscriptionsInitialized) {
+            isConnected = true;
+        }
         if (device.connected !== isConnected) {
             device.connected = isConnected;
             this.setState(`${device.id}.info.connected`, isConnected, true);
@@ -569,6 +573,7 @@ export class HomekitController extends utils.Adapter {
                 }
                 device.client.removeAllListeners('event');
                 device.client.removeAllListeners('event-disconnect');
+                device.subscriptionsInitialized = false;
             }
             if (device.dataPollingInterval) {
                 clearTimeout(device.dataPollingInterval);
@@ -751,9 +756,14 @@ export class HomekitController extends utils.Adapter {
                 return;
             }
             this.log.debug(`${device.id} Subscription Event connection disconnected, try to resubscribe`);
+            device.subscriptionsInitialized = false;
+            this.setDeviceConnected(device, false);
             try {
                 await device.clientQueue?.add(async () => await device.client?.subscribeCharacteristics(formerSubscribes));
+                device.subscriptionsInitialized = true;
+                this.setDeviceConnected(device, true);
             } catch (err) {
+                this.setDeviceConnected(device, false);
                 this.log.info(`${device.id} Resubscribe not successful, reinitialize device`);
                 await this.initDevice(device);
             }
@@ -761,6 +771,7 @@ export class HomekitController extends utils.Adapter {
 
         try {
             const res = await device.clientQueue?.add(async () => await device.client?.subscribeCharacteristics(device.subscriptionCharacteristics!));
+            device.subscriptionsInitialized = true;
             this.log.debug(`${device.id} Subscribed to ${device.subscriptionCharacteristics!.length} characteristics: ${JSON.stringify(res)}`);
         } catch (err) {
             this.log.info(`Device ${device.id} subscribing for updates failed: ${err.message}`);
