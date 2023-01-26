@@ -373,12 +373,17 @@ class HomekitController extends utils.Adapter {
             service,
             initInProgress: false,
         };
-        if (this.devices.has(id) && hapDevice.connected) { // if service was existing before already
+        let configChanged = false;
+        if (this.devices.has(id)) { // if service was existing before already
             if (hapDevice.serviceType === 'IP') {
                 if (hapDevice.service &&
                     hapDevice.service['c#'] === service['c#']) {
                     this.log.debug(`${id} Discovery device update, unchanged config-number, ignore`);
-                    return;
+                    if (hapDevice.connected)
+                        return;
+                }
+                else {
+                    configChanged = true;
                 }
             }
             else if (hapDevice.serviceType === 'BLE') {
@@ -386,9 +391,14 @@ class HomekitController extends utils.Adapter {
                     hapDevice.service['c#'] === service['c#'] &&
                     hapDevice.service.GSN === service.GSN) {
                     this.log.debug(`${id} Discovery device update, unchanged config-/GSN-number, ignore`);
-                    return;
+                    if (hapDevice.connected)
+                        return;
                 }
-                if (hapDevice.service &&
+                else {
+                    configChanged = true;
+                }
+                if (hapDevice.connected &&
+                    hapDevice.service &&
                     hapDevice.service['c#'] === service['c#'] &&
                     hapDevice.service.GSN !== service.GSN) {
                     this.log.debug(`${id} GSN updated for BLE device, update data in 500ms`);
@@ -396,7 +406,9 @@ class HomekitController extends utils.Adapter {
                     return;
                 }
             }
-            this.log.debug(`${id} Device Discovery Update - reinitialize device`);
+            this.log.debug(`${id} Device Discovery Update - reinitialize device: : ${JSON.stringify(service, (key, value) => {
+                return key === 'peripheral' ? undefined : value;
+            })}`);
         }
         else {
             this.log.debug(`${id} Discovered ${serviceType} device: ${JSON.stringify(service, (key, value) => {
@@ -404,7 +416,7 @@ class HomekitController extends utils.Adapter {
             })}`);
         }
         hapDevice.service = service;
-        await this.initDevice(hapDevice);
+        await this.initDevice(hapDevice, configChanged);
     }
     getPairingDataFilename(id) {
         const fileName = `${id.replace(/:/g, '-')}.json`;
@@ -447,7 +459,7 @@ class HomekitController extends utils.Adapter {
             // ignore
         }
     }
-    async initDevice(device) {
+    async initDevice(device, configChanged = false) {
         var _a, _b, _c, _d;
         if (device.initInProgress) {
             this.log.debug(`${device.id} Device initialization already in progress ... ignore call`);
@@ -456,7 +468,7 @@ class HomekitController extends utils.Adapter {
         device.initInProgress = true;
         device.stopping = false;
         this.devices.set(device.id, device);
-        if (device.connected && device.client) {
+        if ((configChanged || device.connected) && device.client) {
             this.log.debug(`${device.id} Re-Init requested ...`);
             if (device.serviceType === 'IP') {
                 try {
