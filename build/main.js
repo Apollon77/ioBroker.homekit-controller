@@ -380,7 +380,9 @@ class HomekitController extends utils.Adapter {
         if (this.devices.has(id)) { // if service was existing before already
             if (hapDevice.serviceType === 'IP') {
                 if (hapDevice.service &&
-                    hapDevice.service['c#'] === service['c#']) {
+                    hapDevice.service['c#'] === service['c#'] &&
+                    hapDevice.service.port === service.port &&
+                    hapDevice.service.address === service.address) {
                     this.log.debug(`${id} Discovery device update, unchanged config-number, ignore`);
                     if (hapDevice.connected)
                         return;
@@ -409,7 +411,7 @@ class HomekitController extends utils.Adapter {
                     return;
                 }
             }
-            this.log.debug(`${id} Device Discovery Update - reinitialize device: : ${JSON.stringify(service, (key, value) => {
+            this.log.debug(`${id} Device Discovery Update - reinitialize device (config changed=${configChanged}): ${JSON.stringify(service, (key, value) => {
                 return key === 'peripheral' ? undefined : value;
             })}`);
         }
