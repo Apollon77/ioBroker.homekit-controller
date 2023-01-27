@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "news": {
+      "0.5.7": {
+        "en": "Added support for Ikea Dirigera Hubs and other devices with very log Accessory IDs\nOptimize handling of configuration changes\nOptimize connection state handling",
+        "de": "Unterstützung für Ikea Dirigera Hubs und andere Geräte mit sehr log Zubehör IDs\nOptimieren Sie die Handhabung von Konfigurationsänderungen\nOptimieren des Anschlusszustands",
+        "ru": "Добавлена поддержка Ikea Dirigera Hubs и других устройств с очень журналом Accessory IDs\nОптимизация обработки изменений конфигурации\nОптимизация обработки состояния соединения",
+        "pt": "Adicionado suporte para Ikea Dirigera Hubs e outros dispositivos com muito log IDs de acesso\nOtimizar o manuseio de alterações de configuração\nOtimizar o manuseio de estado de conexão",
+        "nl": "Vervoegde steun voor Ikea Dirigera Hubs en andere apparatuur met zeer log Accessory ID's\nOptimaal omgaan met vertrouwensverandering\nVertaling:",
+        "fr": "Ajout d'un support pour Ikea Dirigera Hubs et autres dispositifs avec des ID Accessoire très log\nOptimiser la manipulation des changements de configuration\nOptimiser la manipulation des états de connexion",
+        "it": "Aggiunto il supporto per Ikea Dirigera Hubs e altri dispositivi con molto log Accessory IDs\nOttimizzare la gestione delle modifiche di configurazione\nOttimizzare la gestione dello stato di connessione",
+        "es": "Apoyo añadido para los Hubs Ikea Dirigera y otros dispositivos con IDs accesorias muy log\nOptimizar el manejo de los cambios de configuración\nOptimize connection state handling",
+        "pl": "Wsparcie dla Ikei Dirigera Hubs i innych urządzeń z bardzo logicznymi identyfikatorami\nOptymizacja zmiany konfiguracji\nOptimizowanie połączenia państwowego",
+        "uk": "Додано підтримку Ikea Dirigera Hubs та інших пристроїв з дуже логіном IDory\nОптимальна обробка змін конфігурації\nОптимальна обробка стану з'єднання",
+        "zh-cn": "Ikea Dirigera Hubs和其他装置的增援\nB. 改变组合的处理\nA. 减少联系国家处理"
+      },
       "0.5.6": {
         "en": "Upgrade noble library",
         "de": "Edel Bibliothek aktualisieren",
@@ -80,19 +93,6 @@
         "pl": "Add Connection identifier\nObserwuje błędy i ponowne zainicjowanie połączenia urządzenie, gdy zachodzi zbyt wiele błędów\nOptymizacja adapteru zapobiega podwójnej inicjacji urządzeń",
         "zh-cn": "添加识别符号\n在发生许多错误时,污染错误和重新启动装置连接\n利用适应人员开始防止装置的双重化",
         "uk": "Додайте ідентифікатор підключення до списку об’єктів адміністратора\nПідраховуйте помилки опитування та повторно ініціалізуйте підключення пристрою, коли виникає забагато помилок\nОптимізуйте запуск адаптера, щоб запобігти подвійній ініціалізації пристроїв"
-      },
-      "0.4.4": {
-        "en": "Add Host header to HTTP devices to prevent issues with some devices\nFix several edge case issues",
-        "de": "Host-Header zu HTTP-Geräten hinzufügen, um Probleme mit einigen Geräten zu vermeiden\nBeheben Sie mehrere Edge-Case-Probleme",
-        "ru": "Добавьте заголовок узла к устройствам HTTP, чтобы предотвратить проблемы с некоторыми устройствами.\nИсправление нескольких проблем с крайним случаем",
-        "pt": "Adicionar cabeçalho de host a dispositivos HTTP para evitar problemas com alguns dispositivos\nCorrigir vários problemas de caixa de borda",
-        "nl": "Voeg Host-header toe aan HTTP-apparaten om problemen met sommige apparaten te voorkomen\nLos verschillende problemen met randgevallen op",
-        "fr": "Ajouter l'en-tête Host aux appareils HTTP pour éviter les problèmes avec certains appareils\nRésoudre plusieurs problèmes de cas extrêmes",
-        "it": "Aggiungi l'intestazione Host ai dispositivi HTTP per evitare problemi con alcuni dispositivi\nRisolvi diversi problemi di edge case",
-        "es": "Agregue el encabezado Host a los dispositivos HTTP para evitar problemas con algunos dispositivos\nSolucionar varios problemas de casos extremos",
-        "pl": "Dodaj nagłówek hosta do urządzeń HTTP, aby zapobiec problemom z niektórymi urządzeniami\nNapraw kilka problemów z przypadkiem brzegowym",
-        "zh-cn": "将 Host 标头添加到 HTTP 设备以防止某些设备出现问题\n修复几个边缘情况问题",
-        "uk": "Додайте заголовок Host до пристроїв HTTP, щоб запобігти проблемам із деякими пристроями\nВирішити кілька проблем із крайнім випадком"
       }
     },
     "title": "HomeKit Controller",
