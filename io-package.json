@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.7",
+    "version": "0.5.8",
     "news": {
+      "0.5.8": {
+        "en": "Update Noble to address CPU/RAM issues",
+        "de": "Update Noble to Address CPU/RAM Probleme",
+        "ru": "Обновление Noble для решения проблем CPU/RAM",
+        "pt": "Atualizar Noble para resolver problemas de CPU/RAM",
+        "nl": "Quality over Quantity (QoQ) Releases Vertaling:",
+        "fr": "Noble de mise à jour pour résoudre les problèmes de CPU/RAM",
+        "it": "Aggiornamento Noble per affrontare i problemi CPU/RAM",
+        "es": "Actualización Noble para abordar los problemas CPU/RAM",
+        "pl": "Update Noble (ang.)",
+        "uk": "Оновити Noble для вирішення проблем ЦП/РАМ",
+        "zh-cn": "处理万国邮联/分区问题的最新情况"
+      },
       "0.5.7": {
         "en": "Added support for Ikea Dirigera Hubs and other devices with very log Accessory IDs\nOptimize handling of configuration changes\nOptimize connection state handling",
         "de": "Unterstützung für Ikea Dirigera Hubs und andere Geräte mit sehr log Zubehör IDs\nOptimieren Sie die Handhabung von Konfigurationsänderungen\nOptimieren des Anschlusszustands",
@@ -80,19 +93,6 @@
         "pl": "Optymizacja połączeń BLE",
         "zh-cn": "B. 利用低地连接",
         "uk": "Оптимізація підключення BLE"
-      },
-      "0.5.0": {
-        "en": "Add Connection identifier for Admin object list\nCount polling errors and reinitialize device connection when too many errors occur\nOptimize adapter startup to prevent double initialization of devices",
-        "de": "Fügen Sie Verbindungskennung für Admin-Objektliste hinzu\nZählen Sie Fehler bei der Fehlersuche und reitialisieren Sie die Geräteverbindung, wenn zu viele Fehler auftreten\nOptimieren Sie Adapter-Startup, um eine doppelte Initialisierung von Geräten zu verhindern",
-        "ru": "Добавить идентификатор подключения для списка объектов Admin\nОтсчет загрязняющих ошибок и реинициализовать подключение устройства, когда возникает слишком много ошибок\nОптимизируйте запуск адаптера для предотвращения двойной инициализации устройств",
-        "pt": "Adicionar identificador de conexão para lista de objetos Admin\nContar erros de votação e reiniciar a conexão do dispositivo quando muitos erros ocorrem\nOtimize a inicialização do adaptador para evitar a inicialização dupla de dispositivos",
-        "nl": "Vertaling:\nTel fouten in en herstart apparatuur als er te veel fouten komen\nOptimize adapter startup om dubbele initialisatie van apparatuur te voorkomen",
-        "fr": "Ajouter Identifiant de connexion pour la liste d'objets Admin\nCompter les erreurs de sondage et réinitialiser la connexion de périphérique lorsque trop d'erreurs surviennent\nOptimiser le démarrage de l'adaptateur pour éviter une double initialisation des appareils",
-        "it": "Aggiungi l'identificativo di connessione per l'elenco degli oggetti Admin\nContare gli errori di polling e riavviare la connessione del dispositivo quando si verificano troppi errori\nOttimizzare l'avvio dell'adattatore per prevenire la doppia inizializzazione dei dispositivi",
-        "es": "Añadir identificador de conexión para lista de objetos de Admin\nCuenta con errores de votación y reiniciar la conexión del dispositivo cuando ocurren demasiados errores\nOptimize adapter startup to prevent double initialization of devices",
-        "pl": "Add Connection identifier\nObserwuje błędy i ponowne zainicjowanie połączenia urządzenie, gdy zachodzi zbyt wiele błędów\nOptymizacja adapteru zapobiega podwójnej inicjacji urządzeń",
-        "zh-cn": "添加识别符号\n在发生许多错误时,污染错误和重新启动装置连接\n利用适应人员开始防止装置的双重化",
-        "uk": "Додайте ідентифікатор підключення до списку об’єктів адміністратора\nПідраховуйте помилки опитування та повторно ініціалізуйте підключення пристрою, коли виникає забагато помилок\nОптимізуйте запуск адаптера, щоб запобігти подвійній ініціалізації пристроїв"
       }
     },
     "title": "HomeKit Controller",

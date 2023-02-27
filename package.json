@@ -1,6 +1,6 @@
 {
   "name": "iobroker.homekit-controller",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Pair and control HomeKit devices directly",
   "author": {
     "name": "Ingo Fischer",
