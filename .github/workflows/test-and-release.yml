@@ -135,8 +135,13 @@ jobs:
 
             - name: Install Dependencies
               run: npm ci
-            - name: Create a clean build
+
+            - name: Prepare admin build
+              run: cd srcAdmin && npm install --force && cd ..
+
+            - name: Build
               run: npm run build
+
 
             - name: Publish package to npm
               run: |
