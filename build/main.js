@@ -737,13 +737,18 @@ class HomekitController extends utils.Adapter {
             const stateId = (_a = device.stateIdMap) === null || _a === void 0 ? void 0 : _a.get(id);
             if (stateId) {
                 let value = characteristic.value;
-                const stateFunc = this.stateFunctionsForId.get(`${this.namespace}.${stateId}`);
-                if ((_b = stateFunc === null || stateFunc === void 0 ? void 0 : stateFunc.converter) === null || _b === void 0 ? void 0 : _b.read) {
-                    value = stateFunc.converter.read(value);
+                if (value === undefined) {
+                    this.log.debug(`${device.id} No value returned for for ${stateId} but status ${characteristic.status}`);
                 }
-                if (!this.config.updateOnlyChangedValues || (this.config.updateOnlyChangedValues && value !== this.lastValues[stateId])) {
-                    this.setState(stateId, value, true);
-                    this.lastValues[stateId] = value;
+                else {
+                    const stateFunc = this.stateFunctionsForId.get(`${this.namespace}.${stateId}`);
+                    if ((_b = stateFunc === null || stateFunc === void 0 ? void 0 : stateFunc.converter) === null || _b === void 0 ? void 0 : _b.read) {
+                        value = stateFunc.converter.read(value);
+                    }
+                    if (!this.config.updateOnlyChangedValues || (this.config.updateOnlyChangedValues && value !== this.lastValues[stateId])) {
+                        this.setState(stateId, value, true);
+                        this.lastValues[stateId] = value;
+                    }
                 }
             }
             else {
@@ -915,7 +920,12 @@ class HomekitController extends utils.Adapter {
                             this.log.debug(`Device ${device.id}: Set Characteristic ${hapId} to ${JSON.stringify(value)}`);
                             try {
                                 const data = {};
-                                data[hapId] = value;
+                                if (typeof value === 'boolean') {
+                                    data[hapId] = value ? 1 : 0;
+                                }
+                                else {
+                                    data[hapId] = value;
+                                }
                                 const res = (await ((_a = device.clientQueue) === null || _a === void 0 ? void 0 : _a.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.setCharacteristics(data)); })));
                                 if (isSetCharacteristicErrorResponse(res)) {
                                     this.log.info(`State update for ${objId} (${hapId}) failed with status ${res.characteristics[0].status}: ${

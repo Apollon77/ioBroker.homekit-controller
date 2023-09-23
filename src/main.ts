@@ -10,7 +10,6 @@ import IPDiscovery from 'hap-controller/lib/transport/ip/ip-discovery';
 import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
 import { PairingData, PairMethods } from 'hap-controller/lib/protocol/pairing-protocol';
 import HttpClient from 'hap-controller/lib/transport/ip/http-client';
-
 import * as GattUtils from 'hap-controller/lib/transport/ble/gatt-utils';
 import type { HapServiceBle } from 'hap-controller/lib/transport/ble/ble-discovery'
 import type BLEDiscovery from 'hap-controller/lib/transport/ble/ble-discovery'
@@ -159,7 +158,7 @@ export class HomekitController extends utils.Adapter {
         this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
 
-        this.instanceDataDir = utils.getAbsoluteInstanceDataDir(this);
+        this.instanceDataDir = utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter);
         try {
             if (!fs.existsSync(this.instanceDataDir)) {
                 fs.mkdirSync(this.instanceDataDir);
@@ -845,13 +844,17 @@ export class HomekitController extends utils.Adapter {
             const stateId = device.stateIdMap?.get(id);
             if (stateId) {
                 let value = characteristic.value as ioBroker.StateValue;
-                const stateFunc = this.stateFunctionsForId.get(`${this.namespace}.${stateId}`);
-                if (stateFunc?.converter?.read) {
-                    value = stateFunc.converter.read(value);
-                }
-                if (!this.config.updateOnlyChangedValues || (this.config.updateOnlyChangedValues && value !== this.lastValues[stateId])) {
-                    this.setState(stateId, value, true);
-                    this.lastValues[stateId] = value;
+                if (value === undefined) {
+                    this.log.debug(`${device.id} No value returned for for ${stateId} but status ${characteristic.status}`);
+                } else {
+                    const stateFunc = this.stateFunctionsForId.get(`${this.namespace}.${stateId}`);
+                    if (stateFunc?.converter?.read) {
+                        value = stateFunc.converter.read(value);
+                    }
+                    if (!this.config.updateOnlyChangedValues || (this.config.updateOnlyChangedValues && value !== this.lastValues[stateId])) {
+                        this.setState(stateId, value, true);
+                        this.lastValues[stateId] = value;
+                    }
                 }
             } else {
                 this.log.debug(`${device.id} No stateId found in map for ${JSON.stringify(characteristic)}`);
@@ -1036,7 +1039,11 @@ export class HomekitController extends utils.Adapter {
                             this.log.debug(`Device ${device.id}: Set Characteristic ${hapId} to ${JSON.stringify(value)}`);
                             try {
                                 const data: Record<string, any> = {};
-                                data[hapId] = value;
+                                if (typeof value === 'boolean') {
+                                    data[hapId] = value ? 1 : 0;
+                                } else {
+                                    data[hapId] = value;
+                                }
                                 const res = (await device.clientQueue?.add(
                                     async () =>
                                         await device.client?.setCharacteristics(data)
