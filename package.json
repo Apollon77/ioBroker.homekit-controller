@@ -21,7 +21,8 @@
     "bignumber.js": "^9.1.2",
     "debug": "^4.3.4",
     "hap-controller": "^0.10.1",
-    "@esm2cjs/p-queue": "^7.3.0"
+    "@esm2cjs/p-queue": "^7.3.0",
+    "@jey-cee/dm-utils": "^0.0.5"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^3.6.0",

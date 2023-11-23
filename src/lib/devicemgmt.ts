@@ -1,4 +1,4 @@
-/*import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from 'dm-utils';
+import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from '@jey-cee/dm-utils';
 import { HomekitController } from '../main';
 
 export class HomeKitDeviceManagement extends DeviceManagement<HomekitController> {
@@ -195,6 +195,7 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
         const confirm = await context.showConfirmation('Do you really want to Delete this device?');
         if (confirm) {
             // TODO
+            this.log.info(`Delete was confirmed for ${deviceId}`);
         }
         return { refresh: false };
     }
@@ -218,4 +219,4 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
     }
 
 }
-*/
+

@@ -47,6 +47,7 @@ const service_1 = require("hap-controller/lib/model/service");
 const category_1 = require("hap-controller/lib/model/category");
 const IPConstants = __importStar(require("hap-controller/lib/transport/ip/http-constants"));
 const converter_1 = __importDefault(require("./lib/converter"));
+const devicemgmt_1 = require("./lib/devicemgmt");
 const ignoredHapServices = [
     'public.hap.service.pairing',
     'public.hap.service.protocol.information.service',
@@ -68,7 +69,6 @@ function isSetCharacteristicErrorResponse(value) {
         value.characteristics[0].status;
 }
 class HomekitController extends utils.Adapter {
-    //private readonly deviceManagement: HomeKitDeviceManagement;
     constructor(options = {}) {
         super({
             ...options,
@@ -92,7 +92,7 @@ class HomekitController extends utils.Adapter {
             this.log.info(`Can not create pairing data storage directory ${this.instanceDataDir}. Pairing data can not be persisted!`);
         }
         this.bluetoothQueue = new p_queue_1.default({ concurrency: 1, timeout: 45000, throwOnTimeout: true });
-        //this.deviceManagement = new HomeKitDeviceManagement(this);
+        this.deviceManagement = new devicemgmt_1.HomeKitDeviceManagement(this);
     }
     setConnected(isConnected) {
         if (this.isConnected !== isConnected) {
