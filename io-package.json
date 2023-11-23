@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.8",
+    "version": "0.5.9",
     "news": {
+      "0.5.9": {
+        "en": "Prevent crash when a single value is returned as error status\nsend booleans always as 0/1 to make sure all devices handle it correctly\nUpdate dependencies",
+        "de": "Verhindern Sie Crash, wenn ein einzelner Wert als Fehlerstatus zurückgegeben wird\nsenden sie booleans immer als 0/1, um sicherzustellen, dass alle geräte richtig handhaben\nAbhängigkeiten aktualisieren",
+        "ru": "Предотвратить сбой, когда одно значение возвращается как статус ошибки\nотправьте booleans всегда как 0/1 для того чтобы убеждаться что все приборы отрегулируют его правильно\nОбновить зависимости",
+        "pt": "Evite o acidente quando um único valor é retornado como status de erro\nenviar booleanos sempre como 0/1 para certificar-se de que todos os dispositivos lidar corretamente\nDependências de atualização",
+        "nl": "Vertaling:\nstuur altijd booleans als 0/1 om ervoor te zorgen dat alle apparaten het correct aanpakken\nUpdate afhankelijkheid",
+        "fr": "Prévenir l'écrasement quand une seule valeur est retournée comme état d'erreur\nenvoyer des booléens toujours comme 0/1 pour s'assurer que tous les appareils le manipulent correctement\nMettre à jour les dépendances",
+        "it": "Prevenire crash quando un singolo valore viene restituito come stato di errore\ninviare booleans sempre come 0/1 per assicurarsi che tutti i dispositivi lo gestiscano correttamente\nDipendenze di aggiornamento",
+        "es": "Evitar el accidente cuando un solo valor se devuelve como estado de error\nenviar booleanos siempre como 0/1 para asegurarse de que todos los dispositivos manejan correctamente\nActualizar las dependencias",
+        "pl": "Powoduje to, że pojedyncza wartość zwraca się do statusu błędów\nposyłaniają zawsze 0/1 i sprawiają, że wszystkie urządzenia są poprawnie obsługiwane\nZależności aktualnej",
+        "uk": "Запобігти збитку при поверненні єдиного значення\nнадсилайте болеани завжди як 0/1, щоб переконатися, що всі пристрої ручать її правильно\nОновлення залежності",
+        "zh-cn": "当单一价值被送回为错误身份时,预防事故\n发出声音一如0.1,以确保所有装置都正确地处理。\n最新依赖"
+      },
       "0.5.8": {
         "en": "Update Noble to address CPU/RAM issues",
         "de": "Update Noble to Address CPU/RAM Probleme",
@@ -80,19 +93,6 @@
         "pl": "Pakiet GUI\nBiblioteka BLE",
         "uk": "Оновлені пакети GUI\nОновлення благородної бібліотеки BLE",
         "zh-cn": "A. 最新古伊一揽子计划\n高级图书馆"
-      },
-      "0.5.1": {
-        "en": "Optimizations for BLE connections",
-        "de": "Optimierungen für BLE-Verbindungen",
-        "ru": "Оптимизация для BLE соединений",
-        "pt": "Otimizações para conexões BLE",
-        "nl": "Optimatie voor BLE connecties",
-        "fr": "Optimisation des connexions BLE",
-        "it": "Ottimizzazione per connessioni BLE",
-        "es": "Optimizaciones para conexiones BLE",
-        "pl": "Optymizacja połączeń BLE",
-        "zh-cn": "B. 利用低地连接",
-        "uk": "Оптимізація підключення BLE"
       }
     },
     "title": "HomeKit Controller",

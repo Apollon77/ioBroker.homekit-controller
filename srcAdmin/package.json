@@ -1,6 +1,6 @@
 {
     "name": "homekit-controller-admin",
-    "version": "0.5.8",
+    "version": "0.5.9",
     "private": true,
     "dependencies": {
         "@iobroker/adapter-react-v5": "^4.7.3",
