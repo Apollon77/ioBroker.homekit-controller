@@ -1,4 +1,4 @@
-import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from '@jey-cee/dm-utils';
+import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails, DeviceStatus } from '@iobroker/dm-utils';
 import { HomekitController } from '../main';
 
 export class HomeKitDeviceManagement extends DeviceManagement<HomekitController> {
@@ -39,11 +39,11 @@ export class HomeKitDeviceManagement extends DeviceManagement<HomekitController>
                 {
                     icon: device
                         .serviceType === 'IP' ? (device.connected ? 'fa-solid fa-wifi' : 'fa-solid fa-wifi-slash') : (device.connected ? 'fa-solid fa-bluetooth' : 'data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTMgNS44M2wxLjg4IDEuODgtMS42IDEuNiAxLjQxIDEuNDEgMy4wMi0zLjAyTDEyIDJoLTF2NS4wM2wyIDJ2LTMuMnpNNS40MSA0TDQgNS40MSAxMC41OSAxMiA1IDE3LjU5IDYuNDEgMTkgMTEgMTQuNDFWMjJoMWw0LjI5LTQuMjkgMi4zIDIuMjlMMjAgMTguNTkgNS40MSA0ek0xMyAxOC4xN3YtMy43NmwxLjg4IDEuODhMMTMgMTguMTd6Ii8+PC9zdmc+'),
-                    description: 'Connection type and Status'
+                    //description: 'Connection type and Status'
                 },
                 {
                     icon: device.discovered ? 'fas fa-eye' : '',
-                    description: 'Discovered Status'
+                    //description: 'Discovered Status'
                 }
             ];
             const data: DeviceInfo = {
