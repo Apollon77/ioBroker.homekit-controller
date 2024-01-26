@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.9",
+    "version": "0.5.10",
     "news": {
+      "0.5.10": {
+        "en": "Fix user interface",
+        "de": "Benutzeroberfläche reparieren",
+        "ru": "Исправить пользовательский интерфейс",
+        "pt": "Corrigir interface de usuário",
+        "nl": "Gebruikersinterface herstellen",
+        "fr": "Correction de l'interface utilisateur",
+        "it": "Fissa l'interfaccia utente",
+        "es": "Configurar la interfaz de usuario",
+        "pl": "Napraw interfejs użytkownika",
+        "uk": "Виправлення інтерфейсу користувача",
+        "zh-cn": "修复用户界面"
+      },
       "0.5.9": {
         "en": "Prevent crash when a single value is returned as error status\nsend booleans always as 0/1 to make sure all devices handle it correctly\nUpdate dependencies",
         "de": "Verhindern Sie Crash, wenn ein einzelner Wert als Fehlerstatus zurückgegeben wird\nsenden sie booleans immer als 0/1, um sicherzustellen, dass alle geräte richtig handhaben\nAbhängigkeiten aktualisieren",
@@ -80,19 +93,6 @@
         "pl": "Reklamowany TAB Background",
         "uk": "Правильний активний TAB фон",
         "zh-cn": "B. 适应积极经验"
-      },
-      "0.5.2": {
-        "en": "Updated GUI packages\nUpgraded noble BLE library",
-        "de": "Aktualisierte GUI-Pakete\nAufgerüstete edle Bibliothek BLE",
-        "ru": "Обновленные пакеты GUI\nUpgraded благородная библиотека BLE",
-        "pt": "Pacotes de GUI atualizados\nBiblioteca BLE nobre atualizada",
-        "nl": "Update GUI pakketten\nQuality over Quantity (QoQ) Releases Vertaling:",
-        "fr": "Paquets GUI mis à jour\nBibliothèque BLE haut de gamme",
-        "it": "Pacchetti GUI aggiornati\nLibreria BLE nobile potenziata",
-        "es": "Paquetes GUI actualizados\nBiblioteca BLE de calidad",
-        "pl": "Pakiet GUI\nBiblioteka BLE",
-        "uk": "Оновлені пакети GUI\nОновлення благородної бібліотеки BLE",
-        "zh-cn": "A. 最新古伊一揽子计划\n高级图书馆"
       }
     },
     "title": "HomeKit Controller",

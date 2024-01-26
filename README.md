@@ -110,7 +110,7 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-### __WORK IN PROGRESS__
+### 0.5.10 (2024-01-26)
 * (bluefox) Fix user interface
 
 ### 0.5.9 (2023-11-23)
