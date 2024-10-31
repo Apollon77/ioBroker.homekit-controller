@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getStateObject = exports.getChannelObject = exports.getDeviceObject = exports.getFolderObject = exports.buildObject = void 0;
+exports.buildObject = buildObject;
+exports.getFolderObject = getFolderObject;
+exports.getDeviceObject = getDeviceObject;
+exports.getChannelObject = getChannelObject;
+exports.getStateObject = getStateObject;
 const templates = {
     'device': {
         type: 'device',
@@ -166,21 +170,16 @@ function buildObject(template, name, value, common, native) {
     }
     return obj;
 }
-exports.buildObject = buildObject;
 function getFolderObject(name, common, native) {
     return buildObject('folder', name, undefined, common, native);
 }
-exports.getFolderObject = getFolderObject;
 function getDeviceObject(name, common, native) {
     return buildObject('device', name, undefined, common, native);
 }
-exports.getDeviceObject = getDeviceObject;
 function getChannelObject(name, common, native) {
     return buildObject('channel', name, undefined, common, native);
 }
-exports.getChannelObject = getChannelObject;
 function getStateObject(template, name, value, common, native) {
     return buildObject(template, name, value, common, native);
 }
-exports.getStateObject = getStateObject;
 //# sourceMappingURL=objectDefaults.js.map

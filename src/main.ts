@@ -27,6 +27,8 @@ import { serviceFromUuid } from 'hap-controller/lib/model/service';
 import { categoryFromId } from 'hap-controller/lib/model/category';
 import * as IPConstants from 'hap-controller/lib/transport/ip/http-constants';
 import Converters from './lib/converter';
+import { EventEmitter } from 'events';
+
 //import { HomeKitDeviceManagement } from './lib/devicemgmt';
 //     "dm-utils": "https://github.com/UncleSamSwiss/dm-utils"
 interface HapDeviceBase {
@@ -1193,8 +1195,8 @@ export class HomekitController extends utils.Adapter {
         if (device.service) {
             device.service.availableToPair = true;
         }
-        device.client.removeAllListeners('event');
-        device.client.removeAllListeners('event-disconnect');
+        (device.client as EventEmitter).removeAllListeners('event');
+        (device.client as EventEmitter).removeAllListeners('event-disconnect');
         delete device.client;
         this.setDeviceConnected(device, false);
 

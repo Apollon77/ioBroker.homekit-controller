@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addCharacteristicObjects = exports.addServiceObjects = exports.addAccessoryObjects = void 0;
+exports.addAccessoryObjects = addAccessoryObjects;
+exports.addServiceObjects = addServiceObjects;
+exports.addCharacteristicObjects = addCharacteristicObjects;
 const category_1 = require("hap-controller/lib/model/category");
 const service_1 = require("hap-controller/lib/model/service");
 const characteristic_1 = require("hap-controller/lib/model/characteristic");
@@ -241,7 +243,6 @@ function addAccessoryObjects(device, objs, accessory) {
     }
     objs.set(`${device.id}.${accessory.aid}`, (0, objectDefaults_1.getDeviceObject)(accessoryName, undefined, { aid: accessory.aid.toFixed() }));
 }
-exports.addAccessoryObjects = addAccessoryObjects;
 function addServiceObjects(device, objs, accessory, service) {
     let serviceName = (0, service_1.serviceFromUuid)(service.type);
     if (serviceName.startsWith('public.hap.service.')) {
@@ -264,7 +265,6 @@ function addServiceObjects(device, objs, accessory, service) {
     objs.set(`${device.id}.${accessory.aid}.${serviceName}.serviceLinked`, getStateObject('array', 'Linked Services', linkedServices, {write: false}));
     */
 }
-exports.addServiceObjects = addServiceObjects;
 function addCharacteristicObjects(device, objs, accessory, service, characteristic) {
     if (!characteristic.type) {
         return undefined;
@@ -322,7 +322,6 @@ function addCharacteristicObjects(device, objs, accessory, service, characterist
     objs.set(id, (0, objectDefaults_1.getStateObject)('state', characteristicName, characteristic.value, objCommon, objNative));
     return id;
 }
-exports.addCharacteristicObjects = addCharacteristicObjects;
 function getCommonForCharacteristic(characteristic) {
     var _a, _b;
     const common = {
