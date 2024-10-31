@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "homekit-controller",
-    "version": "0.5.10",
+    "version": "0.5.11",
     "news": {
+      "0.5.11": {
+        "en": "Stability and compatibility improvements for BLE",
+        "de": "Stabilität und Kompatibilität von BLE",
+        "ru": "Улучшения стабильности и совместимости для BLE",
+        "pt": "Melhorias de estabilidade e compatibilidade para BLE",
+        "nl": "Stabiliteits- en compatibiliteitsverbeteringen voor BLE",
+        "fr": "Amélioration de la stabilité et de la compatibilité pour BLE",
+        "it": "Miglioramenti di stabilità e compatibilità per BLE",
+        "es": "Mejoras de estabilidad y compatibilidad para BLE",
+        "pl": "Stabilność i poprawa kompatybilności dla BLE",
+        "uk": "Покращення стабільності та сумісності для BLE",
+        "zh-cn": "BLE的稳定性和兼容性改进"
+      },
       "0.5.10": {
         "en": "Fix user interface",
         "de": "Benutzeroberfläche reparieren",
@@ -80,19 +93,6 @@
         "pl": "Biblioteka zdegradowana ponownie",
         "uk": "Бібліотека Downgrade",
         "zh-cn": "Down职等崇高图书馆"
-      },
-      "0.5.3": {
-        "en": "Corrected active TAB Background",
-        "de": "Aktiver TAB Hintergrund korrigiert",
-        "ru": "Правильный активный фон TAB",
-        "pt": "Fundo ativo corrigido do TAB",
-        "nl": "Vertaling:",
-        "fr": "Contexte de l'ACR actif corrigé",
-        "it": "Corretto sfondo attivo TAB",
-        "es": "Fondo TAB activo corregido",
-        "pl": "Reklamowany TAB Background",
-        "uk": "Правильний активний TAB фон",
-        "zh-cn": "B. 适应积极经验"
       }
     },
     "title": "HomeKit Controller",
