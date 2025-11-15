@@ -129,7 +129,10 @@
       "homekit",
       "hap"
     ],
-    "license": "MIT",
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
     "platform": "Javascript/Node.js",
     "icon": "homekit-controller.png",
     "enabled": true,
