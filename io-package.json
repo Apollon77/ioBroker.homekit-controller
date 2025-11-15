@@ -139,6 +139,7 @@
     "extIcon": "https://raw.githubusercontent.com/Apollon77/ioBroker.homekit-controller/master/admin/homekit-controller.png",
     "readme": "https://github.com/Apollon77/ioBroker.homekit-controller/blob/master/README.md",
     "loglevel": "info",
+    "tier": 2,
     "mode": "daemon",
     "type": "iot-systems",
     "compact": true,
