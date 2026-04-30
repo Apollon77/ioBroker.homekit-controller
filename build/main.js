@@ -631,6 +631,8 @@ class HomekitController extends utils.Adapter {
             this.log.debug(`Device ${device.id} no subscriptions to initialize`);
             return;
         }
+        device.client.removeAllListeners('event');
+        device.client.removeAllListeners('event-disconnect');
         device.client.on('event', event => {
             if (device.stopping) {
                 return;
@@ -723,6 +725,7 @@ class HomekitController extends utils.Adapter {
                         }
                         await ((_c = device.client) === null || _c === void 0 ? void 0 : _c.close());
                         await this.initDevice(device);
+                        device.errorCounter = 0;
                     }
                 }
             }

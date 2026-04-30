@@ -742,6 +742,9 @@ export class HomekitController extends utils.Adapter {
             return;
         }
 
+        device.client.removeAllListeners('event');
+        device.client.removeAllListeners('event-disconnect');
+
         device.client.on('event', event => {
             if (device.stopping) {
                 return;
@@ -831,6 +834,7 @@ export class HomekitController extends utils.Adapter {
                         }
                         await device.client?.close();
                         await this.initDevice(device);
+                        device.errorCounter = 0;
                     }
                 }
             }
