@@ -196,6 +196,8 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 ### 0.0.x
 * (Apollon77) Initial commit and Alpha GitHub testing
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 MIT License
 
