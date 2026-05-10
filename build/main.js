@@ -464,7 +464,7 @@ class HomekitController extends utils.Adapter {
             // ignore
         }
     }
-    async initDevice(device, configChanged = false) {
+    async initDevice(device, _configChanged = false) {
         var _a, _b, _c, _d;
         if (device.initInProgress) {
             this.log.debug(`${device.id} Device initialization already in progress ... ignore call`);
@@ -473,7 +473,13 @@ class HomekitController extends utils.Adapter {
         device.initInProgress = true;
         device.stopping = false;
         this.devices.set(device.id, device);
-        if ((configChanged || device.connected) && device.client) {
+        if (device.client) {
+            // Always clean up the existing client, regardless of device.connected.
+            // When event-disconnect fires, connected is already false — skipping cleanup
+            // here caused the stale HttpClient (with a broken TCP connection) to be
+            // reused on every reconnect while a new PQueue was created each time.
+            // The unreleased connection resources accumulated and drove the adapter to
+            // a JavaScript heap out-of-memory crash after several hours.
             this.log.debug(`${device.id} Re-Init requested ...`);
             if (device.serviceType === 'IP') {
                 try {
@@ -494,29 +500,27 @@ class HomekitController extends utils.Adapter {
             delete device.client;
             this.setDeviceConnected(device, false);
         }
-        else {
-            if (!device.pairingData) {
-                const pairingDataFileExists = this.storedPairingDataExists(device);
-                if (device.service && !device.service.availableToPair) {
-                    if (pairingDataFileExists) {
-                        device.pairingData = this.loadPairingData(device);
-                    }
-                    if (!device.pairingData) {
-                        this.log.info(`${device.id} (${device.service.name}) found without known pairing data and already paired: ignoring`);
-                        device.initInProgress = false;
-                        return;
-                    }
-                    else {
-                        this.log.info(`${device.id} Found stored Pairing data, try it ...`);
-                    }
+        if (!device.pairingData) {
+            const pairingDataFileExists = this.storedPairingDataExists(device);
+            if (device.service && !device.service.availableToPair) {
+                if (pairingDataFileExists) {
+                    device.pairingData = this.loadPairingData(device);
                 }
-                else {
-                    this.log.info(`${device.id} (${(_c = device.service) === null || _c === void 0 ? void 0 : _c.name}) found without pairing data but available for pairing: Create basic objects`);
-                    const objs = await this.buildBasicUnpairedDeviceObjects(device);
-                    await this.createObjects(device, objs);
+                if (!device.pairingData) {
+                    this.log.info(`${device.id} (${device.service.name}) found without known pairing data and already paired: ignoring`);
                     device.initInProgress = false;
                     return;
                 }
+                else {
+                    this.log.info(`${device.id} Found stored Pairing data, try it ...`);
+                }
+            }
+            else {
+                this.log.info(`${device.id} (${(_c = device.service) === null || _c === void 0 ? void 0 : _c.name}) found without pairing data but available for pairing: Create basic objects`);
+                const objs = await this.buildBasicUnpairedDeviceObjects(device);
+                await this.createObjects(device, objs);
+                device.initInProgress = false;
+                return;
             }
         }
         if (!this.initDeviceClient(device)) {
