@@ -689,6 +689,20 @@ class HomekitController extends utils.Adapter {
             this.log.info(`Device ${device.id} subscribing for updates failed: ${err.message}`);
         }
     }
+    getDataPollingErrorReconnectThreshold() {
+        const configuredValue = this.config.dataPollingErrorReconnectThreshold;
+        if (configuredValue === undefined ||
+            configuredValue === null ||
+            (typeof configuredValue === 'string' && configuredValue.trim() === '') ||
+            (typeof configuredValue !== 'number' && typeof configuredValue !== 'string')) {
+            return 4;
+        }
+        const value = Number(configuredValue);
+        if (!Number.isFinite(value)) {
+            return 4;
+        }
+        return Math.max(1, Math.floor(value));
+    }
     scheduleCharacteristicsUpdate(device, delay, aid) {
         if (device.dataPollingInterval) {
             clearTimeout(device.dataPollingInterval);
@@ -729,8 +743,9 @@ class HomekitController extends utils.Adapter {
                         (_a = device.client) === null || _a === void 0 ? void 0 : _a.closePersistentConnection();
                     }
                     this.setDeviceConnected(device, false);
-                    if (device.errorCounter > 3) {
-                        this.log.warn(`Device ${device.id} had too many errors, reinitialize connection`);
+                    const threshold = this.getDataPollingErrorReconnectThreshold();
+                    if (device.errorCounter >= threshold) {
+                        this.log.warn(`Device ${device.id} had too many polling errors (${device.errorCounter}/${threshold}), reinitialize connection`);
                         await this.resetDeviceClient(device, false);
                         await this.initDevice(device);
                     }
