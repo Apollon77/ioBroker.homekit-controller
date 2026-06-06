@@ -57,7 +57,7 @@ class Options extends Component {
         this.state = {};
     }
 
-    renderInput(title, attr, type, helpText) {
+    renderInput(title, attr, type, helpText, inputProps) {
         return <TextField
             variant="standard"
             label={I18n.t(title) }
@@ -65,6 +65,7 @@ class Options extends Component {
             value={this.props.native[attr]}
             type={type || 'text'}
             helperText={helpText || ''}
+            inputProps={inputProps}
             onChange={e => this.props.onChange(attr, e.target.value)}
             margin="normal"
         />;
@@ -99,6 +100,13 @@ class Options extends Component {
                 <br/>
                 {this.renderInput('Data polling interval for IP', 'dataPollingIntervalIp', 'number', I18n.t('seconds'))}<br/>
                 {this.renderInput('Data polling interval for Bluetooth', 'dataPollingIntervalBle', 'number', I18n.t('seconds'))}<br/>
+                {this.renderInput(
+                    'Polling error reconnect threshold',
+                    'dataPollingErrorReconnectThreshold',
+                    'number',
+                    I18n.t('Number of consecutive polling errors before the device connection is reset and reinitialized. Use 1 for immediate reconnect after the first polling error.'),
+                    {min: 1, step: 1}
+                )}<br/>
                 {this.renderCheckbox('Update only changed values', 'updateOnlyChangedValues')}
             </div>
         </form>;

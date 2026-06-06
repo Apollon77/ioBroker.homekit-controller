@@ -8,6 +8,7 @@ declare global {
             discoverBle: boolean;
             dataPollingIntervalIp: number;
             dataPollingIntervalBle: number;
+            dataPollingErrorReconnectThreshold: number;
             bleInterface: string;
             updateOnlyChangedValues: boolean;
         }

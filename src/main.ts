@@ -511,7 +511,7 @@ export class HomekitController extends utils.Adapter {
             })}`);
         }
         hapDevice.service = service;
-        await this.initDevice(hapDevice, configChanged);
+        await this.initDevice(hapDevice);
     }
 
     private getPairingDataFilename(id: string): string {
@@ -556,7 +556,50 @@ export class HomekitController extends utils.Adapter {
         }
     }
 
-    private async initDevice(device: HapDevice, configChanged = false): Promise<void> {
+    private async resetDeviceClient(device: HapDevice, unsubscribe = true): Promise<void> {
+        this.log.debug(`${device.id} Reset HomeKit device client`);
+
+        if (device.dataPollingInterval) {
+            clearTimeout(device.dataPollingInterval);
+            delete device.dataPollingInterval;
+        }
+
+        const client = device.client;
+        const clientQueue = device.clientQueue;
+
+        if (client) {
+            if (device.serviceType === 'IP') {
+                (client as EventEmitter).removeAllListeners('event');
+                (client as EventEmitter).removeAllListeners('event-disconnect');
+                device.subscriptionsInitialized = false;
+
+                // Prevent pending operations from using a replacement client after this reset.
+                clientQueue?.clear();
+
+                if (unsubscribe) {
+                    try {
+                        await client.unsubscribeCharacteristics();
+                    } catch {
+                        // The client may already be unusable, so cleanup errors are intentionally ignored.
+                    }
+                }
+            }
+
+            try {
+                await client.close();
+            } catch {
+                // The client may already be unusable, so cleanup errors are intentionally ignored.
+            }
+        }
+
+        delete device.client;
+        delete device.clientQueue;
+        device.errorCounter = 0;
+        device.subscriptionsInitialized = false;
+        this.setDeviceConnected(device, false);
+    }
+
+    private async initDevice(device: HapDevice): Promise<void> {
         if (device.initInProgress) {
             this.log.debug(`${device.id} Device initialization already in progress ... ignore call`);
             return;
@@ -566,46 +609,30 @@ export class HomekitController extends utils.Adapter {
 
         this.devices.set(device.id, device);
 
-        if ((configChanged || device.connected) && device.client) {
+        if (device.client) {
             this.log.debug(`${device.id} Re-Init requested ...`);
-            if (device.serviceType === 'IP') {
-                try {
-                    await device.clientQueue?.add(async () => await device.client?.unsubscribeCharacteristics());
-                } catch {
-                    // ignore
+            await this.resetDeviceClient(device);
+        }
+
+        if (!device.pairingData) {
+            const pairingDataFileExists = this.storedPairingDataExists(device);
+            if (device.service && !device.service!.availableToPair) {
+                if (pairingDataFileExists) {
+                    device.pairingData = this.loadPairingData(device);
                 }
-                device.client.removeAllListeners('event');
-                device.client.removeAllListeners('event-disconnect');
-                device.subscriptionsInitialized = false;
-            }
-            if (device.dataPollingInterval) {
-                clearTimeout(device.dataPollingInterval);
-                delete device.dataPollingInterval;
-            }
-            device.client?.close();
-            delete device.client;
-            this.setDeviceConnected(device, false);
-        } else {
-            if (!device.pairingData) {
-                const pairingDataFileExists = this.storedPairingDataExists(device);
-                if (device.service && !device.service!.availableToPair) {
-                    if (pairingDataFileExists) {
-                        device.pairingData = this.loadPairingData(device);
-                    }
-                    if (!device.pairingData) {
-                        this.log.info(`${device.id} (${device.service.name}) found without known pairing data and already paired: ignoring`);
-                        device.initInProgress = false;
-                        return;
-                    } else {
-                        this.log.info(`${device.id} Found stored Pairing data, try it ...`);
-                    }
-                } else {
-                    this.log.info(`${device.id} (${device.service?.name}) found without pairing data but available for pairing: Create basic objects`);
-                    const objs = await this.buildBasicUnpairedDeviceObjects(device);
-                    await this.createObjects(device, objs);
+                if (!device.pairingData) {
+                    this.log.info(`${device.id} (${device.service.name}) found without known pairing data and already paired: ignoring`);
                     device.initInProgress = false;
                     return;
+                } else {
+                    this.log.info(`${device.id} Found stored Pairing data, try it ...`);
                 }
+            } else {
+                this.log.info(`${device.id} (${device.service?.name}) found without pairing data but available for pairing: Create basic objects`);
+                const objs = await this.buildBasicUnpairedDeviceObjects(device);
+                await this.createObjects(device, objs);
+                device.initInProgress = false;
+                return;
             }
         }
 
@@ -766,8 +793,8 @@ export class HomekitController extends utils.Adapter {
                 device.subscriptionsInitialized = true;
                 this.setDeviceConnected(device, true);
             } catch (err) {
-                this.setDeviceConnected(device, false);
                 this.log.info(`${device.id} Resubscribe not successful, reinitialize device`);
+                await this.resetDeviceClient(device, false);
                 await this.initDevice(device);
             }
         });
@@ -779,6 +806,24 @@ export class HomekitController extends utils.Adapter {
         } catch (err) {
             this.log.info(`Device ${device.id} subscribing for updates failed: ${err.message}`);
         }
+    }
+
+    private getDataPollingErrorReconnectThreshold(): number {
+        const configuredValue: unknown = this.config.dataPollingErrorReconnectThreshold;
+        if (
+            configuredValue === undefined ||
+            configuredValue === null ||
+            (typeof configuredValue === 'string' && configuredValue.trim() === '') ||
+            (typeof configuredValue !== 'number' && typeof configuredValue !== 'string')
+        ) {
+            return 4;
+        }
+
+        const value = Number(configuredValue);
+        if (!Number.isFinite(value)) {
+            return 4;
+        }
+        return Math.max(1, Math.floor(value));
     }
 
     private scheduleCharacteristicsUpdate(device: HapDevice, delay?: number, aid?: string | number): void {
@@ -819,17 +864,11 @@ export class HomekitController extends utils.Adapter {
                     }
                     this.setDeviceConnected(device, false);
 
-                    if (device.errorCounter > 3) {
-                        this.log.warn(`Device ${device.id} had too many errors, reinitialize connection`);
+                    const threshold = this.getDataPollingErrorReconnectThreshold();
+                    if (device.errorCounter >= threshold) {
+                        this.log.warn(`Device ${device.id} had too many polling errors (${device.errorCounter}/${threshold}), reinitialize connection`);
 
-                        if (device.serviceType === 'IP') {
-                            try {
-                                await device.clientQueue?.add(async () => await device.client?.unsubscribeCharacteristics());
-                            } catch {
-                                // ignore
-                            }
-                        }
-                        await device.client?.close();
+                        await this.resetDeviceClient(device, false);
                         await this.initDevice(device);
                     }
                 }
