@@ -171,6 +171,7 @@
     "discoverBle": false,
     "dataPollingIntervalIp": 30,
     "dataPollingIntervalBle": 60,
+    "dataPollingErrorReconnectThreshold": 4,
     "bleInterface": "",
     "updateOnlyChangedValues": true
   },
