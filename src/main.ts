@@ -3,8 +3,8 @@
  */
 
 import * as utils from '@iobroker/adapter-core';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import BigNumber from 'bignumber.js';
 import IPDiscovery from 'hap-controller/lib/transport/ip/ip-discovery';
 import { HapServiceIp } from 'hap-controller/lib/transport/ip/ip-discovery';
@@ -27,7 +27,7 @@ import { serviceFromUuid } from 'hap-controller/lib/model/service';
 import { categoryFromId } from 'hap-controller/lib/model/category';
 import * as IPConstants from 'hap-controller/lib/transport/ip/http-constants';
 import Converters from './lib/converter';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 
 //import { HomeKitDeviceManagement } from './lib/devicemgmt';
 //     "dm-utils": "https://github.com/UncleSamSwiss/dm-utils"
