@@ -281,7 +281,7 @@ export function addCharacteristicObjects(device: HapDevice, objs: Map<string, io
     }
 
     let characteristicName = characteristicFromUuid(characteristic.type);
-    const iobrokerCommon = CharacteristicToIoBrokerMap[characteristicName] || {};
+    const iobrokerCommon = {...(CharacteristicToIoBrokerMap[characteristicName] || {})};
     if (typeof iobrokerCommon.name === 'string') {
         characteristicName = iobrokerCommon.name;
         delete iobrokerCommon.name;
