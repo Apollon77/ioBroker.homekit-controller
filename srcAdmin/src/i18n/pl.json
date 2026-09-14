@@ -15,7 +15,7 @@
     "Category": "Kategoria",
     "Please enter PIN": "Wprowadź kod PIN",
     "PIN": "SZPILKA",
-    "Close": "Zamknij",
+    "Close": "Zamknąć",
     "Instance must be started to set up the devices": "Aby skonfigurować urządzenia, należy uruchomić instancję",
     "Start?": "Początek?",
     "Discover over IP": "Odkryj przez IP",
@@ -28,5 +28,5 @@
     "seconds": "sekund",
     "Are you sure?": "Jesteś pewny?",
     "Please confirm": "Proszę potwierdzić",
-    "Cancel": "Odwołaj"
+    "Cancel": "Anulować"
 }
