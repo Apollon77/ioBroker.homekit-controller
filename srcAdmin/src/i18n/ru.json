@@ -3,7 +3,7 @@
     "Paired": "Связанный",
     "Unpaired": "Неспаренный",
     "Identified": "Выявлено",
-    "Connected": "Связан",
+    "Connected": "Соединено",
     "Discovered": "Обнаруженный",
     "Identify": "Идентифицировать",
     "Pair": "Привязать",
@@ -25,7 +25,7 @@
     "Update only changed values": "Обновлять только измененные значения",
     "Options": "Параметры",
     "Devices": "Устройства",
-    "seconds": "секунды",
+    "seconds": "секунд",
     "Are you sure?": "Вы уверены?",
     "Please confirm": "Пожалуйста подтвердите",
     "Cancel": "Отмена"

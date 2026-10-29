@@ -11,7 +11,7 @@
     "Refresh devices list": "刷新设备列表",
     "ID": "ID",
     "Type": "类型",
-    "Name": "名称",
+    "Name": "姓名",
     "Category": "类别",
     "Please enter PIN": "请输入密码",
     "PIN": "别针",
@@ -25,7 +25,7 @@
     "Update only changed values": "仅更新更改的值",
     "Options": "选项",
     "Devices": "设备",
-    "seconds": "秒",
+    "seconds": "秒数",
     "Are you sure?": "你确定吗？",
     "Please confirm": "请确认",
     "Cancel": "取消"
