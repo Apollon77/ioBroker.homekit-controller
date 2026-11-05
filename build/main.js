@@ -100,11 +100,16 @@ class HomekitController extends utils.Adapter {
             this.setState('info.connection', this.isConnected, true);
         }
     }
-    setDeviceConnected(device, isConnected) {
+    /**
+     * Update the in-memory connection flag of a device and the info.connected state.
+     * The state is only written when the flag changes, unless force is set. Use force
+     * at the end of an (re)initialization to make sure state and flag are in sync again.
+     */
+    setDeviceConnected(device, isConnected, force = false) {
         if (!isConnected && device.subscriptionsInitialized) {
             isConnected = true;
         }
-        if (device.connected !== isConnected) {
+        if (force || device.connected !== isConnected) {
             device.connected = isConnected;
             this.setState(`${device.id}.info.connected`, isConnected, true);
             let globalConnected = true;
@@ -514,6 +519,7 @@ class HomekitController extends utils.Adapter {
                     this.log.info(`${device.id} (${(_c = device.service) === null || _c === void 0 ? void 0 : _c.name}) found without pairing data but available for pairing: Create basic objects`);
                     const objs = await this.buildBasicUnpairedDeviceObjects(device);
                     await this.createObjects(device, objs);
+                    this.setDeviceConnected(device, false, true);
                     device.initInProgress = false;
                     return;
                 }
@@ -528,7 +534,7 @@ class HomekitController extends utils.Adapter {
             this.log.debug(`${device.id} Request Accessory information`);
             const deviceData = await ((_d = device.clientQueue) === null || _d === void 0 ? void 0 : _d.add(async () => { var _a; return await ((_a = device.client) === null || _a === void 0 ? void 0 : _a.getAccessories()); }));
             if (!deviceData) {
-                this.setDeviceConnected(device, false);
+                this.setDeviceConnected(device, false, true);
                 this.log.info(`${device.id} Could not load device accessories ... TODO`);
                 device.initInProgress = false;
                 return;
@@ -536,7 +542,10 @@ class HomekitController extends utils.Adapter {
             this.log.debug(`${device.id} Accessory Structure: ${JSON.stringify(deviceData)}`);
             const accessoryObjects = this.buildPairedDeviceAccessoryObjects(device, deviceData);
             await this.createObjects(device, new Map([...baseObjects, ...accessoryObjects]));
-            this.setDeviceConnected(device, true);
+            // Force the state write: a data polling or resubscribe that completed while the
+            // objects were (re)created may already have set device.connected to true, and the
+            // state must reflect the result of this initialization in any case.
+            this.setDeviceConnected(device, true, true);
             this.initSupportingMaps(device, accessoryObjects);
             await this.initSubscriptions(device);
             this.scheduleCharacteristicsUpdate(device);
@@ -544,7 +553,7 @@ class HomekitController extends utils.Adapter {
         }
         catch (err) {
             this.log.warn(`${device.id} Could not initialize device: ${err.message} ${err.stack}`);
-            this.setDeviceConnected(device, false);
+            this.setDeviceConnected(device, false, true);
         }
         device.initInProgress = false;
     }
@@ -631,6 +640,11 @@ class HomekitController extends utils.Adapter {
             this.log.debug(`Device ${device.id} no subscriptions to initialize`);
             return;
         }
+        // The client is reused when a device is reinitialized after a failed resubscribe
+        // (device.connected is already false then), so listeners of the previous
+        // initialization are still registered and would accumulate.
+        device.client.removeAllListeners('event');
+        device.client.removeAllListeners('event-disconnect');
         device.client.on('event', event => {
             if (device.stopping) {
                 return;
@@ -790,7 +804,10 @@ class HomekitController extends utils.Adapter {
         if (device.serviceType === 'IP') {
             objs.set(`${device.id}.info.address`, ObjectDefaults.getStateObject('string', 'IP Address', (_c = device.service) === null || _c === void 0 ? void 0 : _c.address, { role: 'info.ip', write: false }));
         }
-        objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator.reachable', 'Connected', device.connected, { write: false }));
+        // No value here: info.connected is maintained by setDeviceConnected() only. A snapshot of
+        // device.connected taken here is stale by the time createObjects() writes it (the device
+        // may have reconnected meanwhile) and would leave state and in-memory flag out of sync.
+        objs.set(`${device.id}.info.connected`, ObjectDefaults.getStateObject('indicator.reachable', 'Connected', undefined, { write: false }));
         objs.set(`${device.id}.admin`, ObjectDefaults.getChannelObject('Administration'));
         objs.set(`${device.id}.admin.isPaired`, ObjectDefaults.getStateObject('indicator', 'Paired with this Instance?', !!device.pairingData));
         objs.set(`${device.id}.info.lastDiscovered`, ObjectDefaults.getStateObject('timestamp', 'Last Discovered', Date.now()));
