@@ -110,6 +110,10 @@ When you have issues and want to report an Issue (see below) then enhanced debug
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (jtolksdo) Fix `info.connected` staying `false` after a device re-initialization although the device is connected and polled (state and in-memory flag got out of sync)
+* (jtolksdo) Remove stale `event`/`event-disconnect` listeners when a device is re-initialized on a reused client (listeners accumulated after every failed resubscribe)
+
 ### 0.5.11 (2024-10-31)
 * (Apollon77) Stability and compatibility improvements for BLE
 
